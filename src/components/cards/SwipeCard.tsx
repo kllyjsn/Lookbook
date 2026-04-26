@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, useMotionValue, useTransform, animate, type PanInfo } from "framer-motion";
 import { Heart, X, ShoppingBag, Bookmark } from "lucide-react";
 import type { Look } from "../../data/mockData";
@@ -27,6 +27,13 @@ export function SwipeCard({
   const containerRef = useRef<HTMLDivElement>(null);
   const lastTapRef = useRef(0);
   const isDraggingRef = useRef(false);
+  const tapTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
+
+  useEffect(() => {
+    return () => {
+      if (tapTimeoutRef.current) clearTimeout(tapTimeoutRef.current);
+    };
+  }, []);
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -46,14 +53,17 @@ export function SwipeCard({
     const velocity = 0.5;
 
     if (info.offset.y < -threshold || info.velocity.y < -velocity) {
+      if (tapTimeoutRef.current) clearTimeout(tapTimeoutRef.current);
       setExitDirection("up");
       animate(y, -1000, { duration: 0.3 });
       setTimeout(onSwipeUp, 300);
     } else if (info.offset.x > threshold || info.velocity.x > velocity) {
+      if (tapTimeoutRef.current) clearTimeout(tapTimeoutRef.current);
       setExitDirection("right");
       animate(x, 1000, { duration: 0.3 });
       setTimeout(onSwipeRight, 300);
     } else if (info.offset.x < -threshold || info.velocity.x < -velocity) {
+      if (tapTimeoutRef.current) clearTimeout(tapTimeoutRef.current);
       setExitDirection("left");
       animate(x, -1000, { duration: 0.3 });
       setTimeout(onSwipeLeft, 300);
@@ -76,12 +86,13 @@ export function SwipeCard({
     lastTapRef.current = now;
 
     if (timeSinceLastTap < 300) {
+      if (tapTimeoutRef.current) clearTimeout(tapTimeoutRef.current);
       const rect = containerRef.current?.getBoundingClientRect();
       const relX = e.clientX - (rect?.left ?? 0);
       const relY = e.clientY - (rect?.top ?? 0);
       onDoubleTap(relX, relY);
     } else {
-      setTimeout(() => {
+      tapTimeoutRef.current = setTimeout(() => {
         if (Date.now() - lastTapRef.current >= 290) {
           onTap();
         }

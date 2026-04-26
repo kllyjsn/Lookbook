@@ -63,14 +63,18 @@ export function OnboardingPage() {
     };
 
     const totalSelected = selectedStyles.length || 1;
+    const numOthers = 6 - totalSelected;
     const basePercent = Math.floor(80 / totalSelected);
-    const remainder = 20;
-    const perOther = Math.floor(remainder / (6 - totalSelected || 1));
+    const perOther = numOthers > 0 ? Math.floor(20 / numOthers) : 0;
+    const assignedTotal = basePercent * totalSelected + perOther * numOthers;
+    let leftover = 100 - assignedTotal;
 
-    const dna = Object.entries(styleMap).map(([id, val]) => ({
-      ...val,
-      percentage: selectedStyles.includes(id) ? basePercent : perOther,
-    }));
+    const dna = Object.entries(styleMap).map(([id, val]) => {
+      const base = selectedStyles.includes(id) ? basePercent : perOther;
+      const extra = leftover > 0 ? 1 : 0;
+      if (extra) leftover--;
+      return { ...val, percentage: base + extra };
+    });
 
     setTimeout(() => {
       updateStyleDNA(dna);
