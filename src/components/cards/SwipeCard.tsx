@@ -182,7 +182,7 @@ export function SwipeCard({
                   Editor's Pick
                 </span>
               )}
-              {look.badge && (() => {
+              {look.badge && !(look.badge === "trending" && look.trending) && !(look.badge === "editors-pick" && look.editorsChoice) && (() => {
                 const badge = badgeConfig[look.badge];
                 const BadgeIcon = badge.icon;
                 return (

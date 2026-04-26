@@ -95,13 +95,13 @@ export function FeedPage() {
         <Logo variant="mark" size="sm" />
         <div className="flex items-center gap-3">
           <span className="text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted">
-            {Math.min(currentFeedIndex + 1, feedLooks.length)} / {feedLooks.length}
+            {Math.min(currentFeedIndex + 1, filteredLooks.length)} / {filteredLooks.length}
           </span>
           <div className="w-16 h-1 bg-ink/10 rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-gold rounded-full"
               initial={{ width: 0 }}
-              animate={{ width: `${Math.min(((currentFeedIndex + 1) / feedLooks.length) * 100, 100)}%` }}
+              animate={{ width: `${Math.min(((currentFeedIndex + 1) / filteredLooks.length) * 100, 100)}%` }}
               transition={{ duration: 0.3 }}
             />
           </div>
