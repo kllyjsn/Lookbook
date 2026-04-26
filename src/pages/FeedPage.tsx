@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
@@ -21,6 +21,13 @@ export function FeedPage() {
 
   const [doubleTapPos, setDoubleTapPos] = useState<{ x: number; y: number } | null>(null);
   const [streak, setStreak] = useState(0);
+  const doubleTapTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
+
+  useEffect(() => {
+    return () => {
+      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
+    };
+  }, []);
 
   const currentLook = useMemo(
     () => feedLooks[currentFeedIndex % feedLooks.length],
@@ -47,10 +54,11 @@ export function FeedPage() {
 
   const handleDoubleTap = useCallback(
     (x: number, y: number) => {
+      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       setDoubleTapPos({ x, y });
       likeLook(currentLook);
       setStreak((s) => s + 1);
-      setTimeout(() => setDoubleTapPos(null), 800);
+      doubleTapTimerRef.current = setTimeout(() => setDoubleTapPos(null), 800);
     },
     [currentLook, likeLook]
   );
