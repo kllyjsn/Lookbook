@@ -90,9 +90,21 @@ export function FeedPage() {
 
   return (
     <div className="h-full flex flex-col bg-cream">
-      {/* Header */}
+      {/* Header with OOTD badge */}
       <div className="flex items-center justify-between py-3 px-6">
-        <Logo variant="mark" size="sm" />
+        <div className="flex items-center gap-3">
+          <Logo variant="mark" size="sm" />
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-ink"
+          >
+            <Sparkles size={10} className="text-gold" />
+            <span className="text-[9px] font-inter font-semibold tracking-[0.1em] uppercase text-cream">
+              OOTD
+            </span>
+          </motion.div>
+        </div>
         <div className="flex items-center gap-3">
           <span className="text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted">
             {Math.min(currentFeedIndex + 1, feedLooks.length)} / {feedLooks.length}
@@ -220,9 +232,18 @@ export function FeedPage() {
             onUndo={undoLastSwipe}
             canUndo={!!lastSwipedLook}
           />
-          <p className="text-center text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted mt-1">
-            Swipe right to love · Left to pass · Up to shop · Double-tap to love
-          </p>
+          <AnimatePresence>
+            {currentFeedIndex < 3 && (
+              <motion.p
+                initial={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-center text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted mt-1"
+              >
+                Swipe right to love · Left to pass · Double-tap to
+                <span className="text-rose"> ♥</span>
+              </motion.p>
+            )}
+          </AnimatePresence>
         </div>
       )}
 
