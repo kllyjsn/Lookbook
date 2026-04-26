@@ -9,13 +9,13 @@ import { feedLooks } from "../data/mockData";
 import { useStore } from "../stores/useStore";
 
 const trendingTags = [
-  { label: "All", id: "all" },
-  { label: "Quiet Luxury", id: "quiet-luxury" },
-  { label: "Tomato Girl", id: "tomato-girl" },
-  { label: "Office Siren", id: "office-siren" },
-  { label: "Coastal", id: "coastal" },
-  { label: "Old Money", id: "old-money" },
-  { label: "Coquette", id: "coquette" },
+  { label: "All", id: "all", keywords: [] as string[] },
+  { label: "Quiet Luxury", id: "quiet-luxury", keywords: ["minimalist", "chic", "tailored"] },
+  { label: "Tomato Girl", id: "tomato-girl", keywords: ["romantic", "feminine", "social"] },
+  { label: "Office Siren", id: "office-siren", keywords: ["office", "power", "tailored"] },
+  { label: "Coastal", id: "coastal", keywords: ["adventure", "casual", "utility"] },
+  { label: "Old Money", id: "old-money", keywords: ["minimalist", "evening", "glamour"] },
+  { label: "Coquette", id: "coquette", keywords: ["romantic", "feminine", "evening"] },
 ];
 
 export function FeedPage() {
@@ -30,10 +30,19 @@ export function FeedPage() {
   const likedLooks = useStore((s) => s.likedLooks);
   const [activeTrend, setActiveTrend] = useState("all");
   const [showSearch, setShowSearch] = useState(false);
+
+  const filteredLooks = useMemo(() => {
+    if (activeTrend === "all") return feedLooks;
+    const tag = trendingTags.find((t) => t.id === activeTrend);
+    if (!tag || tag.keywords.length === 0) return feedLooks;
+    return feedLooks.filter((look) =>
+      look.tags.some((t) => tag.keywords.includes(t.label.toLowerCase()))
+    );
+  }, [activeTrend]);
   const [heartBurst, setHeartBurst] = useState<{ x: number; y: number } | null>(null);
   const heartBurstTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const hasSeenAll = currentFeedIndex >= feedLooks.length;
+  const hasSeenAll = currentFeedIndex >= filteredLooks.length;
 
   useEffect(() => {
     return () => {
@@ -51,12 +60,12 @@ export function FeedPage() {
   }, []);
 
   const currentLook = useMemo(
-    () => feedLooks[currentFeedIndex % feedLooks.length],
-    [currentFeedIndex]
+    () => filteredLooks[currentFeedIndex % filteredLooks.length],
+    [currentFeedIndex, filteredLooks]
   );
   const nextLook = useMemo(
-    () => feedLooks[(currentFeedIndex + 1) % feedLooks.length],
-    [currentFeedIndex]
+    () => filteredLooks[(currentFeedIndex + 1) % filteredLooks.length],
+    [currentFeedIndex, filteredLooks]
   );
 
   const handleSwipeRight = useCallback(() => {
@@ -99,13 +108,13 @@ export function FeedPage() {
         <Logo variant="mark" size="sm" />
         <div className="flex items-center gap-3">
           <span className="text-[9px] font-inter tracking-[0.2em] uppercase text-ink-muted">
-            {hasSeenAll ? feedLooks.length : (currentFeedIndex % feedLooks.length) + 1} / {feedLooks.length}
+            {hasSeenAll ? filteredLooks.length : (currentFeedIndex % filteredLooks.length) + 1} / {filteredLooks.length}
           </span>
           <div className="w-16 h-1 bg-ink/10 rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-gold rounded-full"
               initial={{ width: 0 }}
-              animate={{ width: `${Math.min(((currentFeedIndex + 1) / feedLooks.length) * 100, 100)}%` }}
+              animate={{ width: `${Math.min(((currentFeedIndex + 1) / filteredLooks.length) * 100, 100)}%` }}
               transition={{ duration: 0.3 }}
             />
           </div>
@@ -128,7 +137,7 @@ export function FeedPage() {
             <motion.button
               key={tag.id}
               whileTap={{ scale: 0.95 }}
-              onClick={() => setActiveTrend(tag.id)}
+              onClick={() => { setActiveTrend(tag.id); setCurrentFeedIndex(0); }}
               className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-[10px] font-inter font-medium tracking-wide transition-all ${
                 activeTrend === tag.id
                   ? "bg-ink text-cream"

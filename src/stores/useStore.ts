@@ -48,6 +48,10 @@ interface AppState {
   budgetPreference: string | null;
   setBudgetPreference: (pref: string | null) => void;
 
+  // Brand preferences (from onboarding)
+  brandPreferences: string[];
+  setBrandPreferences: (brands: string[]) => void;
+
   // Capsule
   capsuleBudget: number;
   setCapsuleBudget: (budget: number) => void;
@@ -238,6 +242,9 @@ export const useStore = create<AppState>()(
 
       budgetPreference: null,
       setBudgetPreference: (pref) => set({ budgetPreference: pref }),
+
+      brandPreferences: [],
+      setBrandPreferences: (brands) => set({ brandPreferences: brands }),
 
       capsuleBudget: 3000,
       setCapsuleBudget: (budget) => set({ capsuleBudget: budget }),

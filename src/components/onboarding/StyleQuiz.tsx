@@ -54,6 +54,7 @@ export function StyleQuiz() {
   const completeOnboarding = useStore((s) => s.completeOnboarding);
   const updateStyleDNA = useStore((s) => s.updateStyleDNA);
   const setBudgetPreference = useStore((s) => s.setBudgetPreference);
+  const setBrandPreferences = useStore((s) => s.setBrandPreferences);
 
   const handleComplete = () => {
     const colors = ["#1A1A1A", "#C5A572", "#C4797A", "#B8A9C9", "#A8B5A0", "#E8D5D0"];
@@ -74,6 +75,7 @@ export function StyleQuiz() {
       updateStyleDNA(styleDNA);
     }
     setBudgetPreference(selectedBudget);
+    setBrandPreferences(selectedBrands);
     completeOnboarding();
   };
 
