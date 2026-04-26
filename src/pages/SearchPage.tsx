@@ -1,10 +1,10 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, Upload, Search, X, Sparkles, ArrowRight } from "lucide-react";
 import { feedLooks } from "../data/mockData";
 import { ProductCard } from "../components/cards/ProductCard";
 import { LookDetail } from "../components/cards/LookDetail";
-import { useStore } from "../stores/useStore";
+
 
 export function SearchPage() {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
@@ -12,7 +12,6 @@ export function SearchPage() {
   const [showResults, setShowResults] = useState(false);
   const [selectedLook, setSelectedLook] = useState<typeof feedLooks[0] | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const setShowLookDetail = useStore((s) => s.setShowLookDetail);
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -37,10 +36,21 @@ export function SearchPage() {
   };
 
   const resetSearch = () => {
+    if (uploadedImage && uploadedImage.startsWith("blob:")) {
+      URL.revokeObjectURL(uploadedImage);
+    }
     setUploadedImage(null);
     setShowResults(false);
     setIsAnalyzing(false);
   };
+
+  useEffect(() => {
+    return () => {
+      if (uploadedImage && uploadedImage.startsWith("blob:")) {
+        URL.revokeObjectURL(uploadedImage);
+      }
+    };
+  }, [uploadedImage]);
 
   const matchedLook = feedLooks[0];
 
@@ -129,10 +139,7 @@ export function SearchPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.1 }}
-                    onClick={() => {
-                      setSelectedLook(look);
-                      setShowLookDetail(look);
-                    }}
+                    onClick={() => setSelectedLook(look)}
                     className="group cursor-pointer"
                   >
                     <div className="relative aspect-[3/4] rounded-xl overflow-hidden mb-2">
@@ -222,7 +229,7 @@ export function SearchPage() {
             {/* Get Exact Look */}
             <motion.button
               whileTap={{ scale: 0.98 }}
-              onClick={() => setShowLookDetail(matchedLook)}
+              onClick={() => setSelectedLook(matchedLook)}
               className="w-full py-3.5 rounded-full bg-ink text-cream font-inter text-sm font-medium flex items-center justify-center gap-2 mb-8"
             >
               Get This Exact Look
@@ -250,7 +257,7 @@ export function SearchPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.08 }}
-                  onClick={() => setShowLookDetail(look)}
+                  onClick={() => setSelectedLook(look)}
                   className="group cursor-pointer"
                 >
                   <div className="relative aspect-[3/4] rounded-xl overflow-hidden mb-2">
