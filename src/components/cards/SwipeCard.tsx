@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion";
 import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Undo2 } from "lucide-react";
 import type { Look } from "../../data/mockData";
@@ -33,6 +33,10 @@ export function SwipeCard({
   const [showHeartBurst, setShowHeartBurst] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const lastTapRef = useRef(0);
+  const doubleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const singleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const doubleTapDetectedRef = useRef(false);
+  const swipedRef = useRef(false);
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -43,19 +47,44 @@ export function SwipeCard({
   const shopOpacity = useTransform(y, [-80, 0], [1, 0]);
   const scale = useTransform(x, [-300, 0, 300], [0.95, 1, 0.95]);
 
+  useEffect(() => {
+    return () => {
+      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
+      if (singleTapTimerRef.current) clearTimeout(singleTapTimerRef.current);
+    };
+  }, []);
+
+  const cancelPendingTimers = useCallback(() => {
+    if (doubleTapTimerRef.current) {
+      clearTimeout(doubleTapTimerRef.current);
+      doubleTapTimerRef.current = null;
+    }
+    if (singleTapTimerRef.current) {
+      clearTimeout(singleTapTimerRef.current);
+      singleTapTimerRef.current = null;
+    }
+    setShowHeartBurst(false);
+  }, []);
+
   const handleDragEnd = (_: unknown, info: PanInfo) => {
     const threshold = 100;
     const velocity = 0.5;
 
     if (info.offset.y < -threshold || info.velocity.y < -velocity) {
+      swipedRef.current = true;
+      cancelPendingTimers();
       setExitDirection("up");
       animate(y, -1000, { duration: 0.3 });
       setTimeout(onSwipeUp, 300);
     } else if (info.offset.x > threshold || info.velocity.x > velocity) {
+      swipedRef.current = true;
+      cancelPendingTimers();
       setExitDirection("right");
       animate(x, 1000, { duration: 0.3 });
       setTimeout(onSwipeRight, 300);
     } else if (info.offset.x < -threshold || info.velocity.x < -velocity) {
+      swipedRef.current = true;
+      cancelPendingTimers();
       setExitDirection("left");
       animate(x, -1000, { duration: 0.3 });
       setTimeout(onSwipeLeft, 300);
@@ -67,16 +96,29 @@ export function SwipeCard({
 
   const handleClick = useCallback(() => {
     if (Math.abs(x.get()) > 5 || Math.abs(y.get()) > 5) return;
+    if (swipedRef.current) return;
+
     const now = Date.now();
     if (now - lastTapRef.current < 300) {
+      doubleTapDetectedRef.current = true;
+      if (singleTapTimerRef.current) {
+        clearTimeout(singleTapTimerRef.current);
+        singleTapTimerRef.current = null;
+      }
       setShowHeartBurst(true);
-      setTimeout(() => {
-        setShowHeartBurst(false);
-        onDoubleTap();
+      doubleTapTimerRef.current = setTimeout(() => {
+        doubleTapTimerRef.current = null;
+        if (!swipedRef.current) {
+          setShowHeartBurst(false);
+          onDoubleTap();
+        }
+        doubleTapDetectedRef.current = false;
       }, 700);
     } else {
-      setTimeout(() => {
-        if (Date.now() - lastTapRef.current >= 280) {
+      doubleTapDetectedRef.current = false;
+      singleTapTimerRef.current = setTimeout(() => {
+        singleTapTimerRef.current = null;
+        if (!doubleTapDetectedRef.current && !swipedRef.current) {
           onTap();
         }
       }, 300);
