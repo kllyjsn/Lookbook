@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
+import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp, Sparkles, ArrowDown } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { dupeMap } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
 import { useStore } from "../../stores/useStore";
+import { ShareCard } from "../ui/ShareCard";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -23,6 +25,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
   const addToCollection = useStore((s) => s.addToCollection);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showShareCard, setShowShareCard] = useState(false);
 
   return (
     <AnimatePresence>
@@ -157,15 +160,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  if (navigator.share) {
-                    navigator.share({
-                      title: `LKBK — ${look.title}`,
-                      text: look.description,
-                      url: window.location.href,
-                    }).catch(() => {});
-                  }
-                }}
+                onClick={() => setShowShareCard(true)}
                 className="w-12 h-12 rounded-full flex items-center justify-center border border-ink/10 hover:border-ink/30"
               >
                 <Share2 size={18} className="text-ink-muted" />
@@ -188,6 +183,51 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </div>
             </div>
 
+            {/* Get This Look for Less — Dupes section */}
+            {look.items.some((item) => dupeMap[item.id]) && (
+              <div className="mb-10">
+                <div className="flex items-center gap-3 mb-2">
+                  <Sparkles size={18} className="text-gold" />
+                  <h3 className="font-editorial text-xl text-ink">Get This Look for Less</h3>
+                </div>
+                <p className="text-xs font-inter text-ink-muted mb-5 italic">
+                  TikTok-approved dupes — same vibe, fraction of the price
+                </p>
+                <div className="space-y-4">
+                  {look.items
+                    .filter((item) => dupeMap[item.id])
+                    .map((item) => (
+                      <div key={item.id}>
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted">
+                            Instead of {item.brand} {item.name} · ${item.price}
+                          </span>
+                          <ArrowDown size={10} className="text-ink-muted" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          {dupeMap[item.id].map((dupe, i) => (
+                            <motion.div
+                              key={dupe.id}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: i * 0.1 }}
+                              className="relative"
+                            >
+                              <ProductCard item={{ ...dupe, shopUrl: dupe.shopUrl }} index={i} />
+                              <div className="absolute top-2 right-2">
+                                <span className="text-[9px] font-inter font-bold tracking-wider bg-green-500/90 text-white px-2 py-0.5 rounded-full">
+                                  SAVE ${dupe.savings}
+                                </span>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+
             {/* Photographer credit */}
             {look.photographer && (
               <p className="text-center text-[10px] font-inter tracking-[0.2em] uppercase text-ink-muted pb-24">
@@ -197,6 +237,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
           </div>
         </div>
       </motion.div>
+      <ShareCard look={look} isOpen={showShareCard} onClose={() => setShowShareCard(false)} />
     </AnimatePresence>
   );
 }

@@ -566,3 +566,121 @@ export const styleQuizImages = [
   { id: "q4", image: UNSPLASH("photo-1469334031218-e382a71b716b", 600, 800), style: "Glamour" },
   { id: "q5", image: UNSPLASH("photo-1483985988355-763728e1935b", 600, 800), style: "Classic" },
 ];
+
+// --- Dupe / Budget Alternative data ---
+export interface DupeItem {
+  id: string;
+  originalItemId: string;
+  name: string;
+  brand: string;
+  price: number;
+  image: string;
+  category: string;
+  savings: number;
+  shopUrl: string;
+}
+
+export const dupeMap: Record<string, DupeItem[]> = {
+  "i1": [
+    { id: "d1", originalItemId: "i1", name: "Structured Blazer", brand: "Zara", price: 89, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", savings: 186, shopUrl: "#" },
+    { id: "d2", originalItemId: "i1", name: "Tailored Wool Blend Blazer", brand: "H&M Premium", price: 69, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", savings: 206, shopUrl: "#" },
+  ],
+  "i2": [
+    { id: "d3", originalItemId: "i2", name: "Satin Camisole", brand: "& Other Stories", price: 49, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", savings: 146, shopUrl: "#" },
+  ],
+  "i5": [
+    { id: "d4", originalItemId: "i5", name: "Flowing Midi Dress", brand: "Abercrombie", price: 90, image: UNSPLASH("photo-1595777457583-95e059d581b8", 400, 500), category: "Dresses", savings: 158, shopUrl: "#" },
+    { id: "d5", originalItemId: "i5", name: "Satin Midi Dress", brand: "Mango", price: 79, image: UNSPLASH("photo-1595777457583-95e059d581b8", 400, 500), category: "Dresses", savings: 169, shopUrl: "#" },
+  ],
+  "i10": [
+    { id: "d6", originalItemId: "i10", name: "Faux Leather Moto Jacket", brand: "Blank NYC", price: 148, image: UNSPLASH("photo-1551028719-00167b16eac5", 400, 500), category: "Outerwear", savings: 351, shopUrl: "#" },
+  ],
+  "i13": [
+    { id: "d7", originalItemId: "i13", name: "Sequin Midi Dress", brand: "ASOS", price: 89, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), category: "Dresses", savings: 506, shopUrl: "#" },
+  ],
+  "i21": [
+    { id: "d8", originalItemId: "i21", name: "Cashmere Turtleneck", brand: "Quince", price: 79, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", savings: 416, shopUrl: "#" },
+  ],
+  "i33": [
+    { id: "d9", originalItemId: "i33", name: "Cashmere Crew", brand: "Quince", price: 69, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", savings: 821, shopUrl: "#" },
+    { id: "d10", originalItemId: "i33", name: "Wool Cashmere Blend Crew", brand: "Uniqlo", price: 49, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", savings: 841, shopUrl: "#" },
+  ],
+  "i29": [
+    { id: "d11", originalItemId: "i29", name: "Double-Breasted Blazer", brand: "Massimo Dutti", price: 189, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", savings: 501, shopUrl: "#" },
+  ],
+  "i49": [
+    { id: "d12", originalItemId: "i49", name: "Draped Satin Gown", brand: "Lulus", price: 98, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), category: "Dresses", savings: 2792, shopUrl: "#" },
+  ],
+  "i45": [
+    { id: "d13", originalItemId: "i45", name: "Graphic Oversized Hoodie", brand: "Stüssy", price: 95, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", savings: 485, shopUrl: "#" },
+  ],
+};
+
+// --- Trending heat levels ---
+export type HeatLevel = "warm" | "hot" | "fire";
+export const trendingHeat: Record<string, HeatLevel> = {
+  "look-3": "fire",
+  "look-9": "fire",
+  "look-12": "hot",
+  "look-16": "hot",
+  "look-10": "warm",
+  "look-14": "warm",
+  "look-6": "warm",
+};
+
+// --- Color Season Analysis ---
+export interface ColorSeason {
+  season: string;
+  description: string;
+  palette: string[];
+  bestColors: string[];
+  avoidColors: string[];
+}
+
+export const colorSeasons: Record<string, ColorSeason> = {
+  "warm-autumn": {
+    season: "Warm Autumn",
+    description: "Rich, warm, and earthy. You gravitate toward depth and warmth — think terracotta, olive, and burnished gold.",
+    palette: ["#8B4513", "#D2691E", "#6B8E23", "#CD853F", "#A0522D", "#DAA520"],
+    bestColors: ["Burnt Orange", "Olive Green", "Camel", "Rust", "Forest Green"],
+    avoidColors: ["Neon Pink", "Icy Blue", "Bright White"],
+  },
+  "cool-winter": {
+    season: "Cool Winter",
+    description: "Bold, high-contrast, and dramatic. Your style DNA loves sharp blacks, crisp whites, and jewel tones.",
+    palette: ["#1A1A1A", "#FFFFFF", "#4169E1", "#8B0000", "#2F4F4F", "#C0C0C0"],
+    bestColors: ["True Black", "Emerald", "Royal Blue", "Burgundy", "Silver"],
+    avoidColors: ["Warm Orange", "Muted Beige", "Mustard"],
+  },
+  "warm-spring": {
+    season: "Warm Spring",
+    description: "Fresh, light, and warm. You're drawn to golden tones, corals, and warm pastels that radiate energy.",
+    palette: ["#FF7F50", "#FFD700", "#98FB98", "#F0E68C", "#FFDAB9", "#FF6347"],
+    bestColors: ["Coral", "Golden Yellow", "Peach", "Warm Green", "Apricot"],
+    avoidColors: ["Cool Grey", "Black", "Dusty Rose"],
+  },
+  "cool-summer": {
+    season: "Cool Summer",
+    description: "Soft, muted, and sophisticated. You love dusty roses, soft lavender, and cool greys. Think elegance in whispers.",
+    palette: ["#B8A9C9", "#E8D5D0", "#87CEEB", "#DDA0DD", "#778899", "#C4797A"],
+    bestColors: ["Lavender", "Dusty Rose", "Powder Blue", "Mauve", "Soft Grey"],
+    avoidColors: ["Bright Orange", "Kelly Green", "Bright Yellow"],
+  },
+};
+
+// --- Daily Pick / OOTD ---
+export interface DailyPick {
+  lookId: string;
+  reason: string;
+  weatherHint: string;
+  temperature: string;
+  icon: string;
+}
+
+export const dailyPick: DailyPick = {
+  lookId: "look-10",
+  reason: "Perfect layering weather — this Scandi-inspired look is your match today",
+  weatherHint: "Partly cloudy",
+  temperature: "68°F",
+  icon: "cloud-sun",
+};

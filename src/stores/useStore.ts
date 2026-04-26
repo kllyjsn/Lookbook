@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Look, StyleDNAEntry, MoodFilter } from "../data/mockData";
-import { defaultStyleDNA } from "../data/mockData";
+import type { Look, StyleDNAEntry, MoodFilter, LookItem, ColorSeason } from "../data/mockData";
+import { defaultStyleDNA, colorSeasons } from "../data/mockData";
 
 interface SavedCollection {
   id: string;
@@ -58,6 +58,23 @@ interface AppState {
   followedCreators: string[];
   followCreator: (id: string) => void;
   unfollowCreator: (id: string) => void;
+
+  // Shopping bag
+  bagItems: LookItem[];
+  addToBag: (item: LookItem) => void;
+  removeFromBag: (itemId: string) => void;
+  clearBag: () => void;
+
+  // Color season analysis
+  colorSeason: ColorSeason | null;
+  computeColorSeason: () => ColorSeason;
+
+  // Feed mode (swipe vs reels)
+  feedMode: "swipe" | "reels";
+  setFeedMode: (mode: "swipe" | "reels") => void;
+
+  // Style match score
+  getStyleMatch: (look: Look) => number;
 
   // UI state
   activeTab: string;
@@ -135,6 +152,36 @@ function computeDNA(likedLooks: Look[]): StyleDNAEntry[] {
     percentage: Math.round((count / total) * 100),
     color: colors[style] ?? "#8A8A8A",
   }));
+}
+
+function computeStyleMatch(look: Look, styleDNA: StyleDNAEntry[]): number {
+  if (styleDNA.length === 0) return 50;
+  let score = 0;
+  let maxPossible = 0;
+  for (const tag of look.tags) {
+    const style = tagToStyle[tag.label];
+    if (style) {
+      const dnaEntry = styleDNA.find((d) => d.style === style);
+      score += dnaEntry ? dnaEntry.percentage : 0;
+      maxPossible += 100;
+    }
+  }
+  if (maxPossible === 0) return 50;
+  const raw = Math.round((score / maxPossible) * 100);
+  return Math.max(35, Math.min(99, raw + 20));
+}
+
+function computeColorSeasonFromDNA(styleDNA: StyleDNAEntry[]): ColorSeason {
+  if (styleDNA.length === 0) return colorSeasons["cool-summer"];
+  const top = [...styleDNA].sort((a, b) => b.percentage - a.percentage)[0];
+  switch (top.style) {
+    case "Minimalist": return colorSeasons["cool-winter"];
+    case "Classic": return colorSeasons["warm-autumn"];
+    case "Romantic": return colorSeasons["cool-summer"];
+    case "Streetwear": return colorSeasons["cool-winter"];
+    case "Avant-Garde": return colorSeasons["warm-spring"];
+    default: return colorSeasons["cool-summer"];
+  }
 }
 
 export const useStore = create<AppState>()(
@@ -261,6 +308,31 @@ export const useStore = create<AppState>()(
           followedCreators: state.followedCreators.filter((cid) => cid !== id),
         })),
 
+      bagItems: [],
+      addToBag: (item) =>
+        set((state) => ({
+          bagItems: state.bagItems.some((i) => i.id === item.id)
+            ? state.bagItems
+            : [...state.bagItems, item],
+        })),
+      removeFromBag: (itemId) =>
+        set((state) => ({
+          bagItems: state.bagItems.filter((i) => i.id !== itemId),
+        })),
+      clearBag: () => set({ bagItems: [] }),
+
+      colorSeason: null,
+      computeColorSeason: () => {
+        const season = computeColorSeasonFromDNA(get().styleDNA);
+        set({ colorSeason: season });
+        return season;
+      },
+
+      feedMode: "swipe",
+      setFeedMode: (mode) => set({ feedMode: mode }),
+
+      getStyleMatch: (look) => computeStyleMatch(look, get().styleDNA),
+
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
       showLookDetail: null,
@@ -280,6 +352,8 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        bagItems: state.bagItems,
+        feedMode: state.feedMode,
       }),
     }
   )

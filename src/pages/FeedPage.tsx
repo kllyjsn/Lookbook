@@ -1,11 +1,16 @@
 import { useCallback, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
+import { ReelsFeed } from "../components/cards/ReelsFeed";
 import { LookDetail } from "../components/cards/LookDetail";
+import { BagDrawer } from "../components/ui/BagDrawer";
 import { SearchPage } from "./SearchPage";
 import { Logo } from "../components/ui/Logo";
-import { RefreshCw, Sparkles, Camera } from "lucide-react";
-import { feedLooks, moodFilters } from "../data/mockData";
+import {
+  RefreshCw, Sparkles, Camera, ShoppingBag, Layers, Play,
+  CloudSun,
+} from "lucide-react";
+import { feedLooks, moodFilters, dailyPick } from "../data/mockData";
 import type { MoodFilter } from "../data/mockData";
 import { useStore } from "../stores/useStore";
 
@@ -23,7 +28,12 @@ export function FeedPage() {
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
   const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
+  const feedMode = useStore((s) => s.feedMode);
+  const setFeedMode = useStore((s) => s.setFeedMode);
+  const bagItems = useStore((s) => s.bagItems);
   const [showSearch, setShowSearch] = useState(false);
+  const [showBag, setShowBag] = useState(false);
+  const [showDailyPick, setShowDailyPick] = useState(true);
 
   const filteredLooks = useMemo(
     () =>
@@ -42,6 +52,11 @@ export function FeedPage() {
   const nextLook = useMemo(
     () => filteredLooks[(currentFeedIndex + 1) % filteredLooks.length],
     [currentFeedIndex, filteredLooks]
+  );
+
+  const dailyPickLook = useMemo(
+    () => feedLooks.find((l) => l.id === dailyPick.lookId),
+    []
   );
 
   const handleSwipeRight = useCallback(() => {
@@ -88,6 +103,56 @@ export function FeedPage() {
     [setActiveMoodFilter]
   );
 
+  // Reels mode — full-screen TikTok view
+  if (feedMode === "reels") {
+    return (
+      <div className="h-full flex flex-col bg-black relative">
+        {/* Reels header overlay */}
+        <div className="absolute top-0 inset-x-0 z-20 flex items-center justify-between p-4">
+          <Logo variant="mark" size="sm" />
+          <div className="flex items-center gap-2">
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setFeedMode("swipe")}
+              className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center"
+            >
+              <Layers size={16} className="text-white" />
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setShowBag(true)}
+              className="relative w-9 h-9 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center"
+            >
+              <ShoppingBag size={16} className="text-white" />
+              {bagItems.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose rounded-full text-[9px] font-inter font-bold text-white flex items-center justify-center">
+                  {bagItems.length}
+                </span>
+              )}
+            </motion.button>
+          </div>
+        </div>
+
+        <ReelsFeed
+          looks={filteredLooks}
+          onOpenDetail={(look) => setShowLookDetail(look)}
+        />
+
+        {/* Look Detail overlay */}
+        <AnimatePresence>
+          {showLookDetail && (
+            <LookDetail
+              look={showLookDetail}
+              onClose={() => setShowLookDetail(null)}
+            />
+          )}
+        </AnimatePresence>
+
+        <BagDrawer isOpen={showBag} onClose={() => setShowBag(false)} />
+      </div>
+    );
+  }
+
   return (
     <div className="h-full flex flex-col bg-cream">
       {/* Header */}
@@ -105,6 +170,32 @@ export function FeedPage() {
               transition={{ duration: 0.3 }}
             />
           </div>
+          {/* Feed mode toggle */}
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setFeedMode("reels")}
+            className="w-8 h-8 rounded-full bg-ivory border border-ink/10 flex items-center justify-center"
+            title="Switch to Reels"
+          >
+            <Play size={14} className="text-ink" />
+          </motion.button>
+          {/* Bag button */}
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setShowBag(true)}
+            className="relative w-8 h-8 rounded-full bg-ivory border border-ink/10 flex items-center justify-center"
+          >
+            <ShoppingBag size={14} className="text-ink" />
+            {bagItems.length > 0 && (
+              <motion.span
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="absolute -top-1 -right-1 w-4 h-4 bg-rose rounded-full text-[9px] font-inter font-bold text-white flex items-center justify-center"
+              >
+                {bagItems.length}
+              </motion.span>
+            )}
+          </motion.button>
           {!hasSeenAll && (
             <motion.button
               whileTap={{ scale: 0.9 }}
@@ -116,6 +207,52 @@ export function FeedPage() {
           )}
         </div>
       </div>
+
+      {/* Daily Pick banner */}
+      <AnimatePresence>
+        {showDailyPick && dailyPickLook && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="px-4 pb-2 overflow-hidden"
+          >
+            <motion.div
+              whileTap={{ scale: 0.98 }}
+              onClick={() => {
+                setShowLookDetail(dailyPickLook);
+                setShowDailyPick(false);
+              }}
+              className="relative overflow-hidden rounded-xl bg-gradient-to-r from-gold/10 to-blush/10 border border-gold/20 p-3 flex items-center gap-3"
+            >
+              <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                <img src={dailyPickLook.image} alt={dailyPickLook.title} className="img-editorial" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <CloudSun size={12} className="text-gold" />
+                  <span className="text-[9px] font-inter font-bold tracking-[0.15em] uppercase text-gold">
+                    Today's Pick · {dailyPick.temperature}
+                  </span>
+                </div>
+                <p className="text-xs font-inter text-ink truncate">
+                  {dailyPick.reason}
+                </p>
+              </div>
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowDailyPick(false);
+                }}
+                className="text-ink-muted text-lg leading-none"
+              >
+                ×
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Mood filter pills */}
       <div className="px-4 pb-2">
@@ -169,6 +306,14 @@ export function FeedPage() {
               >
                 <RefreshCw size={14} />
                 Replay Today's Edit
+              </motion.button>
+              <motion.button
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setFeedMode("reels")}
+                className="w-full py-3.5 rounded-full border border-gold/30 text-ink font-inter text-sm font-medium flex items-center justify-center gap-2"
+              >
+                <Play size={14} />
+                Try Reels Mode
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.98 }}
@@ -258,6 +403,9 @@ export function FeedPage() {
           />
         )}
       </AnimatePresence>
+
+      {/* Bag drawer */}
+      <BagDrawer isOpen={showBag} onClose={() => setShowBag(false)} />
     </div>
   );
 }
