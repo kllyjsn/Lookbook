@@ -32,6 +32,28 @@ export interface Look {
   editorsChoice?: boolean;
   mood: MoodFilter;
   badge?: "trending" | "editors-pick" | "new";
+  stylingNotes?: string[];
+  similarVibes?: string[];
+}
+
+export interface TrendForecast {
+  id: string;
+  title: string;
+  subtitle: string;
+  image: string;
+  prediction: string;
+  confidence: number;
+  season: string;
+  tags: StyleTag[];
+}
+
+export interface TrendingStory {
+  id: string;
+  lookId: string;
+  label: string;
+  image: string;
+  isNew: boolean;
+  ringColor: string;
 }
 
 export interface EventType {
@@ -88,6 +110,12 @@ export const feedLooks: Look[] = [
     trending: true,
     editorsChoice: true,
     mood: "minimal",
+    stylingNotes: [
+      "The blazer's structure against the silk camisole creates tension — that's what makes this feel editorial, not corporate.",
+      "Wide-leg trousers elongate the silhouette. The key is keeping the top fitted when the bottom is voluminous.",
+      "Pointed mules instead of pumps — it says 'I chose comfort, but make it fashion.'",
+    ],
+    similarVibes: ["look-6", "look-8", "look-10"],
     items: [
       { id: "i1", name: "Structured Wool Blazer", brand: "COS", price: 275, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#" },
       { id: "i2", name: "Silk Camisole", brand: "Vince", price: 195, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
@@ -113,6 +141,12 @@ export const feedLooks: Look[] = [
     likes: 9800,
     trending: true,
     mood: "romantic",
+    stylingNotes: [
+      "The midi length is everything — it moves when you walk, catches the light, and never tries too hard.",
+      "One gold chain, not three. Let the neckline do the talking.",
+      "Strappy heels with a flowing dress create that effortless contrast between structure and softness.",
+    ],
+    similarVibes: ["look-7", "look-11"],
     items: [
       { id: "i5", name: "Flowing Midi Dress", brand: "Reformation", price: 248, image: UNSPLASH("photo-1595777457583-95e059d581b8", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i6", name: "Strappy Heeled Sandals", brand: "By Far", price: 420, image: UNSPLASH("photo-1603487742131-4160ec999306", 400, 500), category: "Shoes", shopUrl: "#" },
@@ -139,6 +173,12 @@ export const feedLooks: Look[] = [
     likes: 18400,
     trending: true,
     mood: "street",
+    stylingNotes: [
+      "The oversized tee tucked asymmetrically into straight-leg jeans — that's the whole move. Undone but deliberate.",
+      "Leather moto jacket is the punctuation mark. Without it, this is just basics. With it, it's a story.",
+      "Common Projects sneakers: the Hermès of sneakers. IYKYK.",
+    ],
+    similarVibes: ["look-12", "look-16"],
     items: [
       { id: "i9", name: "Oversized Cotton Tee", brand: "Aritzia", price: 58, image: UNSPLASH("photo-1521572163474-6864f9cf17ab", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i10", name: "Leather Moto Jacket", brand: "AllSaints", price: 499, image: UNSPLASH("photo-1551028719-00167b16eac5", 400, 500), category: "Outerwear", shopUrl: "#" },
@@ -163,6 +203,12 @@ export const feedLooks: Look[] = [
       "When the invitation says black tie, answer with conviction. Statement pieces that command every room.",
     likes: 7600,
     mood: "evening",
+    stylingNotes: [
+      "Sequins before 8pm? The rules changed. Own the column silhouette from cocktail hour onward.",
+      "Crystal earrings, not diamonds — it says 'I'm here for the fun, not the formality.'",
+      "A box clutch is a power move. It forces you to carry only the essentials.",
+    ],
+    similarVibes: ["look-13", "look-15"],
     items: [
       { id: "i13", name: "Sequin Column Dress", brand: "Rotate", price: 595, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i14", name: "Crystal Drop Earrings", brand: "Swarovski", price: 189, image: UNSPLASH("photo-1535632066927-ab7c9ab60908", 400, 500), category: "Accessories", shopUrl: "#" },
@@ -188,6 +234,12 @@ export const feedLooks: Look[] = [
       "Pack less, look more. Versatile silhouettes in earth tones that take you from gallery to rooftop bar.",
     likes: 6200,
     mood: "adventure",
+    stylingNotes: [
+      "Utility fabric in relaxed silhouettes — this is travel dressing that actually works in real life.",
+      "Cargo culottes are the bridge between 'exploring' and 'I have a reservation at 8.' Versatility is luxury.",
+      "Woven bags photograph beautifully. Pack this as your one daily bag and every OOTD writes itself.",
+    ],
+    similarVibes: ["look-14", "look-16"],
     items: [
       { id: "i17", name: "Linen Utility Shirt", brand: "Apiece Apart", price: 265, image: UNSPLASH("photo-1596755094514-f87e34085b2c", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i18", name: "Cargo Culottes", brand: "COS", price: 135, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -213,6 +265,12 @@ export const feedLooks: Look[] = [
     likes: 11300,
     trending: true,
     mood: "minimal",
+    stylingNotes: [
+      "All-black only works when the textures do the work. Cashmere, wool, leather — three different blacks, one powerful statement.",
+      "The turtleneck-under-coat is the chicest thing in fashion. It's a Parisian theorem.",
+      "Acne Studios ankle boots have that blocky silhouette that grounds everything above them.",
+    ],
+    similarVibes: ["look-1", "look-10"],
     items: [
       { id: "i21", name: "Cashmere Turtleneck", brand: "Nili Lotan", price: 495, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i22", name: "Tailored Wool Coat", brand: "Max Mara", price: 895, image: UNSPLASH("photo-1539533018447-63fcce2678e3", 400, 500), category: "Outerwear", shopUrl: "#" },
@@ -238,6 +296,12 @@ export const feedLooks: Look[] = [
       "Prints that feel fresh, not fussy. The kind of outfit that makes everyone ask where you got it.",
     likes: 5400,
     mood: "romantic",
+    stylingNotes: [
+      "The wrap dress is fashion's greatest invention. It flatters literally everyone and adjusts to your shape.",
+      "A straw hat elevates any summer look from 'running errands' to 'art gallery opening.'",
+      "Mix prints with solids in natural materials — raffia, cotton, linen. The key is texture, not pattern.",
+    ],
+    similarVibes: ["look-2", "look-11"],
     items: [
       { id: "i25", name: "Printed Wrap Dress", brand: "Diane von Furstenberg", price: 398, image: UNSPLASH("photo-1572804013309-59a88b7e92f1", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i26", name: "Raffia Basket Bag", brand: "Loewe", price: 450, image: UNSPLASH("photo-1590874103328-eac38a683ce7", 400, 500), category: "Bags", shopUrl: "#" },
@@ -262,6 +326,12 @@ export const feedLooks: Look[] = [
       "The modern suit is your armor. Structured enough to command respect, relaxed enough to feel like you.",
     likes: 8900,
     mood: "classic",
+    stylingNotes: [
+      "The double-breasted blazer is your secret weapon. It adds authority without aggression.",
+      "Matching sets (blazer + trouser) look best when you DON'T button the blazer. Effortlessness is key.",
+      "A structured tote in cognac leather tells everyone you're the boss without saying a word.",
+    ],
+    similarVibes: ["look-1", "look-15"],
     items: [
       { id: "i29", name: "Double-Breasted Blazer", brand: "Toteme", price: 690, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#" },
       { id: "i30", name: "High-Waist Trousers", brand: "Toteme", price: 390, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -287,6 +357,12 @@ export const feedLooks: Look[] = [
     likes: 22100,
     trending: true,
     mood: "classic",
+    stylingNotes: [
+      "Quiet luxury is about the hand feel. If someone has to touch the cashmere to understand its value, you've succeeded.",
+      "No logos, no hardware, no noise. The silhouette IS the statement.",
+      "Suede loafers from The Row are the ultimate 'you don't know what I spent' flex.",
+    ],
+    similarVibes: ["look-8", "look-14"],
     items: [
       { id: "i33", name: "Cashmere Crew", brand: "The Row", price: 890, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i34", name: "Wool Palazzo Pants", brand: "Toteme", price: 450, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -312,6 +388,12 @@ export const feedLooks: Look[] = [
     likes: 15700,
     trending: true,
     mood: "minimal",
+    stylingNotes: [
+      "Scandi dressing is the art of looking like you spent 5 minutes and a fortune. Oversized + tonal = Copenhagen.",
+      "The padded tote is functional fashion — it says 'I bike to meetings and still look this good.'",
+      "Chelsea boots with wide-leg pants create that modern Scandinavian proportion play.",
+    ],
+    similarVibes: ["look-1", "look-6"],
     items: [
       { id: "i37", name: "Oversized Wool Shirt", brand: "COS", price: 175, image: UNSPLASH("photo-1596755094514-f87e34085b2c", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i38", name: "Wide-Leg Wool Pants", brand: "Arket", price: 149, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -336,6 +418,12 @@ export const feedLooks: Look[] = [
       "Organza, tulle, and a touch of Victorian drama. For the woman who treats getting dressed like poetry.",
     likes: 8400,
     mood: "romantic",
+    stylingNotes: [
+      "Organza and tulle together? Yes — when the palette is tonal. This is 'Bridgerton but make it modern.'",
+      "Pearl earrings are having their biggest moment since Vermeer. They ground the ethereal fabrics.",
+      "Kitten heels, not stilettos. Grace Kelly knew this. You should too.",
+    ],
+    similarVibes: ["look-2", "look-7"],
     items: [
       { id: "i41", name: "Organza Blouse", brand: "Zimmermann", price: 595, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i42", name: "Tulle Midi Skirt", brand: "Simone Rocha", price: 680, image: UNSPLASH("photo-1583496661160-fb5886a0aabd", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -361,6 +449,12 @@ export const feedLooks: Look[] = [
     likes: 19200,
     trending: true,
     mood: "street",
+    stylingNotes: [
+      "Sacai's deconstructed approach to the hoodie makes it gallery-worthy. Streetwear elevated to art.",
+      "Cargo pants + chunky sneakers: the Tokyo-to-Brooklyn pipeline is real and it's thriving.",
+      "A minimal crossbody pouch keeps the silhouette clean. No backpacks. Ever.",
+    ],
+    similarVibes: ["look-3", "look-16"],
     items: [
       { id: "i45", name: "Graphic Hoodie", brand: "Sacai", price: 580, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i46", name: "Cargo Pants", brand: "Needles", price: 340, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -386,6 +480,12 @@ export const feedLooks: Look[] = [
     likes: 12600,
     editorsChoice: true,
     mood: "evening",
+    stylingNotes: [
+      "A draped gown in motion is the most powerful thing in a room. Let the fabric do 90% of the work.",
+      "One statement cuff, no other jewelry. The hand should be the focal point after the dress.",
+      "Platform heels with a gown create that red-carpet proportion — you want to look tall in photos.",
+    ],
+    similarVibes: ["look-4", "look-15"],
     items: [
       { id: "i49", name: "Draped Gown", brand: "Saint Laurent", price: 2890, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i50", name: "Statement Cuff", brand: "Alexander McQueen", price: 790, image: UNSPLASH("photo-1535632066927-ab7c9ab60908", 400, 500), category: "Accessories", shopUrl: "#" },
@@ -411,6 +511,12 @@ export const feedLooks: Look[] = [
     likes: 16500,
     trending: true,
     mood: "classic",
+    stylingNotes: [
+      "The Coastal Grandmother aesthetic works because it's about quality natural fibers, not a costume.",
+      "Oversized linen shirt, sleeves rolled to the elbow — that's the universal signal for 'I'm on vacation and I look incredible.'",
+      "Espadrilles are the only shoe that makes sense in summer. They say 'I summer somewhere beautiful.'",
+    ],
+    similarVibes: ["look-9", "look-5"],
     items: [
       { id: "i53", name: "Oversized Linen Shirt", brand: "Frank & Eileen", price: 248, image: UNSPLASH("photo-1596755094514-f87e34085b2c", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i54", name: "Wide-Leg Linen Pants", brand: "Jenni Kayne", price: 295, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -435,6 +541,12 @@ export const feedLooks: Look[] = [
       "The girlboss blazer is dead. Long live the office siren — fitted, intentional, and unforgettable.",
     likes: 13800,
     mood: "classic",
+    stylingNotes: [
+      "The 'office siren' trend is about reclaiming corporate dressing with intention and sensuality.",
+      "A sheer turtleneck under a blazer dress — layer peek is the new cleavage.",
+      "Slingbacks are the power shoe of the moment. The exposed heel is confident, modern, decisive.",
+    ],
+    similarVibes: ["look-8", "look-1"],
     items: [
       { id: "i57", name: "Fitted Blazer Dress", brand: "Mugler", price: 790, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i58", name: "Sheer Turtleneck", brand: "Wolford", price: 250, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
@@ -460,6 +572,12 @@ export const feedLooks: Look[] = [
     likes: 21300,
     trending: true,
     mood: "adventure",
+    stylingNotes: [
+      "Crochet is festival-approved when it's Cult Gaia quality — not fast fashion. The craftsmanship is visible.",
+      "Western boots with cutoffs is the move that launched a thousand TikToks. Modern festival canon.",
+      "Layered necklaces at this price point from Missoma — this is the smart luxury buy that looks expensive.",
+    ],
+    similarVibes: ["look-5", "look-12"],
     items: [
       { id: "i61", name: "Crochet Top", brand: "Cult Gaia", price: 198, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i62", name: "Denim Cutoffs", brand: "RE/DONE", price: 225, image: UNSPLASH("photo-1541099649105-f69ad21f3246", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -565,4 +683,57 @@ export const styleQuizImages = [
   { id: "q3", image: UNSPLASH("photo-1515886657613-9f3515b0c78f", 600, 800), style: "Streetwear" },
   { id: "q4", image: UNSPLASH("photo-1469334031218-e382a71b716b", 600, 800), style: "Glamour" },
   { id: "q5", image: UNSPLASH("photo-1483985988355-763728e1935b", 600, 800), style: "Classic" },
+];
+
+export const trendingStories: TrendingStory[] = [
+  { id: "story-1", lookId: "look-9", label: "Quiet Luxury", image: UNSPLASH("photo-1558618666-fcd25c85f82e", 200, 200), isNew: true, ringColor: "#C5A572" },
+  { id: "story-2", lookId: "look-12", label: "Tokyo Street", image: UNSPLASH("photo-1552374196-1ab2a1c593e8", 200, 200), isNew: true, ringColor: "#B8A9C9" },
+  { id: "story-3", lookId: "look-3", label: "Street Luxe", image: UNSPLASH("photo-1515886657613-9f3515b0c78f", 200, 200), isNew: false, ringColor: "#C4797A" },
+  { id: "story-4", lookId: "look-14", label: "Coastal", image: UNSPLASH("photo-1544957992-20514f595d6f", 200, 200), isNew: true, ringColor: "#A8B5A0" },
+  { id: "story-5", lookId: "look-1", label: "Power Edit", image: UNSPLASH("photo-1509631179647-0177331693ae", 200, 200), isNew: false, ringColor: "#1A1A1A" },
+  { id: "story-6", lookId: "look-16", label: "Festival", image: UNSPLASH("photo-1506152983158-b4a74a01c721", 200, 200), isNew: true, ringColor: "#B8A9C9" },
+  { id: "story-7", lookId: "look-11", label: "Romantic", image: UNSPLASH("photo-1581044777550-4cfa60707998", 200, 200), isNew: false, ringColor: "#E8D5D0" },
+];
+
+export const trendForecasts: TrendForecast[] = [
+  {
+    id: "trend-1",
+    title: "Quiet Luxury Evolves",
+    subtitle: "From stealth wealth to stealth creativity",
+    image: UNSPLASH("photo-1558618666-fcd25c85f82e", 600, 400),
+    prediction: "Quiet luxury isn't going anywhere, but it's getting an artistic edge. Expect hand-dyed fabrics, artisan details, and subtle craftsmanship replacing pure minimalism. The Row meets Dries Van Noten.",
+    confidence: 92,
+    season: "Fall/Winter 2025",
+    tags: [{ label: "Quiet Luxury", color: "#C5A572" }, { label: "Artisan", color: "#A8B5A0" }],
+  },
+  {
+    id: "trend-2",
+    title: "Office Siren 2.0",
+    subtitle: "Corporate dressing gets personal",
+    image: UNSPLASH("photo-1550614000-4895a10e1bfd", 600, 400),
+    prediction: "The office siren trend matures from TikTok provocation to genuine power dressing. Think fitted tailoring, bold shoulders, and sensual-but-serious silhouettes. Mugler meets Phoebe Philo-era Celine.",
+    confidence: 87,
+    season: "All Season",
+    tags: [{ label: "Corporate", color: "#1A1A1A" }, { label: "Power", color: "#C4797A" }],
+  },
+  {
+    id: "trend-3",
+    title: "Texture Over Color",
+    subtitle: "Monochrome gets dimensional",
+    image: UNSPLASH("photo-1485968579580-b6d095142e6e", 600, 400),
+    prediction: "The next evolution of dressing: one color, five textures. Bouclé with silk with leather with cashmere. Tonal layering goes tactile, and the most interesting outfits will demand to be touched.",
+    confidence: 78,
+    season: "Fall/Winter 2025",
+    tags: [{ label: "Minimalist", color: "#1A1A1A" }, { label: "Avant-Garde", color: "#B8A9C9" }],
+  },
+  {
+    id: "trend-4",
+    title: "The New Bohemian",
+    subtitle: "Boho grows up and goes luxury",
+    image: UNSPLASH("photo-1529139574466-a303027c1d8b", 600, 400),
+    prediction: "Forget Coachella boho. This is Marrakech-meets-Milan: rich embroidery, artisan leather, hand-woven textiles at luxury price points. Chloé's new direction leads the charge.",
+    confidence: 84,
+    season: "Spring/Summer 2026",
+    tags: [{ label: "Bohemian", color: "#A8B5A0" }, { label: "Luxury", color: "#C5A572" }],
+  },
 ];

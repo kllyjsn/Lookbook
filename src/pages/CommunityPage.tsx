@@ -7,13 +7,14 @@ import { CreatorProfile } from "../components/community/CreatorProfile";
 import { MustHaveCard } from "../components/community/MustHaveCard";
 import { MustHaveDetail } from "../components/community/MustHaveDetail";
 import { FollowButton } from "../components/community/FollowButton";
+import { TrendForecast } from "../components/community/TrendForecast";
 import { ProductCard } from "../components/cards/ProductCard";
 import { useStore } from "../stores/useStore";
 import { creators, communityPosts, mustHaveLists } from "../data/communityData";
 import type { Creator, CommunityPost, MustHaveList } from "../data/communityData";
 
 
-type CommunityTab = "forYou" | "following" | "mustHaves";
+type CommunityTab = "forYou" | "following" | "mustHaves" | "trends";
 
 function PostShopOverlay({
   post,
@@ -120,6 +121,7 @@ export function CommunityPage() {
             { id: "forYou" as const, label: "For You" },
             { id: "following" as const, label: "Following" },
             { id: "mustHaves" as const, label: "Must Haves" },
+            { id: "trends" as const, label: "Trends" },
           ]).map((tab) => (
             <motion.button
               key={tab.id}
@@ -346,6 +348,23 @@ export function CommunityPage() {
                 onTap={handleMustHaveTap}
               />
             ))}
+          </motion.div>
+        )}
+
+        {/* Trends tab */}
+        {activeTab === "trends" && (
+          <motion.div
+            key="trends"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+          >
+            <div className="px-6 mb-4">
+              <p className="font-subhead text-sm text-ink-light italic">
+                Where fashion is headed next. Our editors' predictions.
+              </p>
+            </div>
+            <TrendForecast />
           </motion.div>
         )}
       </AnimatePresence>

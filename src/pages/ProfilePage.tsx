@@ -4,6 +4,7 @@ import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Tr
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
+import { WeekInStyle } from "../components/profile/WeekInStyle";
 import { LookDetail } from "../components/cards/LookDetail";
 import type { Look } from "../data/mockData";
 
@@ -91,6 +92,7 @@ export function ProfilePage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
             >
+              <WeekInStyle />
               <StyleDNA data={styleDNA} />
 
               {/* Style insights */}
@@ -410,8 +412,10 @@ export function ProfilePage() {
       <AnimatePresence>
         {selectedLook && (
           <LookDetail
+            key={selectedLook.id}
             look={selectedLook}
             onClose={() => setSelectedLook(null)}
+            onNavigate={(look) => setSelectedLook(look)}
           />
         )}
       </AnimatePresence>
