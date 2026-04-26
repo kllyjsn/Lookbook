@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { motion, useMotionValue, useTransform, animate, type PanInfo } from "framer-motion";
-import { Heart, X, ShoppingBag, Bookmark } from "lucide-react";
+import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Flame, Zap } from "lucide-react";
 import type { Look } from "../../data/mockData";
 
 
@@ -97,15 +97,39 @@ export function SwipeCard({
           draggable={false}
         />
 
-        {/* Top gradient + magazine masthead */}
-        <div className="absolute inset-x-0 top-0 gradient-top p-6 pt-8">
+        {/* Top gradient + badges */}
+        <div className="absolute inset-x-0 top-0 gradient-top p-5 pt-7">
           <div className="flex items-center justify-between">
-            <span className="text-white/60 text-[10px] font-inter tracking-[0.3em] uppercase">
-              {look.season}
-            </span>
-            <span className="text-white/60 text-[10px] font-inter tracking-[0.3em] uppercase">
-              {look.occasion}
-            </span>
+            <div className="flex items-center gap-2">
+              {look.isNew && (
+                <span className="bg-gold/90 text-white text-[9px] font-inter font-semibold tracking-wider uppercase px-2.5 py-1 rounded-full flex items-center gap-1">
+                  <Zap size={10} /> NEW
+                </span>
+              )}
+              {look.isTrending && (
+                <span className="bg-rose/80 text-white text-[9px] font-inter font-semibold tracking-wider uppercase px-2.5 py-1 rounded-full flex items-center gap-1">
+                  <TrendingUp size={10} /> HOT
+                </span>
+              )}
+              {look.scarcityLabel && (
+                <span className="bg-white/20 backdrop-blur-sm text-white text-[9px] font-inter font-semibold tracking-wider uppercase px-2.5 py-1 rounded-full flex items-center gap-1">
+                  <Flame size={10} /> {look.scarcityLabel}
+                </span>
+              )}
+            </div>
+            {/* Match percentage */}
+            <div className="bg-white/15 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-1.5">
+              <div className="relative w-5 h-5">
+                <svg viewBox="0 0 36 36" className="w-5 h-5 -rotate-90">
+                  <circle cx="18" cy="18" r="15" fill="none" stroke="white" strokeOpacity="0.2" strokeWidth="3" />
+                  <circle cx="18" cy="18" r="15" fill="none" stroke="#C5A572" strokeWidth="3"
+                    strokeDasharray={`${look.matchPercent * 0.94} 100`}
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </div>
+              <span className="text-white text-[11px] font-inter font-semibold">{look.matchPercent}%</span>
+            </div>
           </div>
         </div>
 
@@ -135,6 +159,10 @@ export function SwipeCard({
               <span className="text-white/30">·</span>
               <span className="text-xs font-inter text-white/50">
                 {look.items.length} pieces
+              </span>
+              <span className="text-white/30">·</span>
+              <span className="text-xs font-inter text-white/50 flex items-center gap-1">
+                <Heart size={10} fill="currentColor" /> {look.saves >= 1000 ? `${(look.saves / 1000).toFixed(1)}k` : look.saves}
               </span>
             </div>
           </div>

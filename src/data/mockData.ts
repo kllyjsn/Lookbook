@@ -25,6 +25,11 @@ export interface Look {
   items: LookItem[];
   season: string;
   description: string;
+  matchPercent: number;
+  saves: number;
+  isNew?: boolean;
+  isTrending?: boolean;
+  scarcityLabel?: string;
 }
 
 export interface EventType {
@@ -74,6 +79,9 @@ export const feedLooks: Look[] = [
     occasion: "Work",
     priceRange: "$200 – $800",
     season: "Fall/Winter",
+    matchPercent: 94,
+    saves: 2431,
+    isNew: true,
     description:
       "Clean lines meet architectural silhouettes in this season's definitive work wardrobe. A masterclass in restraint.",
     items: [
@@ -96,6 +104,9 @@ export const feedLooks: Look[] = [
     occasion: "Date Night",
     priceRange: "$150 – $600",
     season: "Spring/Summer",
+    matchPercent: 87,
+    saves: 1856,
+    isTrending: true,
     description:
       "Diaphanous fabrics and sun-kissed palettes that move with you. Dress for the evening you deserve.",
     items: [
@@ -118,6 +129,9 @@ export const feedLooks: Look[] = [
     occasion: "Weekend",
     priceRange: "$100 – $500",
     season: "All Season",
+    matchPercent: 91,
+    saves: 3204,
+    scarcityLabel: "Selling fast",
     description:
       "The art of looking effortlessly put-together. Elevated basics that work harder than your entire closet.",
     items: [
@@ -140,6 +154,9 @@ export const feedLooks: Look[] = [
     occasion: "Gala",
     priceRange: "$300 – $1,200",
     season: "Fall/Winter",
+    matchPercent: 78,
+    saves: 965,
+    scarcityLabel: "Only 2 left",
     description:
       "When the invitation says black tie, answer with conviction. Statement pieces that command every room.",
     items: [
@@ -162,6 +179,9 @@ export const feedLooks: Look[] = [
     occasion: "Travel",
     priceRange: "$150 – $600",
     season: "Spring/Summer",
+    matchPercent: 85,
+    saves: 1122,
+    isNew: true,
     description:
       "Pack less, look more. Versatile silhouettes in earth tones that take you from gallery to rooftop bar.",
     items: [
@@ -184,6 +204,9 @@ export const feedLooks: Look[] = [
     occasion: "Any",
     priceRange: "$200 – $900",
     season: "All Season",
+    matchPercent: 96,
+    saves: 4108,
+    isTrending: true,
     description:
       "The eternal palette. There's nothing more powerful than a woman who has mastered the art of black.",
     items: [
@@ -206,6 +229,8 @@ export const feedLooks: Look[] = [
     occasion: "Brunch",
     priceRange: "$100 – $400",
     season: "Spring/Summer",
+    matchPercent: 82,
+    saves: 1540,
     description:
       "Prints that feel fresh, not fussy. The kind of outfit that makes everyone ask where you got it.",
     items: [
@@ -228,6 +253,10 @@ export const feedLooks: Look[] = [
     occasion: "Interview",
     priceRange: "$300 – $1,000",
     season: "All Season",
+    matchPercent: 89,
+    saves: 2017,
+    isTrending: true,
+    scarcityLabel: "Only 5 left",
     description:
       "The modern suit is your armor. Structured enough to command respect, relaxed enough to feel like you.",
     items: [

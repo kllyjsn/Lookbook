@@ -21,6 +21,15 @@ interface AppState {
   likeLook: (look: Look) => void;
   passLook: (look: Look) => void;
 
+  // Engagement / dopamine
+  dailyStreak: number;
+  lastActiveDate: string;
+  totalSwipes: number;
+  totalLoves: number;
+  showHeartBurst: boolean;
+  setShowHeartBurst: (v: boolean) => void;
+  checkStreak: () => void;
+
   // Collections
   collections: SavedCollection[];
   addToCollection: (collectionId: string, look: Look) => void;
@@ -62,12 +71,33 @@ export const useStore = create<AppState>()(
         set((state) => ({
           likedLooks: [...state.likedLooks, look],
           currentFeedIndex: state.currentFeedIndex + 1,
+          totalSwipes: state.totalSwipes + 1,
+          totalLoves: state.totalLoves + 1,
+          showHeartBurst: true,
         })),
       passLook: (look) =>
         set((state) => ({
           passedLooks: [...state.passedLooks, look],
           currentFeedIndex: state.currentFeedIndex + 1,
+          totalSwipes: state.totalSwipes + 1,
         })),
+
+      dailyStreak: 1,
+      lastActiveDate: new Date().toDateString(),
+      totalSwipes: 0,
+      totalLoves: 0,
+      showHeartBurst: false,
+      setShowHeartBurst: (v) => set({ showHeartBurst: v }),
+      checkStreak: () =>
+        set((state) => {
+          const today = new Date().toDateString();
+          const yesterday = new Date(Date.now() - 86400000).toDateString();
+          if (state.lastActiveDate === today) return {};
+          if (state.lastActiveDate === yesterday) {
+            return { dailyStreak: state.dailyStreak + 1, lastActiveDate: today };
+          }
+          return { dailyStreak: 1, lastActiveDate: today };
+        }),
 
       collections: [
         { id: "favorites", name: "Favorites", looks: [], createdAt: Date.now() },
@@ -133,6 +163,10 @@ export const useStore = create<AppState>()(
         capsuleBudget: state.capsuleBudget,
         capsuleSelectedItems: state.capsuleSelectedItems,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        dailyStreak: state.dailyStreak,
+        lastActiveDate: state.lastActiveDate,
+        totalSwipes: state.totalSwipes,
+        totalLoves: state.totalLoves,
       }),
     }
   )

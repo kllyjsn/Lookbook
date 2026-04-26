@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2 } from "lucide-react";
+import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2, Flame, Eye, Sparkles } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
@@ -13,6 +13,9 @@ export function ProfilePage() {
   const styleDNA = useStore((s) => s.styleDNA);
   const likedLooks = useStore((s) => s.likedLooks);
   const collections = useStore((s) => s.collections);
+  const dailyStreak = useStore((s) => s.dailyStreak);
+  const totalSwipes = useStore((s) => s.totalSwipes);
+  const totalLoves = useStore((s) => s.totalLoves);
   const createCollection = useStore((s) => s.createCollection);
   const removeFromCollection = useStore((s) => s.removeFromCollection);
   const [activeSection, setActiveSection] = useState<ProfileSection>("dna");
@@ -47,7 +50,7 @@ export function ProfilePage() {
         </div>
 
         {/* Profile avatar & name */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-4 mb-4">
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold to-blush flex items-center justify-center">
             <span className="font-editorial text-xl text-white">Y</span>
           </div>
@@ -56,6 +59,37 @@ export function ProfilePage() {
             <p className="text-xs font-inter text-ink-muted">
               {likedLooks.length} looks loved · {collections.reduce((sum, c) => sum + c.looks.length, 0)} saved
             </p>
+          </div>
+        </div>
+
+        {/* Engagement stats ribbon */}
+        <div className="flex gap-3 mb-6">
+          <div className="flex-1 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-3 flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-400 to-rose flex items-center justify-center">
+              <Flame size={14} className="text-white" />
+            </div>
+            <div>
+              <p className="text-lg font-inter font-bold text-ink leading-none">{dailyStreak}</p>
+              <p className="text-[10px] font-inter text-ink-muted">day streak</p>
+            </div>
+          </div>
+          <div className="flex-1 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-3 flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-400 to-indigo-500 flex items-center justify-center">
+              <Eye size={14} className="text-white" />
+            </div>
+            <div>
+              <p className="text-lg font-inter font-bold text-ink leading-none">{totalSwipes}</p>
+              <p className="text-[10px] font-inter text-ink-muted">discovered</p>
+            </div>
+          </div>
+          <div className="flex-1 bg-gradient-to-br from-pink-50 to-rose/20 rounded-xl p-3 flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-rose to-pink-500 flex items-center justify-center">
+              <Sparkles size={14} className="text-white" />
+            </div>
+            <div>
+              <p className="text-lg font-inter font-bold text-ink leading-none">{totalLoves}</p>
+              <p className="text-[10px] font-inter text-ink-muted">loved</p>
+            </div>
           </div>
         </div>
 
