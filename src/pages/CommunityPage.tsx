@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, BadgeCheck, Flame, Trophy, ArrowRight } from "lucide-react";
+import { Search, BadgeCheck, Sparkles, Clock } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { PostCard } from "../components/community/PostCard";
 import { CreatorProfile } from "../components/community/CreatorProfile";
@@ -11,6 +11,7 @@ import { ProductCard } from "../components/cards/ProductCard";
 import { useStore } from "../stores/useStore";
 import { creators, communityPosts, mustHaveLists } from "../data/communityData";
 import type { Creator, CommunityPost, MustHaveList } from "../data/communityData";
+
 
 type CommunityTab = "forYou" | "following" | "mustHaves";
 
@@ -145,39 +146,45 @@ export function CommunityPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
           >
-            {/* Style Challenge Banner (For You only) */}
+            {/* OOTD Challenge banner (For You only) */}
             {activeTab === "forYou" && (
               <div className="px-6 mb-5">
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-ink via-charcoal to-ink p-5"
+                  className="relative overflow-hidden rounded-2xl"
                 >
-                  <div className="absolute top-2 right-2 opacity-10">
-                    <Trophy size={80} className="text-gold" />
-                  </div>
-                  <div className="relative z-10">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Flame size={14} className="text-gold" />
-                      <span className="text-[10px] font-inter font-semibold tracking-[0.2em] uppercase text-gold">
-                        Weekly Challenge
-                      </span>
-                    </div>
-                    <h3 className="font-editorial text-xl text-white mb-1">
-                      Quiet Luxury
-                    </h3>
-                    <p className="text-xs font-inter text-white/60 mb-3">
-                      Show us your best understated elegance. The Row, Toteme, COS energy.
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-inter text-white/40">2,847 entries</span>
-                        <span className="text-white/20">·</span>
-                        <span className="text-[10px] font-inter text-white/40">3 days left</span>
+                  <img
+                    src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&h=300&fit=crop&q=80"
+                    alt="OOTD Challenge"
+                    className="w-full h-36 object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-ink/80 via-ink/60 to-transparent" />
+                  <div className="absolute inset-0 flex items-center p-5">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        <Sparkles size={12} className="text-gold" />
+                        <span className="text-[9px] font-inter font-bold tracking-[0.2em] uppercase text-gold">
+                          Daily Challenge
+                        </span>
                       </div>
-                      <div className="flex items-center gap-1 text-gold text-xs font-inter font-medium">
-                        <span>Enter</span>
-                        <ArrowRight size={12} />
+                      <h3 className="font-editorial text-lg text-white leading-tight mb-1">
+                        OOTD: Summer Whites
+                      </h3>
+                      <p className="text-[11px] font-inter text-white/60 mb-2">
+                        Style an all-white look. Best picks get featured.
+                      </p>
+                      <div className="flex items-center gap-3">
+                        <motion.button
+                          whileTap={{ scale: 0.95 }}
+                          className="px-4 py-1.5 rounded-full bg-gold text-white text-[10px] font-inter font-semibold"
+                        >
+                          Join Challenge
+                        </motion.button>
+                        <span className="flex items-center gap-1 text-[10px] font-inter text-white/40">
+                          <Clock size={10} />
+                          8h left
+                        </span>
                       </div>
                     </div>
                   </div>

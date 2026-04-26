@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
 import { SearchPage } from "./SearchPage";
 import { Logo } from "../components/ui/Logo";
-import { feedLooks } from "../data/mockData";
+import { RefreshCw, Sparkles, Camera } from "lucide-react";
+import { feedLooks, moodFilters } from "../data/mockData";
+import type { MoodFilter } from "../data/mockData";
 import { useStore } from "../stores/useStore";
-import { RotateCcw, Sparkles, RefreshCw, Camera } from "lucide-react";
 
 function TodaysEditHeader() {
   const now = new Date();
@@ -99,22 +100,23 @@ function DoubleTapHeart() {
 
 export function FeedPage() {
   const currentFeedIndex = useStore((s) => s.currentFeedIndex);
+  const setCurrentFeedIndex = useStore((s) => s.setCurrentFeedIndex);
   const likeLook = useStore((s) => s.likeLook);
   const passLook = useStore((s) => s.passLook);
   const addToCollection = useStore((s) => s.addToCollection);
   const showLookDetail = useStore((s) => s.showLookDetail);
   const setShowLookDetail = useStore((s) => s.setShowLookDetail);
   const setActiveTab = useStore((s) => s.setActiveTab);
-  const lastSwipedLook = useStore((s) => s.lastSwipedLook);
+  const activeMoodFilter = useStore((s) => s.activeMoodFilter);
+  const setActiveMoodFilter = useStore((s) => s.setActiveMoodFilter);
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
+  const lastSwipedLook = useStore((s) => s.lastSwipedLook);
+  const likedLooks = useStore((s) => s.likedLooks);
   const hasSeenSwipeTutorial = useStore((s) => s.hasSeenSwipeTutorial);
   const dismissSwipeTutorial = useStore((s) => s.dismissSwipeTutorial);
-  const resetFeed = useStore((s) => s.resetFeed);
-  const likedLooks = useStore((s) => s.likedLooks);
-
+  const [showSearch, setShowSearch] = useState(false);
   const [doubleTapKey, setDoubleTapKey] = useState(0);
   const heartTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const [showSearch, setShowSearch] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -122,74 +124,78 @@ export function FeedPage() {
     };
   }, []);
 
-  const hasSeenAllLooks = currentFeedIndex >= feedLooks.length;
+  const filteredLooks = useMemo(
+    () =>
+      activeMoodFilter === "all"
+        ? feedLooks
+        : feedLooks.filter((l) => l.mood === activeMoodFilter),
+    [activeMoodFilter]
+  );
+
+  const hasSeenAll = currentFeedIndex >= filteredLooks.length;
 
   const currentLook = useMemo(
-    () => (hasSeenAllLooks ? null : feedLooks[currentFeedIndex]),
-    [currentFeedIndex, hasSeenAllLooks]
+    () => filteredLooks[currentFeedIndex % filteredLooks.length],
+    [currentFeedIndex, filteredLooks]
   );
   const nextLook = useMemo(
-    () =>
-      hasSeenAllLooks
-        ? null
-        : feedLooks[(currentFeedIndex + 1) % feedLooks.length],
-    [currentFeedIndex, hasSeenAllLooks]
+    () => filteredLooks[(currentFeedIndex + 1) % filteredLooks.length],
+    [currentFeedIndex, filteredLooks]
   );
 
   const handleSwipeRight = useCallback(() => {
-    if (currentLook) likeLook(currentLook);
+    likeLook(currentLook);
   }, [currentLook, likeLook]);
 
   const handleSwipeLeft = useCallback(() => {
-    if (currentLook) passLook(currentLook);
+    passLook(currentLook);
   }, [currentLook, passLook]);
 
   const handleSwipeUp = useCallback(() => {
-    if (currentLook) setShowLookDetail(currentLook);
+    setShowLookDetail(currentLook);
+  }, [currentLook, setShowLookDetail]);
+
+  const handleTap = useCallback(() => {
+    setShowLookDetail(currentLook);
   }, [currentLook, setShowLookDetail]);
 
   const handleDoubleTap = useCallback(() => {
-    if (currentLook) {
-      if (heartTimeoutRef.current) clearTimeout(heartTimeoutRef.current);
-      setDoubleTapKey((k) => k + 1);
-      likeLook(currentLook);
-      heartTimeoutRef.current = setTimeout(() => {
-        setDoubleTapKey(0);
-      }, 800);
-    }
+    if (heartTimeoutRef.current) clearTimeout(heartTimeoutRef.current);
+    setDoubleTapKey((k) => k + 1);
+    likeLook(currentLook);
+    heartTimeoutRef.current = setTimeout(() => {
+      setDoubleTapKey(0);
+    }, 800);
   }, [currentLook, likeLook]);
 
-  const handleTap = useCallback(() => {
-    if (currentLook) setShowLookDetail(currentLook);
-  }, [currentLook, setShowLookDetail]);
-
   const handleButtonLike = useCallback(() => {
-    if (currentLook) likeLook(currentLook);
+    likeLook(currentLook);
   }, [currentLook, likeLook]);
 
   const handleButtonPass = useCallback(() => {
-    if (currentLook) passLook(currentLook);
+    passLook(currentLook);
   }, [currentLook, passLook]);
 
   const handleButtonShop = useCallback(() => {
-    if (currentLook) setShowLookDetail(currentLook);
+    setShowLookDetail(currentLook);
   }, [currentLook, setShowLookDetail]);
 
   const handleButtonSave = useCallback(() => {
-    if (currentLook) {
-      addToCollection("favorites", currentLook);
-      setActiveTab("profile");
-    }
+    addToCollection("favorites", currentLook);
+    setActiveTab("profile");
   }, [currentLook, addToCollection, setActiveTab]);
 
-  const handleRefresh = useCallback(() => {
-    resetFeed();
-  }, [resetFeed]);
+  const handleMoodFilter = useCallback(
+    (mood: MoodFilter) => {
+      setActiveMoodFilter(mood);
+    },
+    [setActiveMoodFilter]
+  );
 
   return (
     <div className="h-full flex flex-col bg-cream">
       {/* Header */}
-      <div className="flex items-center justify-between py-4 px-6">
+      <div className="flex items-center justify-between py-3 px-6">
         <Logo variant="mark" size="sm" />
         <div className="flex items-center gap-3">
           <span className="text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted">
@@ -203,7 +209,7 @@ export function FeedPage() {
               transition={{ duration: 0.3 }}
             />
           </div>
-          {!hasSeenAllLooks && (
+          {!hasSeenAll && (
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={() => setShowSearch(true)}
@@ -218,9 +224,29 @@ export function FeedPage() {
       {/* Today's Edit header */}
       <TodaysEditHeader />
 
+      {/* Mood filter pills */}
+      <div className="px-4 pb-2">
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+          {moodFilters.map((filter) => (
+            <motion.button
+              key={filter.id}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleMoodFilter(filter.id)}
+              className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-inter font-medium transition-all ${
+                activeMoodFilter === filter.id
+                  ? "bg-ink text-cream"
+                  : "bg-ivory text-ink-muted border border-ink/5 hover:border-ink/15"
+              }`}
+            >
+              {filter.label}
+            </motion.button>
+          ))}
+        </div>
+      </div>
+
       {/* Card stack area */}
       <div className="flex-1 relative px-4 pb-2">
-        {hasSeenAllLooks ? (
+        {hasSeenAll ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -245,7 +271,7 @@ export function FeedPage() {
             <div className="flex flex-col gap-3 w-full mt-6">
               <motion.button
                 whileTap={{ scale: 0.98 }}
-                onClick={handleRefresh}
+                onClick={() => setCurrentFeedIndex(0)}
                 className="w-full py-3.5 rounded-full bg-ink text-cream font-inter text-sm font-medium flex items-center justify-center gap-2"
               >
                 <RefreshCw size={14} />
@@ -264,57 +290,32 @@ export function FeedPage() {
           <div className="relative w-full h-full max-w-md mx-auto">
             <AnimatePresence>
               {/* Background card (next) */}
-              {nextLook && (
-                <SwipeCard
-                  key={`bg-${nextLook.id}-${currentFeedIndex}`}
-                  look={nextLook}
-                  onSwipeRight={() => {}}
-                  onSwipeLeft={() => {}}
-                  onSwipeUp={() => {}}
-                  onTap={() => {}}
-                  onDoubleTap={() => {}}
-                  isTop={false}
-                />
-              )}
+              <SwipeCard
+                key={`bg-${nextLook.id}-${currentFeedIndex}`}
+                look={nextLook}
+                onSwipeRight={() => {}}
+                onSwipeLeft={() => {}}
+                onSwipeUp={() => {}}
+                onTap={() => {}}
+                onDoubleTap={() => {}}
+                isTop={false}
+              />
               {/* Top card (current) */}
-              {currentLook && (
-                <SwipeCard
-                  key={`fg-${currentLook.id}-${currentFeedIndex}`}
-                  look={currentLook}
-                  onSwipeRight={handleSwipeRight}
-                  onSwipeLeft={handleSwipeLeft}
-                  onSwipeUp={handleSwipeUp}
-                  onTap={handleTap}
-                  onDoubleTap={handleDoubleTap}
-                  isTop={true}
-                  cardIndex={currentFeedIndex}
-                  totalCards={feedLooks.length}
-                />
-              )}
-            </AnimatePresence>
-
-            {/* Undo last swipe */}
-            <AnimatePresence>
-              {lastSwipedLook && !hasSeenAllLooks && (
-                <motion.button
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={undoLastSwipe}
-                  className="absolute -top-2 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 bg-white/90 backdrop-blur-sm shadow-sm border border-ink/10 rounded-full px-3 py-1.5"
-                >
-                  <RotateCcw size={12} className="text-ink-light" />
-                  <span className="text-[10px] font-inter font-medium text-ink-light">
-                    Undo
-                  </span>
-                </motion.button>
-              )}
+              <SwipeCard
+                key={`fg-${currentLook.id}-${currentFeedIndex}`}
+                look={currentLook}
+                onSwipeRight={handleSwipeRight}
+                onSwipeLeft={handleSwipeLeft}
+                onSwipeUp={handleSwipeUp}
+                onTap={handleTap}
+                onDoubleTap={handleDoubleTap}
+                isTop={true}
+              />
             </AnimatePresence>
 
             {/* Swipe tutorial hint */}
             <AnimatePresence>
-              {!hasSeenSwipeTutorial && !hasSeenAllLooks && (
+              {!hasSeenSwipeTutorial && !hasSeenAll && (
                 <SwipeTutorialHint onDismiss={dismissSwipeTutorial} />
               )}
             </AnimatePresence>
@@ -328,16 +329,18 @@ export function FeedPage() {
       </div>
 
       {/* Action buttons */}
-      {!hasSeenAllLooks && (
+      {!hasSeenAll && (
         <div className="pb-20 px-4">
           <SwipeButtons
             onPass={handleButtonPass}
             onLike={handleButtonLike}
             onShop={handleButtonShop}
             onSave={handleButtonSave}
+            onUndo={undoLastSwipe}
+            canUndo={!!lastSwipedLook}
           />
           <p className="text-center text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted mt-1">
-            Swipe right to love · Left to pass · Up to shop
+            Swipe right to love · Left to pass · Up to shop · Double-tap to love
           </p>
         </div>
       )}

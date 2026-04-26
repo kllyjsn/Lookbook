@@ -1,14 +1,19 @@
-import { useState, useRef, useEffect } from "react";
-import { motion, useMotionValue, useTransform, animate, type PanInfo } from "framer-motion";
-import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap } from "lucide-react";
+import { useState, useRef, useCallback, useEffect } from "react";
+import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion";
+import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2 } from "lucide-react";
 import type { Look } from "../../data/mockData";
+
+function formatCount(n: number): string {
+  if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
+  return String(n);
+}
 
 const badgeConfig = {
   "trending": { label: "TRENDING", icon: TrendingUp, bg: "bg-rose/90", text: "text-white" },
   "editors-pick": { label: "EDITOR'S PICK", icon: Award, bg: "bg-gold/90", text: "text-white" },
   "new": { label: "NEW", icon: Zap, bg: "bg-ink/80", text: "text-cream" },
 } as const;
-
 
 interface SwipeCardProps {
   look: Look;
@@ -18,10 +23,7 @@ interface SwipeCardProps {
   onTap: () => void;
   onDoubleTap: () => void;
   isTop: boolean;
-  cardIndex?: number;
-  totalCards?: number;
 }
-
 
 export function SwipeCard({
   look,
@@ -31,20 +33,16 @@ export function SwipeCard({
   onTap,
   onDoubleTap,
   isTop,
-  cardIndex,
-  totalCards,
 }: SwipeCardProps) {
   const [exitDirection, setExitDirection] = useState<"left" | "right" | "up" | null>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [showHeartBurst, setShowHeartBurst] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const lastTapRef = useRef(0);
-  const tapTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-
-  useEffect(() => {
-    return () => {
-      if (tapTimeoutRef.current) clearTimeout(tapTimeoutRef.current);
-    };
-  }, []);
+  const doubleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const singleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const doubleTapDetectedRef = useRef(false);
+  const swipedRef = useRef(false);
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -55,19 +53,44 @@ export function SwipeCard({
   const shopOpacity = useTransform(y, [-80, 0], [1, 0]);
   const scale = useTransform(x, [-300, 0, 300], [0.95, 1, 0.95]);
 
+  useEffect(() => {
+    return () => {
+      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
+      if (singleTapTimerRef.current) clearTimeout(singleTapTimerRef.current);
+    };
+  }, []);
+
+  const cancelPendingTimers = useCallback(() => {
+    if (doubleTapTimerRef.current) {
+      clearTimeout(doubleTapTimerRef.current);
+      doubleTapTimerRef.current = null;
+    }
+    if (singleTapTimerRef.current) {
+      clearTimeout(singleTapTimerRef.current);
+      singleTapTimerRef.current = null;
+    }
+    setShowHeartBurst(false);
+  }, []);
+
   const handleDragEnd = (_: unknown, info: PanInfo) => {
     const threshold = 100;
     const velocity = 0.5;
 
     if (info.offset.y < -threshold || info.velocity.y < -velocity) {
+      swipedRef.current = true;
+      cancelPendingTimers();
       setExitDirection("up");
       animate(y, -1000, { duration: 0.3 });
       setTimeout(onSwipeUp, 300);
     } else if (info.offset.x > threshold || info.velocity.x > velocity) {
+      swipedRef.current = true;
+      cancelPendingTimers();
       setExitDirection("right");
       animate(x, 1000, { duration: 0.3 });
       setTimeout(onSwipeRight, 300);
     } else if (info.offset.x < -threshold || info.velocity.x < -velocity) {
+      swipedRef.current = true;
+      cancelPendingTimers();
       setExitDirection("left");
       animate(x, -1000, { duration: 0.3 });
       setTimeout(onSwipeLeft, 300);
@@ -77,23 +100,37 @@ export function SwipeCard({
     }
   };
 
-  const handleClick = () => {
-    if (Math.abs(x.get()) < 5 && Math.abs(y.get()) < 5) {
-      const now = Date.now();
-      if (now - lastTapRef.current < 300) {
-        onDoubleTap();
-        lastTapRef.current = 0;
-      } else {
-        lastTapRef.current = now;
-        tapTimeoutRef.current = setTimeout(() => {
-          if (lastTapRef.current !== 0) {
-            onTap();
-            lastTapRef.current = 0;
-          }
-        }, 300);
+  const handleClick = useCallback(() => {
+    if (Math.abs(x.get()) > 5 || Math.abs(y.get()) > 5) return;
+    if (swipedRef.current) return;
+
+    const now = Date.now();
+    if (now - lastTapRef.current < 300) {
+      doubleTapDetectedRef.current = true;
+      if (singleTapTimerRef.current) {
+        clearTimeout(singleTapTimerRef.current);
+        singleTapTimerRef.current = null;
       }
+      setShowHeartBurst(true);
+      doubleTapTimerRef.current = setTimeout(() => {
+        doubleTapTimerRef.current = null;
+        if (!swipedRef.current) {
+          setShowHeartBurst(false);
+          onDoubleTap();
+        }
+        doubleTapDetectedRef.current = false;
+      }, 700);
+    } else {
+      doubleTapDetectedRef.current = false;
+      singleTapTimerRef.current = setTimeout(() => {
+        singleTapTimerRef.current = null;
+        if (!doubleTapDetectedRef.current && !swipedRef.current) {
+          onTap();
+        }
+      }, 300);
     }
-  };
+    lastTapRef.current = now;
+  }, [onTap, onDoubleTap, x, y]);
 
   if (exitDirection) {
     return null;
@@ -114,9 +151,10 @@ export function SwipeCard({
       onClick={handleClick}
     >
       <div className="relative w-full h-full rounded-2xl overflow-hidden card-shadow bg-charcoal">
-        {/* Shimmer skeleton */}
-        {!imgLoaded && <div className="absolute inset-0 shimmer-loading" />}
-
+        {/* Skeleton loading state */}
+        {!imgLoaded && (
+          <div className="absolute inset-0 skeleton-shimmer" />
+        )}
         {/* Image */}
         <img
           src={look.image}
@@ -132,44 +170,41 @@ export function SwipeCard({
             <span className="text-white/60 text-[10px] font-inter tracking-[0.3em] uppercase">
               {look.season}
             </span>
-            {look.badge && (() => {
-              const badge = badgeConfig[look.badge];
-              const BadgeIcon = badge.icon;
-              return (
-                <motion.div
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.3, type: "spring", stiffness: 400 }}
-                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full ${badge.bg} backdrop-blur-sm`}
-                >
-                  <BadgeIcon size={10} className={badge.text} />
-                  <span className={`text-[9px] font-inter font-semibold tracking-wider ${badge.text}`}>
-                    {badge.label}
-                  </span>
-                </motion.div>
-              );
-            })()}
-            {!look.badge && (
+            <div className="flex items-center gap-2">
+              {look.trending && (
+                <span className="trending-badge flex items-center gap-1 text-[9px] font-inter font-semibold tracking-[0.1em] uppercase bg-white/20 backdrop-blur-sm text-white rounded-full px-2.5 py-1">
+                  <TrendingUp size={10} />
+                  Trending
+                </span>
+              )}
+              {look.editorsChoice && (
+                <span className="text-[9px] font-inter font-semibold tracking-[0.1em] uppercase bg-gold/90 text-white rounded-full px-2.5 py-1">
+                  Editor's Pick
+                </span>
+              )}
+              {look.badge && (() => {
+                const badge = badgeConfig[look.badge];
+                const BadgeIcon = badge.icon;
+                return (
+                  <motion.div
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.3, type: "spring", stiffness: 400 }}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-full ${badge.bg} backdrop-blur-sm`}
+                  >
+                    <BadgeIcon size={10} className={badge.text} />
+                    <span className={`text-[9px] font-inter font-semibold tracking-wider ${badge.text}`}>
+                      {badge.label}
+                    </span>
+                  </motion.div>
+                );
+              })()}
               <span className="text-white/60 text-[10px] font-inter tracking-[0.3em] uppercase">
                 {look.occasion}
               </span>
-            )}
+            </div>
           </div>
         </div>
-
-        {/* Card progress indicator */}
-        {isTop && cardIndex !== undefined && totalCards !== undefined && (
-          <div className="absolute top-[52px] left-6 right-6 flex gap-1">
-            {Array.from({ length: Math.min(totalCards, 12) }).map((_, i) => (
-              <div
-                key={i}
-                className={`h-0.5 flex-1 rounded-full transition-colors ${
-                  i <= cardIndex ? "bg-white/60" : "bg-white/15"
-                }`}
-              />
-            ))}
-          </div>
-        )}
 
         {/* Bottom gradient + content */}
         <div className="absolute inset-x-0 bottom-0 gradient-bottom p-6 pb-8">
@@ -191,6 +226,11 @@ export function SwipeCard({
               {look.subtitle}
             </p>
             <div className="flex items-center gap-3 pt-1">
+              <span className="flex items-center gap-1 text-xs font-inter text-white/60">
+                <Heart size={12} fill="currentColor" />
+                {formatCount(look.likes)}
+              </span>
+              <span className="text-white/30">·</span>
               <span className="text-xs font-inter text-white/50">
                 {look.priceRange}
               </span>
@@ -237,6 +277,21 @@ export function SwipeCard({
             </span>
           </div>
         </motion.div>
+
+        {/* Double-tap heart burst animation */}
+        <AnimatePresence>
+          {showHeartBurst && (
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 1.5, opacity: 0 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className="absolute inset-0 flex items-center justify-center pointer-events-none z-20"
+            >
+              <Heart size={80} className="text-white drop-shadow-lg" fill="white" strokeWidth={0} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.div>
   );
@@ -247,11 +302,29 @@ interface SwipeButtonsProps {
   onLike: () => void;
   onShop: () => void;
   onSave: () => void;
+  onUndo: () => void;
+  canUndo: boolean;
 }
 
-export function SwipeButtons({ onPass, onLike, onShop, onSave }: SwipeButtonsProps) {
+export function SwipeButtons({ onPass, onLike, onShop, onSave, onUndo, canUndo }: SwipeButtonsProps) {
   return (
-    <div className="flex items-center justify-center gap-5 py-4">
+    <div className="flex items-center justify-center gap-4 py-4">
+      <AnimatePresence>
+        {canUndo && (
+          <motion.button
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={onUndo}
+            className="w-10 h-10 rounded-full border-2 border-ink/10 flex items-center justify-center bg-cream hover:border-lavender/40 hover:bg-lavender/5 transition-colors"
+          >
+            <Undo2 size={14} className="text-ink-muted" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
       <motion.button
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
