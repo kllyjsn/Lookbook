@@ -163,13 +163,13 @@ img {
 }
 
 /* Skeleton shimmer */
-@keyframes shimmer {
+@keyframes skeleton-shimmer {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(100%); }
 }
 
 .skeleton-shimmer {
-  animation: shimmer 1.5s infinite;
+  animation: skeleton-shimmer 1.5s infinite;
 }
 
 /* Hide scrollbar for trending bars */

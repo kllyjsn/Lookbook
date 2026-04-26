@@ -37,6 +37,7 @@ export function OnboardingPage() {
   const [isBuilding, setIsBuilding] = useState(false);
   const completeOnboarding = useStore((s) => s.completeOnboarding);
   const updateStyleDNA = useStore((s) => s.updateStyleDNA);
+  const setBudgetPreference = useStore((s) => s.setBudgetPreference);
 
   const toggleStyle = (id: string) => {
     setSelectedStyles((prev) =>
@@ -81,9 +82,10 @@ export function OnboardingPage() {
 
     setTimeout(() => {
       updateStyleDNA(dna);
+      if (selectedBudget) setBudgetPreference(selectedBudget);
       completeOnboarding();
     }, 2500);
-  }, [selectedStyles, completeOnboarding, updateStyleDNA]);
+  }, [selectedStyles, selectedBudget, completeOnboarding, updateStyleDNA, setBudgetPreference]);
 
   const canProceed =
     (step === 0) ||
