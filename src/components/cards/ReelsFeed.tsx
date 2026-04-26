@@ -56,9 +56,14 @@ export function ReelsFeed({ looks, onOpenDetail }: ReelsFeedProps) {
     [goNext, goPrev]
   );
 
+  const lastWheelNav = useRef(0);
+
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
+      const now = Date.now();
+      if (now - lastWheelNav.current < 400) return;
       if (Math.abs(e.deltaY) > 30) {
+        lastWheelNav.current = now;
         if (e.deltaY > 0) goNext();
         else goPrev();
       }

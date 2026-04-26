@@ -365,6 +365,7 @@ export const useStore = create<AppState>()(
         hasCompletedOnboarding: state.hasCompletedOnboarding,
         bagItems: state.bagItems,
         feedMode: state.feedMode,
+        colorSeason: state.colorSeason,
       }),
     }
   )
