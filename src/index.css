@@ -162,7 +162,7 @@ img {
   transition: opacity 0.3s ease;
 }
 
-/* Shimmer loading skeleton */
+/* Shimmer loading animation */
 @keyframes shimmer {
   0% {
     background-position: -200% 0;
@@ -186,13 +186,6 @@ img {
 /* Tab bar safe area */
 .safe-bottom {
   padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
-}
-
-
-/* Skeleton shimmer loading effect */
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
 }
 
 .skeleton-shimmer {

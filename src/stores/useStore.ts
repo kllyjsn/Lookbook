@@ -287,6 +287,7 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        hasSeenSwipeTutorial: state.hasSeenSwipeTutorial,
       }),
     }
   )
