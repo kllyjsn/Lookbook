@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, useMotionValue, useTransform, animate, type PanInfo } from "framer-motion";
 import { Heart, X, ShoppingBag, Bookmark, TrendingUp } from "lucide-react";
 import type { Look } from "../../data/mockData";
@@ -33,6 +33,13 @@ export function SwipeCard({
   const [imgLoaded, setImgLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const lastTapRef = useRef(0);
+  const tapTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  useEffect(() => {
+    return () => {
+      if (tapTimeoutRef.current) clearTimeout(tapTimeoutRef.current);
+    };
+  }, []);
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -75,7 +82,7 @@ export function SwipeCard({
         lastTapRef.current = 0;
       } else {
         lastTapRef.current = now;
-        setTimeout(() => {
+        tapTimeoutRef.current = setTimeout(() => {
           if (lastTapRef.current !== 0) {
             onTap();
             lastTapRef.current = 0;
