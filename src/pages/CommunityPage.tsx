@@ -8,6 +8,8 @@ import { MustHaveCard } from "../components/community/MustHaveCard";
 import { MustHaveDetail } from "../components/community/MustHaveDetail";
 import { FollowButton } from "../components/community/FollowButton";
 import { ProductCard } from "../components/cards/ProductCard";
+import { StoriesRow } from "../components/community/StoriesRow";
+import { StyleChallenge } from "../components/community/StyleChallenge";
 import { useStore } from "../stores/useStore";
 import { creators, communityPosts, mustHaveLists } from "../data/communityData";
 import type { Creator, CommunityPost, MustHaveList } from "../data/communityData";
@@ -112,6 +114,12 @@ export function CommunityPage() {
           Discover creators. Follow their style.
         </p>
       </div>
+
+      {/* Stories row */}
+      <StoriesRow onCreatorTap={handleCreatorTap} />
+
+      {/* Style challenges */}
+      <StyleChallenge />
 
       {/* Sub-tabs */}
       <div className="px-6 mb-5">

@@ -37,7 +37,7 @@ export function TabBar() {
                   }`}
                 />
                 <span
-                  className={`text-[9px] font-inter tracking-[0.05em] transition-colors duration-200 ${
+                  className={`text-[9px] font-inter tracking-wide transition-colors duration-200 ${
                     isActive ? "text-ink font-medium" : "text-ink-muted"
                   }`}
                 >

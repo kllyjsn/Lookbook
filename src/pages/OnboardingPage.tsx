@@ -1,69 +1,40 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, Sparkles } from "lucide-react";
-import { Logo } from "../components/ui/Logo";
+import { ArrowRight, Sparkles, Check } from "lucide-react";
 import { useStore } from "../stores/useStore";
+import { Logo } from "../components/ui/Logo";
 
-const UNSPLASH = (id: string, w = 800, h = 600) =>
-  `https://images.unsplash.com/${id}?w=${w}&h=${h}&fit=crop&q=80`;
+const styleOptions = [
+  { id: "minimalist", label: "Minimalist", emoji: "The Row, COS, Jil Sander", color: "#1A1A1A", image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&h=500&fit=crop&q=80" },
+  { id: "classic", label: "Classic", emoji: "Max Mara, Ralph Lauren, Toteme", color: "#C5A572", image: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=400&h=500&fit=crop&q=80" },
+  { id: "streetwear", label: "Streetwear", emoji: "Off-White, Stussy, Nike", color: "#2D2D2D", image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&h=500&fit=crop&q=80" },
+  { id: "romantic", label: "Romantic", emoji: "Reformation, Zimmermann, Rouje", color: "#C4797A", image: "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=400&h=500&fit=crop&q=80" },
+  { id: "avant-garde", label: "Avant-Garde", emoji: "Comme des Garcons, Maison Margiela", color: "#B8A9C9", image: "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=400&h=500&fit=crop&q=80" },
+  { id: "bohemian", label: "Bohemian", emoji: "Free People, Isabel Marant, Doen", color: "#A8B5A0", image: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=400&h=500&fit=crop&q=80" },
+];
 
-interface StyleOption {
-  id: string;
-  label: string;
-  image: string;
-  tags: string[];
-}
-
-const styleOptions: StyleOption[] = [
-  {
-    id: "minimalist",
-    label: "Minimalist",
-    image: UNSPLASH("photo-1509631179647-0177331693ae"),
-    tags: ["Clean Lines", "Neutral Palette"],
-  },
-  {
-    id: "streetwear",
-    label: "Street Luxe",
-    image: UNSPLASH("photo-1515886657613-9f3515b0c78f"),
-    tags: ["Urban", "Effortless"],
-  },
-  {
-    id: "romantic",
-    label: "Romantic",
-    image: UNSPLASH("photo-1496747611176-843222e1e57c"),
-    tags: ["Soft Hues", "Feminine"],
-  },
-  {
-    id: "classic",
-    label: "Classic",
-    image: UNSPLASH("photo-1539109136881-3be0616acf4b"),
-    tags: ["Tailored", "Timeless"],
-  },
-  {
-    id: "avant-garde",
-    label: "Avant-Garde",
-    image: UNSPLASH("photo-1485968579580-b6d095142e6e"),
-    tags: ["Bold", "Creative"],
-  },
-  {
-    id: "bohemian",
-    label: "Bohemian",
-    image: UNSPLASH("photo-1529139574466-a303027c1d8b"),
-    tags: ["Free-Spirit", "Prints"],
-  },
+const occasionOptions = [
+  { id: "work", label: "Office", desc: "Power dressing" },
+  { id: "weekend", label: "Weekend", desc: "Off-duty cool" },
+  { id: "evening", label: "Evening", desc: "After-dark allure" },
+  { id: "travel", label: "Travel", desc: "Effortless packing" },
+  { id: "brunch", label: "Brunch", desc: "Relaxed chic" },
+  { id: "date", label: "Date Night", desc: "Head-turning looks" },
 ];
 
 const budgetOptions = [
-  { id: "budget", label: "Smart Finds", range: "Under $100", emoji: "" },
-  { id: "mid", label: "Balanced", range: "$100 – $500", emoji: "" },
-  { id: "premium", label: "Investment", range: "$500+", emoji: "" },
-  { id: "luxury", label: "No Limits", range: "Luxury", emoji: "" },
+  { id: "accessible", label: "Under $200", desc: "Smart shopping" },
+  { id: "mid", label: "$200 – $500", desc: "Considered investment" },
+  { id: "premium", label: "$500 – $1,000", desc: "Quality first" },
+  { id: "luxury", label: "$1,000+", desc: "No compromises" },
 ];
 
 export function OnboardingPage() {
-  const [step, setStep] = useState<"welcome" | "style" | "budget" | "ready">("welcome");
+  const [step, setStep] = useState(0);
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
+  const [selectedOccasions, setSelectedOccasions] = useState<string[]>([]);
   const [selectedBudget, setSelectedBudget] = useState<string | null>(null);
+  const [isBuilding, setIsBuilding] = useState(false);
   const completeOnboarding = useStore((s) => s.completeOnboarding);
   const updateStyleDNA = useStore((s) => s.updateStyleDNA);
   const setBudgetPreference = useStore((s) => s.setBudgetPreference);
@@ -74,375 +45,285 @@ export function OnboardingPage() {
     );
   };
 
-  const handleComplete = () => {
-    const colors = ["#1A1A1A", "#C5A572", "#C4797A", "#B8A9C9", "#A8B5A0", "#E8D5D0"];
-    const rawEntries = selectedStyles.map((id, i) => {
-      const option = styleOptions.find((o) => o.id === id);
-      return {
-        style: option?.label ?? id,
-        rawPct: Math.max(15, 90 - i * 20),
-        color: colors[i % colors.length],
-      };
-    });
-    const total = rawEntries.reduce((sum, d) => sum + d.rawPct, 0);
-    const styleDNA = rawEntries.map(({ rawPct, ...rest }) => ({
-      ...rest,
-      percentage: Math.round((rawPct / total) * 100),
-    }));
-    if (styleDNA.length > 0) {
-      updateStyleDNA(styleDNA);
-    }
-    if (selectedBudget) {
-      setBudgetPreference(selectedBudget);
-    }
-    completeOnboarding();
+  const toggleOccasion = (id: string) => {
+    setSelectedOccasions((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+    );
   };
+
+  const handleFinish = useCallback(() => {
+    setIsBuilding(true);
+
+    const styleMap: Record<string, { style: string; color: string }> = {
+      minimalist: { style: "Minimalist", color: "#1A1A1A" },
+      classic: { style: "Classic", color: "#C5A572" },
+      streetwear: { style: "Streetwear", color: "#2D2D2D" },
+      romantic: { style: "Romantic", color: "#C4797A" },
+      "avant-garde": { style: "Avant-Garde", color: "#B8A9C9" },
+      bohemian: { style: "Bohemian", color: "#A8B5A0" },
+    };
+
+    const totalEntries = 6;
+    const totalSelected = selectedStyles.length || 1;
+    const numOthers = totalEntries - totalSelected;
+    const basePercent = Math.floor(80 / totalSelected);
+    const perOther = numOthers > 0 ? Math.floor(20 / numOthers) : 0;
+    const assignedTotal = basePercent * totalSelected + perOther * numOthers;
+    const leftover = 100 - assignedTotal;
+    const extraPerEntry = Math.floor(leftover / totalEntries);
+    let remainder = leftover - extraPerEntry * totalEntries;
+
+    const dna = Object.entries(styleMap).map(([id, val]) => {
+      const base = selectedStyles.includes(id) ? basePercent : perOther;
+      const bonus = extraPerEntry + (remainder > 0 ? 1 : 0);
+      if (remainder > 0) remainder--;
+      return { ...val, percentage: base + bonus };
+    });
+
+    setTimeout(() => {
+      updateStyleDNA(dna);
+      if (selectedBudget) setBudgetPreference(selectedBudget);
+      completeOnboarding();
+    }, 2500);
+  }, [selectedStyles, selectedBudget, completeOnboarding, updateStyleDNA, setBudgetPreference]);
+
+  const canProceed =
+    (step === 0) ||
+    (step === 1 && selectedStyles.length > 0) ||
+    (step === 2 && selectedOccasions.length > 0) ||
+    (step === 3 && selectedBudget !== null);
+
+  const totalSteps = 4;
 
   return (
     <div className="h-full w-full bg-cream flex flex-col max-w-lg mx-auto relative overflow-hidden">
       <AnimatePresence mode="wait">
-        {step === "welcome" && (
+        {isBuilding ? (
+          <motion.div
+            key="building"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex-1 flex flex-col items-center justify-center px-8"
+          >
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+              className="w-16 h-16 rounded-full border-2 border-ink/10 border-t-gold flex items-center justify-center mb-8"
+            />
+            <h2 className="font-editorial text-2xl text-ink text-center mb-3">
+              Building Your Style DNA
+            </h2>
+            <p className="font-subhead text-base text-ink-muted italic text-center">
+              Curating your personalized feed...
+            </p>
+          </motion.div>
+        ) : step === 0 ? (
           <motion.div
             key="welcome"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, x: -40 }}
-            className="flex-1 flex flex-col items-center justify-center px-8"
-          >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-            >
-              <Logo variant="full" size="lg" />
-            </motion.div>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="font-subhead text-xl text-ink-light italic text-center mt-8 leading-relaxed"
-            >
-              Your personal fashion magazine.
-              <br />
-              Swipe. Discover. Define your style.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-              className="mt-12 w-full"
-            >
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setStep("style")}
-                className="w-full py-4 rounded-full bg-ink text-cream font-inter text-sm font-medium flex items-center justify-center gap-2"
-              >
-                Find Your Style
-                <ChevronRight size={16} />
-              </motion.button>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.1 }}
-              className="flex gap-2 mt-8"
-            >
-              {[0, 1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className={`w-2 h-2 rounded-full ${i === 0 ? "bg-ink" : "bg-ink/15"}`}
-                />
-              ))}
-            </motion.div>
-          </motion.div>
-        )}
-
-        {step === "style" && (
-          <motion.div
-            key="style"
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -40 }}
             className="flex-1 flex flex-col"
           >
-            <div className="px-6 pt-8 pb-4">
-              <p className="text-[10px] font-inter tracking-[0.3em] uppercase text-ink-muted mb-2">
-                STEP 1 OF 3
-              </p>
-              <h1 className="font-editorial text-3xl text-ink leading-tight mb-2">
-                What's your
-                <br />
-                style vibe?
-              </h1>
-              <p className="font-subhead text-base text-ink-muted italic">
-                Pick as many as speak to you.
-              </p>
-            </div>
-
-            <div className="flex-1 overflow-y-auto px-6 pb-32">
-              <div className="grid grid-cols-2 gap-3">
-                {styleOptions.map((option, i) => {
-                  const isSelected = selectedStyles.includes(option.id);
-                  return (
-                    <motion.div
-                      key={option.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.06 }}
-                      whileTap={{ scale: 0.97 }}
-                      onClick={() => toggleStyle(option.id)}
-                      className="relative cursor-pointer group"
-                    >
-                      <div
-                        className={`relative aspect-[3/4] rounded-2xl overflow-hidden transition-all ${
-                          isSelected ? "ring-2 ring-gold ring-offset-2 ring-offset-cream" : ""
-                        }`}
-                      >
-                        <img
-                          src={option.image}
-                          alt={option.label}
-                          className="img-editorial group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <div className="absolute inset-0 bg-black/35 group-hover:bg-black/25 transition-colors" />
-                        <div className="absolute inset-0 flex flex-col justify-end p-4">
-                          <h3 className="font-editorial text-lg text-white leading-tight">
-                            {option.label}
-                          </h3>
-                          <div className="flex gap-1.5 mt-2">
-                            {option.tags.map((tag) => (
-                              <span
-                                key={tag}
-                                className="text-[8px] font-inter tracking-wider uppercase text-white/70 bg-white/15 rounded-full px-2 py-0.5"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                        {isSelected && (
-                          <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            className="absolute top-3 right-3 w-7 h-7 rounded-full bg-gold flex items-center justify-center"
-                          >
-                            <span className="text-white text-sm font-bold">
-                              {selectedStyles.indexOf(option.id) + 1}
-                            </span>
-                          </motion.div>
-                        )}
-                      </div>
-                    </motion.div>
-                  );
-                })}
+            <div className="relative flex-1 overflow-hidden">
+              <img
+                src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&h=1200&fit=crop&q=80"
+                alt="Fashion editorial"
+                className="img-editorial"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-cream via-cream/60 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-8 pb-4">
+                <Logo variant="full" size="lg" />
+                <p className="font-subhead text-lg text-ink-light italic mt-4 leading-relaxed">
+                  Your personal fashion editor, in your pocket. Discover looks you'll love, shop every piece, build your perfect wardrobe.
+                </p>
               </div>
             </div>
-
-            <div className="absolute bottom-0 inset-x-0 px-6 pb-8 pt-6 bg-gradient-to-t from-cream via-cream to-cream/0">
+            <div className="px-8 pb-10 pt-2">
               <motion.button
-                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => setStep("budget")}
-                disabled={selectedStyles.length === 0}
-                className={`w-full py-4 rounded-full font-inter text-sm font-medium flex items-center justify-center gap-2 transition-all ${
-                  selectedStyles.length > 0
-                    ? "bg-ink text-cream"
-                    : "bg-ink/20 text-ink/40 pointer-events-none"
-                }`}
+                onClick={() => setStep(1)}
+                className="w-full py-4 rounded-2xl bg-ink text-cream font-inter text-sm font-medium flex items-center justify-center gap-2"
               >
-                Continue
-                <ChevronRight size={16} />
+                <Sparkles size={16} />
+                Build My Style Profile
               </motion.button>
-              <div className="flex gap-2 justify-center mt-4">
-                {[0, 1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className={`w-2 h-2 rounded-full ${i === 1 ? "bg-ink" : "bg-ink/15"}`}
-                  />
-                ))}
-              </div>
+              <button
+                onClick={() => completeOnboarding()}
+                className="w-full py-3 text-ink-muted text-xs font-inter mt-2 hover:text-ink transition-colors"
+              >
+                Skip for now
+              </button>
             </div>
           </motion.div>
-        )}
-
-        {step === "budget" && (
+        ) : (
           <motion.div
-            key="budget"
+            key={`step-${step}`}
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -40 }}
-            className="flex-1 flex flex-col px-6"
+            transition={{ duration: 0.3 }}
+            className="flex-1 flex flex-col"
           >
-            <div className="pt-8 pb-4">
-              <p className="text-[10px] font-inter tracking-[0.3em] uppercase text-ink-muted mb-2">
-                STEP 2 OF 3
-              </p>
-              <h1 className="font-editorial text-3xl text-ink leading-tight mb-2">
-                How do you
-                <br />
-                invest in style?
-              </h1>
-              <p className="font-subhead text-base text-ink-muted italic">
-                We'll tailor recommendations to your budget.
-              </p>
-            </div>
-
-            <div className="flex-1 flex flex-col gap-3 py-4">
-              {budgetOptions.map((option, i) => {
-                const isSelected = selectedBudget === option.id;
-                return (
-                  <motion.button
-                    key={option.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.08 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setSelectedBudget(option.id)}
-                    className={`w-full flex items-center gap-4 p-5 rounded-2xl transition-all text-left ${
-                      isSelected
-                        ? "bg-ink text-cream"
-                        : "bg-ivory text-ink hover:bg-ivory/80 border border-ink/5"
-                    }`}
-                  >
-                    <span className="text-2xl">{option.emoji}</span>
-                    <div className="flex-1">
-                      <p
-                        className={`text-sm font-inter font-semibold ${
-                          isSelected ? "text-cream" : "text-ink"
-                        }`}
-                      >
-                        {option.label}
-                      </p>
-                      <p
-                        className={`text-xs font-inter mt-0.5 ${
-                          isSelected ? "text-cream/60" : "text-ink-muted"
-                        }`}
-                      >
-                        {option.range}
-                      </p>
-                    </div>
-                    {isSelected && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="w-6 h-6 rounded-full bg-gold flex items-center justify-center"
-                      >
-                        <span className="text-white text-xs">&#10003;</span>
-                      </motion.div>
-                    )}
-                  </motion.button>
-                );
-              })}
-            </div>
-
-            <div className="pb-8 pt-4">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setStep("ready")}
-                disabled={!selectedBudget}
-                className={`w-full py-4 rounded-full font-inter text-sm font-medium flex items-center justify-center gap-2 transition-all ${
-                  selectedBudget
-                    ? "bg-ink text-cream"
-                    : "bg-ink/20 text-ink/40 pointer-events-none"
-                }`}
-              >
-                Almost There
-                <ChevronRight size={16} />
-              </motion.button>
-              <div className="flex gap-2 justify-center mt-4">
-                {[0, 1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className={`w-2 h-2 rounded-full ${i === 2 ? "bg-ink" : "bg-ink/15"}`}
-                  />
+            {/* Progress bar */}
+            <div className="px-8 pt-6 pb-2">
+              <div className="flex gap-2 mb-6">
+                {Array.from({ length: totalSteps - 1 }).map((_, i) => (
+                  <div key={i} className="flex-1 h-1 rounded-full overflow-hidden bg-ink/5">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: i < step ? "100%" : "0%" }}
+                      className="h-full bg-ink rounded-full"
+                      transition={{ duration: 0.4 }}
+                    />
+                  </div>
                 ))}
               </div>
+
+              <span className="text-[10px] font-inter tracking-[0.3em] uppercase text-ink-muted block mb-1">
+                Step {step} of {totalSteps - 1}
+              </span>
+              <h1 className="font-editorial text-2xl text-ink mb-1">
+                {step === 1 && "What's your style?"}
+                {step === 2 && "Dress for the occasion"}
+                {step === 3 && "Your investment level"}
+              </h1>
+              <p className="font-subhead text-sm text-ink-muted italic">
+                {step === 1 && "Pick all that resonate. We'll learn as you swipe."}
+                {step === 2 && "Select the occasions you dress for most."}
+                {step === 3 && "Help us match your budget preferences."}
+              </p>
             </div>
-          </motion.div>
-        )}
 
-        {step === "ready" && (
-          <motion.div
-            key="ready"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="flex-1 flex flex-col items-center justify-center px-8"
-          >
-            <motion.div
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: "spring", stiffness: 200, damping: 15 }}
-              className="w-20 h-20 rounded-full bg-gradient-to-br from-gold to-blush flex items-center justify-center mb-8"
-            >
-              <Sparkles size={32} className="text-white" />
-            </motion.div>
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto px-8 pb-4 pt-4">
+              {step === 1 && (
+                <div className="grid grid-cols-2 gap-3">
+                  {styleOptions.map((style, i) => {
+                    const isSelected = selectedStyles.includes(style.id);
+                    return (
+                      <motion.div
+                        key={style.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.06 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => toggleStyle(style.id)}
+                        className="cursor-pointer"
+                      >
+                        <div className={`relative aspect-[3/4] rounded-2xl overflow-hidden mb-2 transition-all ${isSelected ? "ring-2 ring-ink ring-offset-2 ring-offset-cream" : ""}`}>
+                          <img src={style.image} alt={style.label} className="img-editorial" />
+                          <div className={`absolute inset-0 transition-colors ${isSelected ? "bg-black/20" : "bg-black/40"}`} />
+                          <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+                            <p className="text-white text-sm font-inter font-semibold text-center">{style.label}</p>
+                            <p className="text-white/50 text-[10px] font-inter text-center mt-1">{style.emoji}</p>
+                          </div>
+                          {isSelected && (
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white flex items-center justify-center"
+                            >
+                              <Check size={14} className="text-ink" />
+                            </motion.div>
+                          )}
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
 
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="font-editorial text-4xl text-ink text-center leading-tight mb-4"
-            >
-              Your Lookbook
-              <br />
-              is ready.
-            </motion.h1>
+              {step === 2 && (
+                <div className="grid grid-cols-2 gap-3">
+                  {occasionOptions.map((occasion, i) => {
+                    const isSelected = selectedOccasions.includes(occasion.id);
+                    return (
+                      <motion.div
+                        key={occasion.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.06 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => toggleOccasion(occasion.id)}
+                        className={`cursor-pointer p-5 rounded-2xl border-2 transition-all ${isSelected ? "border-ink bg-ink/5" : "border-ink/10 bg-ivory"}`}
+                      >
+                        <p className="font-inter font-semibold text-sm text-ink mb-0.5">{occasion.label}</p>
+                        <p className="text-[11px] font-inter text-ink-muted">{occasion.desc}</p>
+                        {isSelected && (
+                          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="mt-2">
+                            <Check size={14} className="text-ink" />
+                          </motion.div>
+                        )}
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="font-subhead text-lg text-ink-muted italic text-center mb-2"
-            >
-              We've curated your feed based on
-              <br />
-              your style preferences.
-            </motion.p>
+              {step === 3 && (
+                <div className="space-y-3">
+                  {budgetOptions.map((budget, i) => {
+                    const isSelected = selectedBudget === budget.id;
+                    return (
+                      <motion.div
+                        key={budget.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.08 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setSelectedBudget(budget.id)}
+                        className={`cursor-pointer p-5 rounded-2xl border-2 transition-all flex items-center justify-between ${isSelected ? "border-ink bg-ink/5" : "border-ink/10 bg-ivory"}`}
+                      >
+                        <div>
+                          <p className="font-inter font-semibold text-sm text-ink">{budget.label}</p>
+                          <p className="text-[11px] font-inter text-ink-muted">{budget.desc}</p>
+                        </div>
+                        {isSelected && (
+                          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
+                            <div className="w-6 h-6 rounded-full bg-ink flex items-center justify-center">
+                              <Check size={14} className="text-cream" />
+                            </div>
+                          </motion.div>
+                        )}
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
-              className="flex flex-wrap justify-center gap-2 mb-10 mt-4"
-            >
-              {selectedStyles.map((id) => {
-                const style = styleOptions.find((s) => s.id === id);
-                return (
-                  <span
-                    key={id}
-                    className="text-[10px] font-inter tracking-[0.15em] uppercase text-gold border border-gold/30 bg-gold/5 rounded-full px-4 py-1.5"
-                  >
-                    {style?.label}
-                  </span>
-                );
-              })}
-            </motion.div>
-
-            <motion.button
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9 }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleComplete}
-              className="w-full py-4 rounded-full bg-ink text-cream font-inter text-sm font-medium flex items-center justify-center gap-2"
-            >
-              <Sparkles size={16} />
-              Start Discovering
-            </motion.button>
-
-            <div className="flex gap-2 justify-center mt-6">
-              {[0, 1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className={`w-2 h-2 rounded-full ${i === 3 ? "bg-ink" : "bg-ink/15"}`}
-                />
-              ))}
+            {/* Bottom CTA */}
+            <div className="px-8 pb-10 pt-4">
+              <motion.button
+                whileTap={{ scale: 0.98 }}
+                onClick={() => {
+                  if (step < 3) setStep(step + 1);
+                  else handleFinish();
+                }}
+                disabled={!canProceed}
+                className={`w-full py-4 rounded-2xl font-inter text-sm font-medium flex items-center justify-center gap-2 transition-all ${canProceed ? "bg-ink text-cream" : "bg-ink/10 text-ink-muted"}`}
+              >
+                {step < 3 ? (
+                  <>
+                    Continue
+                    <ArrowRight size={16} />
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={16} />
+                    See My Feed
+                  </>
+                )}
+              </motion.button>
+              {step > 0 && (
+                <button
+                  onClick={() => setStep(step - 1)}
+                  className="w-full py-3 text-ink-muted text-xs font-inter mt-1 hover:text-ink transition-colors"
+                >
+                  Back
+                </button>
+              )}
             </div>
           </motion.div>
         )}
