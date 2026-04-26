@@ -28,6 +28,7 @@ interface AppState {
   totalLoves: number;
   showHeartBurst: boolean;
   setShowHeartBurst: (v: boolean) => void;
+  advanceFeed: () => void;
   checkStreak: () => void;
 
   // Collections
@@ -70,16 +71,11 @@ export const useStore = create<AppState>()(
       likeLook: (look) =>
         set((state) => ({
           likedLooks: [...state.likedLooks, look],
-          currentFeedIndex: state.currentFeedIndex + 1,
-          totalSwipes: state.totalSwipes + 1,
           totalLoves: state.totalLoves + 1,
-          showHeartBurst: true,
         })),
       passLook: (look) =>
         set((state) => ({
           passedLooks: [...state.passedLooks, look],
-          currentFeedIndex: state.currentFeedIndex + 1,
-          totalSwipes: state.totalSwipes + 1,
         })),
 
       dailyStreak: 1,
@@ -88,6 +84,11 @@ export const useStore = create<AppState>()(
       totalLoves: 0,
       showHeartBurst: false,
       setShowHeartBurst: (v) => set({ showHeartBurst: v }),
+      advanceFeed: () =>
+        set((state) => ({
+          currentFeedIndex: state.currentFeedIndex + 1,
+          totalSwipes: state.totalSwipes + 1,
+        })),
       checkStreak: () =>
         set((state) => {
           const today = new Date().toDateString();

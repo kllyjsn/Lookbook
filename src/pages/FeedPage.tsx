@@ -12,6 +12,7 @@ export function FeedPage() {
   const currentFeedIndex = useStore((s) => s.currentFeedIndex);
   const likeLook = useStore((s) => s.likeLook);
   const passLook = useStore((s) => s.passLook);
+  const advanceFeed = useStore((s) => s.advanceFeed);
   const addToCollection = useStore((s) => s.addToCollection);
   const showLookDetail = useStore((s) => s.showLookDetail);
   const setShowLookDetail = useStore((s) => s.setShowLookDetail);
@@ -37,11 +38,14 @@ export function FeedPage() {
 
   const handleSwipeRight = useCallback(() => {
     likeLook(currentLook);
-  }, [currentLook, likeLook]);
+    advanceFeed();
+    setShowHeartBurst(true);
+  }, [currentLook, likeLook, advanceFeed, setShowHeartBurst]);
 
   const handleSwipeLeft = useCallback(() => {
     passLook(currentLook);
-  }, [currentLook, passLook]);
+    advanceFeed();
+  }, [currentLook, passLook, advanceFeed]);
 
   const handleSwipeUp = useCallback(() => {
     setShowLookDetail(currentLook);
@@ -53,11 +57,14 @@ export function FeedPage() {
 
   const handleButtonLike = useCallback(() => {
     likeLook(currentLook);
-  }, [currentLook, likeLook]);
+    advanceFeed();
+    setShowHeartBurst(true);
+  }, [currentLook, likeLook, advanceFeed, setShowHeartBurst]);
 
   const handleButtonPass = useCallback(() => {
     passLook(currentLook);
-  }, [currentLook, passLook]);
+    advanceFeed();
+  }, [currentLook, passLook, advanceFeed]);
 
   const handleButtonShop = useCallback(() => {
     setShowLookDetail(currentLook);
