@@ -212,13 +212,15 @@ export function LookDetail({ look, onClose, onNavigate }: LookDetailProps) {
         </div>
 
         {/* Share Style Card overlay */}
-        {showShareCard && (
-          <ShareStyleCard
-            look={look}
-            styleDNA={styleDNA}
-            onClose={() => setShowShareCard(false)}
-          />
-        )}
+        <AnimatePresence>
+          {showShareCard && (
+            <ShareStyleCard
+              look={look}
+              styleDNA={styleDNA}
+              onClose={() => setShowShareCard(false)}
+            />
+          )}
+        </AnimatePresence>
       </motion.div>
     </AnimatePresence>
   );

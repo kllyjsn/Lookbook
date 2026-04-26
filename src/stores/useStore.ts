@@ -34,6 +34,7 @@ interface AppState {
   lastActiveDate: string | null;
   totalSwipes: number;
   milestoneReached: number | null;
+  shownMilestones: number[];
   clearMilestone: () => void;
   checkStreak: () => void;
 
@@ -185,6 +186,7 @@ export const useStore = create<AppState>()(
       lastActiveDate: null,
       totalSwipes: 0,
       milestoneReached: null,
+      shownMilestones: [],
       clearMilestone: () => set({ milestoneReached: null }),
       checkStreak: () => set((state) => {
         const newStreak = computeStreak(state.lastActiveDate, state.styleStreak);
@@ -207,7 +209,7 @@ export const useStore = create<AppState>()(
             : [...state.likedLooks, look];
           const newTotal = state.totalSwipes + 1;
           const newStreak = computeStreak(state.lastActiveDate, state.styleStreak);
-          const milestone = MILESTONES.find((m) => m === newTotal) ?? null;
+          const milestone = MILESTONES.find((m) => m === newTotal && !state.shownMilestones.includes(m)) ?? null;
           return {
             likedLooks: newLiked,
             currentFeedIndex: state.currentFeedIndex + 1,
@@ -218,13 +220,14 @@ export const useStore = create<AppState>()(
             styleStreak: newStreak,
             lastActiveDate: getToday(),
             milestoneReached: milestone ?? state.milestoneReached,
+            shownMilestones: milestone ? [...state.shownMilestones, milestone] : state.shownMilestones,
           };
         }),
       passLook: (look) =>
         set((state) => {
           const newTotal = state.totalSwipes + 1;
           const newStreak = computeStreak(state.lastActiveDate, state.styleStreak);
-          const milestone = MILESTONES.find((m) => m === newTotal) ?? null;
+          const milestone = MILESTONES.find((m) => m === newTotal && !state.shownMilestones.includes(m)) ?? null;
           return {
             passedLooks: state.passedLooks.some((l) => l.id === look.id)
               ? state.passedLooks
@@ -236,6 +239,7 @@ export const useStore = create<AppState>()(
             styleStreak: newStreak,
             lastActiveDate: getToday(),
             milestoneReached: milestone ?? state.milestoneReached,
+            shownMilestones: milestone ? [...state.shownMilestones, milestone] : state.shownMilestones,
           };
         }),
       saveLook: (look) =>
@@ -350,6 +354,7 @@ export const useStore = create<AppState>()(
         styleStreak: state.styleStreak,
         lastActiveDate: state.lastActiveDate,
         totalSwipes: state.totalSwipes,
+        shownMilestones: state.shownMilestones,
         viewedStories: state.viewedStories,
       }),
     }
