@@ -134,35 +134,35 @@ export function SwipeCard({
         </div>
 
         {/* Bottom gradient + content */}
-        <div className="absolute inset-x-0 bottom-0 gradient-bottom p-6 pb-8">
-          <div className="space-y-3">
+        <div className="absolute inset-x-0 bottom-0 gradient-bottom p-6 pb-7">
+          <div className="space-y-2">
             <div className="flex gap-2">
               {look.tags.map((tag) => (
                 <span
                   key={tag.label}
-                  className="text-[10px] font-inter tracking-[0.2em] uppercase text-white/70 border border-white/20 rounded-full px-3 py-1"
+                  className="text-[9px] font-inter font-medium tracking-[0.15em] uppercase text-white/80 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1"
                 >
                   {tag.label}
                 </span>
               ))}
             </div>
-            <h2 className="font-editorial text-3xl text-white leading-tight">
+            <h2 className="font-editorial text-[32px] font-bold text-white leading-[1.1] drop-shadow-sm">
               {look.title}
             </h2>
-            <p className="font-subhead text-base text-white/80 italic">
+            <p className="font-subhead text-[17px] text-white/75 italic leading-snug">
               {look.subtitle}
             </p>
-            <div className="flex items-center gap-3 pt-1">
-              <span className="text-xs font-inter text-white/50">
+            <div className="flex items-center gap-2.5 pt-0.5">
+              <span className="text-[11px] font-inter font-medium text-white/60 tracking-wide">
                 {look.priceRange}
               </span>
-              <span className="text-white/30">·</span>
-              <span className="text-xs font-inter text-white/50">
+              <span className="text-white/25">·</span>
+              <span className="text-[11px] font-inter text-white/60 tracking-wide">
                 {look.items.length} pieces
               </span>
-              <span className="text-white/30">·</span>
-              <span className="text-xs font-inter text-white/50 flex items-center gap-1">
-                <Heart size={10} fill="currentColor" /> {look.saves >= 1000 ? `${(look.saves / 1000).toFixed(1)}k` : look.saves}
+              <span className="text-white/25">·</span>
+              <span className="text-[11px] font-inter text-white/60 tracking-wide flex items-center gap-1">
+                <Heart size={9} fill="currentColor" /> {look.saves >= 1000 ? `${(look.saves / 1000).toFixed(1)}k` : look.saves}
               </span>
             </div>
           </div>
@@ -217,41 +217,41 @@ interface SwipeButtonsProps {
 
 export function SwipeButtons({ onPass, onLike, onShop, onSave }: SwipeButtonsProps) {
   return (
-    <div className="flex items-center justify-center gap-5 py-4">
+    <div className="flex items-center justify-center gap-4 py-3">
       <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.88 }}
         onClick={onPass}
-        className="w-14 h-14 rounded-full border-2 border-ink/10 flex items-center justify-center bg-cream hover:border-rose/40 hover:bg-rose/5 transition-colors"
+        className="w-12 h-12 rounded-full border border-ink/10 flex items-center justify-center bg-white shadow-sm hover:border-rose/30 transition-all"
       >
-        <X size={22} className="text-ink-muted" />
+        <X size={20} className="text-ink-muted" />
       </motion.button>
 
       <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.88 }}
         onClick={onShop}
-        className="w-12 h-12 rounded-full border-2 border-ink/10 flex items-center justify-center bg-cream hover:border-gold/40 hover:bg-gold/5 transition-colors"
+        className="w-11 h-11 rounded-full border border-ink/10 flex items-center justify-center bg-white shadow-sm hover:border-gold/30 transition-all"
       >
-        <ShoppingBag size={18} className="text-ink-muted" />
+        <ShoppingBag size={17} className="text-ink-muted" />
       </motion.button>
 
       <motion.button
         whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
+        whileTap={{ scale: 0.85 }}
         onClick={onLike}
-        className="w-14 h-14 rounded-full border-2 border-ink/10 flex items-center justify-center bg-cream hover:border-rose/40 hover:bg-rose/5 transition-colors"
+        className="w-16 h-16 rounded-full btn-gold flex items-center justify-center transition-all"
       >
-        <Heart size={22} className="text-ink-muted" />
+        <Heart size={26} className="text-white" fill="white" />
       </motion.button>
 
       <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.88 }}
         onClick={onSave}
-        className="w-12 h-12 rounded-full border-2 border-ink/10 flex items-center justify-center bg-cream hover:border-gold/40 hover:bg-gold/5 transition-colors"
+        className="w-11 h-11 rounded-full border border-ink/10 flex items-center justify-center bg-white shadow-sm hover:border-gold/30 transition-all"
       >
-        <Bookmark size={18} className="text-ink-muted" />
+        <Bookmark size={17} className="text-ink-muted" />
       </motion.button>
     </div>
   );

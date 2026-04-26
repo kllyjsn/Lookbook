@@ -16,8 +16,8 @@ export function TabBar() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 safe-bottom">
-      <div className="glass border-t border-ink/5">
-        <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
+      <div className="glass border-t border-ink/[0.06]">
+        <div className="flex items-center justify-around h-[60px] max-w-lg mx-auto">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             const Icon = tab.icon;
@@ -26,20 +26,27 @@ export function TabBar() {
               <motion.button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                whileTap={{ scale: 0.9 }}
-                className="relative flex flex-col items-center justify-center w-16 h-full"
+                whileTap={{ scale: 0.92 }}
+                className="relative flex flex-col items-center justify-center gap-0.5 w-16 h-full"
               >
                 <Icon
-                  size={22}
+                  size={20}
                   strokeWidth={isActive ? 2 : 1.5}
                   className={`transition-colors duration-200 ${
                     isActive ? "text-ink" : "text-ink-muted"
                   }`}
                 />
+                <span
+                  className={`text-[9px] font-inter tracking-[0.06em] transition-colors duration-200 ${
+                    isActive ? "text-ink font-semibold" : "text-ink-muted font-medium"
+                  }`}
+                >
+                  {tab.label}
+                </span>
                 {isActive && (
                   <motion.div
                     layoutId="tab-indicator"
-                    className="absolute -bottom-0 w-1 h-1 rounded-full bg-ink"
+                    className="absolute top-0 inset-x-3 h-[2px] rounded-full bg-ink"
                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
                   />
                 )}

@@ -118,8 +118,8 @@ export function FeedPage() {
       </motion.div>
 
       {/* Card stack area */}
-      <div className="flex-1 relative px-4 pb-2">
-        <div className="relative w-full h-full max-w-md mx-auto">
+      <div className="flex-1 relative px-3 mb-[100px]">
+        <div className="relative w-full h-full">
           <AnimatePresence>
             {/* Background card (next) */}
             <SwipeCard
@@ -151,17 +151,14 @@ export function FeedPage() {
         </div>
       </div>
 
-      {/* Action buttons */}
-      <div className="pb-20 px-4">
+      {/* Action buttons — fixed above tab bar */}
+      <div className="fixed bottom-[68px] left-0 right-0 z-40 max-w-lg mx-auto px-4">
         <SwipeButtons
           onPass={handleButtonPass}
           onLike={handleButtonLike}
           onShop={handleButtonShop}
           onSave={handleButtonSave}
         />
-        <p className="text-center text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted mt-1">
-          Swipe right to love · Left to pass · Up to shop
-        </p>
       </div>
 
       {/* Look Detail overlay */}
