@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { X, Heart, Bookmark, BadgeCheck, ShoppingBag } from "lucide-react";
 import type { MustHaveList } from "../../data/communityData";
 import { ProductCard } from "../cards/ProductCard";
@@ -24,13 +24,12 @@ export function MustHaveDetail({ list, onClose, onCreatorTap }: MustHaveDetailPr
   const totalPrice = list.items.reduce((sum, item) => sum + item.price, 0);
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 bg-cream"
-      >
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 bg-cream"
+    >
         <div className="h-full overflow-y-auto">
           {/* Hero */}
           <div className="relative w-full aspect-[16/9]">
@@ -164,7 +163,6 @@ export function MustHaveDetail({ list, onClose, onCreatorTap }: MustHaveDetailPr
             </div>
           </div>
         </div>
-      </motion.div>
-    </AnimatePresence>
+    </motion.div>
   );
 }
