@@ -30,11 +30,13 @@ export function SwipeCard({
   const lastTapRef = useRef(0);
   const doubleTapTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const singleTapTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const heartBurstTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     return () => {
       clearTimeout(doubleTapTimeoutRef.current);
       clearTimeout(singleTapTimeoutRef.current);
+      clearTimeout(heartBurstTimeoutRef.current);
     };
   }, []);
 
@@ -50,6 +52,8 @@ export function SwipeCard({
   const handleDragEnd = (_: unknown, info: PanInfo) => {
     clearTimeout(doubleTapTimeoutRef.current);
     clearTimeout(singleTapTimeoutRef.current);
+    clearTimeout(heartBurstTimeoutRef.current);
+    setShowHeartBurst(false);
     lastTapRef.current = 0;
 
     const threshold = 100;
@@ -80,7 +84,7 @@ export function SwipeCard({
     if (now - lastTapRef.current < 350) {
       setShowHeartBurst(true);
       doubleTapTimeoutRef.current = setTimeout(() => onDoubleTapLike?.(), 800);
-      setTimeout(() => setShowHeartBurst(false), 900);
+      heartBurstTimeoutRef.current = setTimeout(() => setShowHeartBurst(false), 900);
       lastTapRef.current = 0;
     } else {
       lastTapRef.current = now;
