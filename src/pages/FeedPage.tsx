@@ -176,10 +176,10 @@ export function FeedPage() {
   const handleDoubleTap = useCallback(() => {
     if (currentLook) {
       setShowDoubleTapHeart(true);
+      likeLook(currentLook);
       setTimeout(() => {
-        likeLook(currentLook);
         setShowDoubleTapHeart(false);
-      }, 400);
+      }, 800);
     }
   }, [currentLook, likeLook]);
 
