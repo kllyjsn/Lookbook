@@ -1,3 +1,4 @@
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart } from "lucide-react";
 
@@ -17,7 +18,7 @@ const particles = Array.from({ length: 6 }, (_, i) => {
 });
 
 export function HeartBurst({ show, x, y }: HeartBurstProps) {
-  return (
+  return createPortal(
     <AnimatePresence>
       {show && (
         <div
@@ -47,6 +48,7 @@ export function HeartBurst({ show, x, y }: HeartBurstProps) {
           ))}
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
