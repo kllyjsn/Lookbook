@@ -153,10 +153,8 @@ export function SwipeCard({
       clearTimeout(longPressTimerRef.current);
       longPressTimerRef.current = null;
     }
-    if (showQuickShop) {
-      setTimeout(() => setShowQuickShop(false), 1500);
-    }
-  }, [showQuickShop]);
+    setTimeout(() => setShowQuickShop(false), 1500);
+  }, []);
 
   if (exitDirection) {
     return null;

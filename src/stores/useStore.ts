@@ -216,13 +216,14 @@ export const useStore = create<AppState>()(
             totalSwipes: newTotal,
             styleStreak: newStreak,
             lastActiveDate: getToday(),
-            milestoneReached: milestone,
+            milestoneReached: milestone ?? state.milestoneReached,
           };
         }),
       passLook: (look) =>
         set((state) => {
           const newTotal = state.totalSwipes + 1;
           const newStreak = computeStreak(state.lastActiveDate, state.styleStreak);
+          const milestone = MILESTONES.find((m) => m === newTotal) ?? null;
           return {
             passedLooks: state.passedLooks.some((l) => l.id === look.id)
               ? state.passedLooks
@@ -233,6 +234,7 @@ export const useStore = create<AppState>()(
             totalSwipes: newTotal,
             styleStreak: newStreak,
             lastActiveDate: getToday(),
+            milestoneReached: milestone ?? state.milestoneReached,
           };
         }),
       saveLook: (look) =>
@@ -258,6 +260,7 @@ export const useStore = create<AppState>()(
             lastSwipedLook: null,
             lastSwipeAction: null,
             styleDNA: computeDNA(newLiked),
+            totalSwipes: Math.max(0, state.totalSwipes - 1),
           };
         }),
 
