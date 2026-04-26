@@ -1,12 +1,15 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
 import { SearchPage } from "./SearchPage";
 import { Logo } from "../components/ui/Logo";
+import { TrendingStories } from "../components/feed/TrendingStories";
+import { StyleStreak } from "../components/feed/StyleStreak";
+import { MilestoneCelebration } from "../components/feed/MilestoneCelebration";
 import { RefreshCw, Sparkles, Camera } from "lucide-react";
 import { feedLooks, moodFilters } from "../data/mockData";
-import type { MoodFilter } from "../data/mockData";
+import type { MoodFilter, Look } from "../data/mockData";
 import { useStore } from "../stores/useStore";
 
 export function FeedPage() {
@@ -23,7 +26,16 @@ export function FeedPage() {
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
   const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
+  const checkStreak = useStore((s) => s.checkStreak);
   const [showSearch, setShowSearch] = useState(false);
+
+  useEffect(() => {
+    checkStreak();
+  }, [checkStreak]);
+
+  const handleStoryTap = useCallback((look: Look) => {
+    setShowLookDetail(look);
+  }, [setShowLookDetail]);
 
   const filteredLooks = useMemo(
     () =>
@@ -92,7 +104,10 @@ export function FeedPage() {
     <div className="h-full flex flex-col bg-cream">
       {/* Header */}
       <div className="flex items-center justify-between py-3 px-6">
-        <Logo variant="mark" size="sm" />
+        <div className="flex items-center gap-3">
+          <Logo variant="mark" size="sm" />
+          <StyleStreak />
+        </div>
         <div className="flex items-center gap-3">
           <span className="text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted">
             {Math.min(currentFeedIndex + 1, feedLooks.length)} / {feedLooks.length}
@@ -116,6 +131,9 @@ export function FeedPage() {
           )}
         </div>
       </div>
+
+      {/* Trending Stories */}
+      <TrendingStories onStoryTap={handleStoryTap} />
 
       {/* Mood filter pills */}
       <div className="px-4 pb-2">
@@ -258,6 +276,9 @@ export function FeedPage() {
           />
         )}
       </AnimatePresence>
+
+      {/* Milestone celebration overlay */}
+      <MilestoneCelebration />
     </div>
   );
 }

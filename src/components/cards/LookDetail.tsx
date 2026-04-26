@@ -3,6 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
 import type { Look } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
+import { StylingNotes } from "./StylingNotes";
+import { SimilarVibes } from "./SimilarVibes";
+import { ShareStyleCard } from "./ShareStyleCard";
 import { Tag } from "../ui/Tag";
 import { useStore } from "../../stores/useStore";
 
@@ -21,8 +24,11 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
+  const styleDNA = useStore((s) => s.styleDNA);
+  const setShowLookDetail = useStore((s) => s.setShowLookDetail);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showShareCard, setShowShareCard] = useState(false);
 
   return (
     <AnimatePresence>
@@ -157,15 +163,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  if (navigator.share) {
-                    navigator.share({
-                      title: `LKBK — ${look.title}`,
-                      text: look.description,
-                      url: window.location.href,
-                    }).catch(() => {});
-                  }
-                }}
+                onClick={() => setShowShareCard(true)}
                 className="w-12 h-12 rounded-full flex items-center justify-center border border-ink/10 hover:border-ink/30"
               >
                 <Share2 size={18} className="text-ink-muted" />
@@ -188,6 +186,21 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </div>
             </div>
 
+            {/* Why It Works — editorial styling notes */}
+            {look.stylingNotes && look.stylingNotes.length > 0 && (
+              <StylingNotes notes={look.stylingNotes} />
+            )}
+
+            {/* Similar Vibes — keep them browsing */}
+            {look.similarVibes && look.similarVibes.length > 0 && (
+              <SimilarVibes
+                lookIds={look.similarVibes}
+                onLookTap={(similarLook) => {
+                  setShowLookDetail(similarLook);
+                }}
+              />
+            )}
+
             {/* Photographer credit */}
             {look.photographer && (
               <p className="text-center text-[10px] font-inter tracking-[0.2em] uppercase text-ink-muted pb-24">
@@ -196,6 +209,15 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
             )}
           </div>
         </div>
+
+        {/* Share Style Card overlay */}
+        {showShareCard && (
+          <ShareStyleCard
+            look={look}
+            styleDNA={styleDNA}
+            onClose={() => setShowShareCard(false)}
+          />
+        )}
       </motion.div>
     </AnimatePresence>
   );

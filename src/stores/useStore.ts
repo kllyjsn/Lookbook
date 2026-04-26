@@ -29,6 +29,18 @@ interface AppState {
   lastSwipeAction: "like" | "pass" | null;
   undoLastSwipe: () => void;
 
+  // Style Streak
+  styleStreak: number;
+  lastActiveDate: string | null;
+  totalSwipes: number;
+  milestoneReached: number | null;
+  clearMilestone: () => void;
+  checkStreak: () => void;
+
+  // Viewed stories
+  viewedStories: string[];
+  markStoryViewed: (storyId: string) => void;
+
   // Collections
   collections: SavedCollection[];
   addToCollection: (collectionId: string, look: Look) => void;
@@ -137,6 +149,23 @@ function computeDNA(likedLooks: Look[]): StyleDNAEntry[] {
   }));
 }
 
+function getToday(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function computeStreak(lastActiveDate: string | null, currentStreak: number): number {
+  const today = getToday();
+  if (lastActiveDate === today) return currentStreak;
+  if (!lastActiveDate) return 1;
+  const last = new Date(lastActiveDate);
+  const now = new Date(today);
+  const diffDays = Math.floor((now.getTime() - last.getTime()) / (1000 * 60 * 60 * 24));
+  if (diffDays === 1) return currentStreak + 1;
+  return 1;
+}
+
+const MILESTONES = [5, 10, 25, 50, 100];
+
 export const useStore = create<AppState>()(
   persist(
     (set, get) => ({
@@ -150,28 +179,62 @@ export const useStore = create<AppState>()(
       lastSwipedLook: null,
       lastSwipeAction: null,
 
+      // Style Streak
+      styleStreak: 0,
+      lastActiveDate: null,
+      totalSwipes: 0,
+      milestoneReached: null,
+      clearMilestone: () => set({ milestoneReached: null }),
+      checkStreak: () => set((state) => {
+        const newStreak = computeStreak(state.lastActiveDate, state.styleStreak);
+        return { styleStreak: newStreak, lastActiveDate: getToday() };
+      }),
+
+      // Viewed stories
+      viewedStories: [],
+      markStoryViewed: (storyId) =>
+        set((state) => ({
+          viewedStories: state.viewedStories.includes(storyId)
+            ? state.viewedStories
+            : [...state.viewedStories, storyId],
+        })),
+
       likeLook: (look) =>
         set((state) => {
           const newLiked = state.likedLooks.some((l) => l.id === look.id)
             ? state.likedLooks
             : [...state.likedLooks, look];
+          const newTotal = state.totalSwipes + 1;
+          const newStreak = computeStreak(state.lastActiveDate, state.styleStreak);
+          const milestone = MILESTONES.find((m) => m === newTotal) ?? null;
           return {
             likedLooks: newLiked,
             currentFeedIndex: state.currentFeedIndex + 1,
             lastSwipedLook: look,
             lastSwipeAction: "like" as const,
             styleDNA: computeDNA(newLiked),
+            totalSwipes: newTotal,
+            styleStreak: newStreak,
+            lastActiveDate: getToday(),
+            milestoneReached: milestone,
           };
         }),
       passLook: (look) =>
-        set((state) => ({
-          passedLooks: state.passedLooks.some((l) => l.id === look.id)
-            ? state.passedLooks
-            : [...state.passedLooks, look],
-          currentFeedIndex: state.currentFeedIndex + 1,
-          lastSwipedLook: look,
-          lastSwipeAction: "pass" as const,
-        })),
+        set((state) => {
+          const newTotal = state.totalSwipes + 1;
+          const newStreak = computeStreak(state.lastActiveDate, state.styleStreak);
+          return {
+            passedLooks: state.passedLooks.some((l) => l.id === look.id)
+              ? state.passedLooks
+              : [...state.passedLooks, look],
+            currentFeedIndex: state.currentFeedIndex + 1,
+            lastSwipedLook: look,
+            lastSwipeAction: "pass" as const,
+            totalSwipes: newTotal,
+            styleStreak: newStreak,
+            lastActiveDate: getToday(),
+          };
+        }),
       saveLook: (look) =>
         set((state) => ({
           likedLooks: state.likedLooks.some((l) => l.id === look.id)
@@ -280,6 +343,10 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        styleStreak: state.styleStreak,
+        lastActiveDate: state.lastActiveDate,
+        totalSwipes: state.totalSwipes,
+        viewedStories: state.viewedStories,
       }),
     }
   )

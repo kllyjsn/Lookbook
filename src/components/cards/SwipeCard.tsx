@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion";
 import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2 } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { QuickShopPeek } from "./QuickShopPeek";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -37,10 +38,12 @@ export function SwipeCard({
   const [exitDirection, setExitDirection] = useState<"left" | "right" | "up" | null>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [showHeartBurst, setShowHeartBurst] = useState(false);
+  const [showQuickShop, setShowQuickShop] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const lastTapRef = useRef(0);
   const doubleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const singleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const doubleTapDetectedRef = useRef(false);
   const swipedRef = useRef(false);
 
@@ -57,6 +60,7 @@ export function SwipeCard({
     return () => {
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       if (singleTapTimerRef.current) clearTimeout(singleTapTimerRef.current);
+      if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
     };
   }, []);
 
@@ -69,7 +73,12 @@ export function SwipeCard({
       clearTimeout(singleTapTimerRef.current);
       singleTapTimerRef.current = null;
     }
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
     setShowHeartBurst(false);
+    setShowQuickShop(false);
   }, []);
 
   const handleDragEnd = (_: unknown, info: PanInfo) => {
@@ -132,6 +141,23 @@ export function SwipeCard({
     lastTapRef.current = now;
   }, [onTap, onDoubleTap, x, y]);
 
+  const handlePointerDown = useCallback(() => {
+    if (!isTop) return;
+    longPressTimerRef.current = setTimeout(() => {
+      setShowQuickShop(true);
+    }, 500);
+  }, [isTop]);
+
+  const handlePointerUp = useCallback(() => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+    if (showQuickShop) {
+      setTimeout(() => setShowQuickShop(false), 1500);
+    }
+  }, [showQuickShop]);
+
   if (exitDirection) {
     return null;
   }
@@ -145,10 +171,14 @@ export function SwipeCard({
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
       dragElastic={0.9}
       onDragEnd={handleDragEnd}
+      onDragStart={cancelPendingTimers}
       initial={isTop ? { scale: 0.97, opacity: 0.8 } : { scale: 0.93, opacity: 0.5 }}
       animate={isTop ? { scale: 1, opacity: 1 } : { scale: 0.95, opacity: 0.7 }}
       transition={{ duration: 0.3 }}
       onClick={handleClick}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
     >
       <div className="relative w-full h-full rounded-2xl overflow-hidden card-shadow bg-charcoal">
         {/* Skeleton loading state */}
@@ -290,6 +320,13 @@ export function SwipeCard({
             >
               <Heart size={80} className="text-white drop-shadow-lg" fill="white" strokeWidth={0} />
             </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Quick Shop Peek (long-press) */}
+        <AnimatePresence>
+          {showQuickShop && isTop && (
+            <QuickShopPeek look={look} />
           )}
         </AnimatePresence>
       </div>
