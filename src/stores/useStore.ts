@@ -65,12 +65,16 @@ export const useStore = create<AppState>()(
       passedLooks: [],
       likeLook: (look) =>
         set((state) => ({
-          likedLooks: [...state.likedLooks, look],
+          likedLooks: state.likedLooks.some((l) => l.id === look.id)
+            ? state.likedLooks
+            : [...state.likedLooks, look],
           currentFeedIndex: state.currentFeedIndex + 1,
         })),
       passLook: (look) =>
         set((state) => ({
-          passedLooks: [...state.passedLooks, look],
+          passedLooks: state.passedLooks.some((l) => l.id === look.id)
+            ? state.passedLooks
+            : [...state.passedLooks, look],
           currentFeedIndex: state.currentFeedIndex + 1,
         })),
 

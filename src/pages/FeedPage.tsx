@@ -69,7 +69,7 @@ export function FeedPage() {
       {/* Header */}
       <div className="flex items-center justify-between py-4 px-6">
         <Logo variant="mark" size="sm" />
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <span className="text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted">
             {Math.min(currentFeedIndex + 1, feedLooks.length)} / {feedLooks.length}
           </span>
@@ -81,6 +81,15 @@ export function FeedPage() {
               transition={{ duration: 0.3 }}
             />
           </div>
+          {!hasSeenAll && (
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setShowSearch(true)}
+              className="w-8 h-8 rounded-full bg-ivory border border-ink/10 flex items-center justify-center"
+            >
+              <Camera size={14} className="text-ink" />
+            </motion.button>
+          )}
         </div>
       </div>
 
@@ -167,18 +176,6 @@ export function FeedPage() {
             Swipe right to love · Left to pass · Up to shop
           </p>
         </div>
-      )}
-
-      {/* Shop the Look (Camera) FAB */}
-      {!hasSeenAll && (
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => setShowSearch(true)}
-          className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full glass border border-ink/10 flex items-center justify-center shadow-sm"
-        >
-          <Camera size={18} className="text-ink" />
-        </motion.button>
       )}
 
       {/* Search overlay */}
