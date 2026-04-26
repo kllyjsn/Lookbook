@@ -1,5 +1,6 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Heart } from "lucide-react";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
 import { Logo } from "../components/ui/Logo";
@@ -25,6 +26,23 @@ export function FeedPage() {
   const setShowLookDetail = useStore((s) => s.setShowLookDetail);
   const setActiveTab = useStore((s) => s.setActiveTab);
   const [activeTrend, setActiveTrend] = useState("all");
+  const [heartBurst, setHeartBurst] = useState<{ x: number; y: number } | null>(null);
+  const heartBurstTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (heartBurstTimeout.current) clearTimeout(heartBurstTimeout.current);
+    };
+  }, []);
+
+  const handleDoubleTap = useCallback((coords: { x: number; y: number }) => {
+    setHeartBurst(coords);
+    if (heartBurstTimeout.current) clearTimeout(heartBurstTimeout.current);
+    heartBurstTimeout.current = setTimeout(() => {
+      setHeartBurst(null);
+      heartBurstTimeout.current = null;
+    }, 900);
+  }, []);
 
   const currentLook = useMemo(
     () => feedLooks[currentFeedIndex % feedLooks.length],
@@ -120,6 +138,7 @@ export function FeedPage() {
               onSwipeLeft={handleSwipeLeft}
               onSwipeUp={handleSwipeUp}
               onTap={handleTap}
+              onDoubleTap={handleDoubleTap}
               isTop={true}
             />
           </AnimatePresence>
@@ -138,6 +157,23 @@ export function FeedPage() {
           Double-tap to love · Swipe up to shop
         </p>
       </div>
+
+      {/* Double-tap heart burst — lives in FeedPage so it survives SwipeCard unmount */}
+      <AnimatePresence>
+        {heartBurst && (
+          <motion.div
+            key="heart-burst"
+            className="fixed pointer-events-none z-[100]"
+            style={{ left: heartBurst.x - 40, top: heartBurst.y - 40 }}
+            initial={{ opacity: 1, scale: 0 }}
+            animate={{ opacity: 0, scale: 1.5 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            <Heart size={80} className="text-rose" fill="currentColor" strokeWidth={0} />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Look Detail overlay */}
       <AnimatePresence>

@@ -1,5 +1,4 @@
 import { useState, useRef, useCallback, useMemo, useEffect } from "react";
-import { createPortal } from "react-dom";
 import { motion, useMotionValue, useTransform, animate, type PanInfo } from "framer-motion";
 import { Heart, X, ShoppingBag, Bookmark, Award, TrendingUp, Flame } from "lucide-react";
 import type { Look } from "../../data/mockData";
@@ -11,6 +10,7 @@ interface SwipeCardProps {
   onSwipeLeft: () => void;
   onSwipeUp: () => void;
   onTap: () => void;
+  onDoubleTap?: (coords: { x: number; y: number }) => void;
   isTop: boolean;
 }
 
@@ -28,20 +28,6 @@ function BadgeLabel({ badge }: { badge: NonNullable<Look["badge"]> }) {
         {label}
       </span>
     </div>
-  );
-}
-
-function HeartBurst({ x, y }: { x: number; y: number }) {
-  return (
-    <motion.div
-      className="fixed pointer-events-none z-[100]"
-      style={{ left: x - 40, top: y - 40 }}
-      initial={{ opacity: 1, scale: 0 }}
-      animate={{ opacity: 0, scale: 1.5 }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
-    >
-      <Heart size={80} className="text-rose" fill="currentColor" strokeWidth={0} />
-    </motion.div>
   );
 }
 
@@ -85,11 +71,11 @@ export function SwipeCard({
   onSwipeLeft,
   onSwipeUp,
   onTap,
+  onDoubleTap,
   isTop,
 }: SwipeCardProps) {
   const [exitDirection, setExitDirection] = useState<"left" | "right" | "up" | null>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
-  const [doubleTapHeart, setDoubleTapHeart] = useState<{ x: number; y: number } | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const lastTapRef = useRef(0);
@@ -161,9 +147,8 @@ export function SwipeCard({
         singleTapTimeoutRef.current = null;
       }
       lastTapRef.current = 0;
-      setDoubleTapHeart({ x: e.clientX, y: e.clientY });
+      onDoubleTap?.({ x: e.clientX, y: e.clientY });
       triggerConfetti();
-      safeTimeout(() => setDoubleTapHeart(null), 800);
       safeTimeout(onSwipeRight, 400);
     } else {
       // Single tap → open detail (delayed to check for double)
@@ -329,11 +314,6 @@ export function SwipeCard({
         )}
       </div>
 
-      {/* Double-tap heart burst — rendered via portal so it survives card unmount */}
-      {doubleTapHeart && createPortal(
-        <HeartBurst x={doubleTapHeart.x} y={doubleTapHeart.y} />,
-        document.body
-      )}
     </motion.div>
   );
 }
