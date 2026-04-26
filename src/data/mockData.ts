@@ -13,6 +13,18 @@ export interface LookItem {
   shopUrl: string;
 }
 
+export type MoodFilter = "all" | "minimal" | "romantic" | "street" | "evening" | "classic" | "adventure";
+
+export const moodFilters: { id: MoodFilter; label: string; emoji: string }[] = [
+  { id: "all", label: "All", emoji: "" },
+  { id: "minimal", label: "Minimal", emoji: "" },
+  { id: "romantic", label: "Romantic", emoji: "" },
+  { id: "street", label: "Street", emoji: "" },
+  { id: "evening", label: "Evening", emoji: "" },
+  { id: "classic", label: "Classic", emoji: "" },
+  { id: "adventure", label: "Adventure", emoji: "" },
+];
+
 export interface Look {
   id: string;
   image: string;
@@ -25,6 +37,10 @@ export interface Look {
   items: LookItem[];
   season: string;
   description: string;
+  likes: number;
+  trending?: boolean;
+  editorsChoice?: boolean;
+  mood: MoodFilter;
   badge?: "editors-pick" | "trending" | "new";
   trendScore?: number;
 }
@@ -80,6 +96,10 @@ export const feedLooks: Look[] = [
       "Clean lines meet architectural silhouettes in this season's definitive work wardrobe. A masterclass in restraint.",
     badge: "editors-pick" as const,
     trendScore: 94,
+    likes: 14200,
+    trending: true,
+    editorsChoice: true,
+    mood: "minimal" as const,
     items: [
       { id: "i1", name: "Structured Wool Blazer", brand: "COS", price: 275, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#" },
       { id: "i2", name: "Silk Camisole", brand: "Vince", price: 195, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
@@ -103,6 +123,9 @@ export const feedLooks: Look[] = [
     description:
       "Diaphanous fabrics and sun-kissed palettes that move with you. Dress for the evening you deserve.",
     trendScore: 87,
+    likes: 9800,
+    trending: true,
+    mood: "romantic" as const,
     items: [
       { id: "i5", name: "Flowing Midi Dress", brand: "Reformation", price: 248, image: UNSPLASH("photo-1595777457583-95e059d581b8", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i6", name: "Strappy Heeled Sandals", brand: "By Far", price: 420, image: UNSPLASH("photo-1603487742131-4160ec999306", 400, 500), category: "Shoes", shopUrl: "#" },
@@ -127,6 +150,9 @@ export const feedLooks: Look[] = [
       "The art of looking effortlessly put-together. Elevated basics that work harder than your entire closet.",
     badge: "trending" as const,
     trendScore: 91,
+    likes: 18400,
+    trending: true,
+    mood: "street" as const,
     items: [
       { id: "i9", name: "Oversized Cotton Tee", brand: "Aritzia", price: 58, image: UNSPLASH("photo-1521572163474-6864f9cf17ab", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i10", name: "Leather Moto Jacket", brand: "AllSaints", price: 499, image: UNSPLASH("photo-1551028719-00167b16eac5", 400, 500), category: "Outerwear", shopUrl: "#" },
@@ -151,6 +177,8 @@ export const feedLooks: Look[] = [
       "When the invitation says black tie, answer with conviction. Statement pieces that command every room.",
     badge: "new" as const,
     trendScore: 78,
+    likes: 7600,
+    mood: "evening" as const,
     items: [
       { id: "i13", name: "Sequin Column Dress", brand: "Rotate", price: 595, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i14", name: "Crystal Drop Earrings", brand: "Swarovski", price: 189, image: UNSPLASH("photo-1535632066927-ab7c9ab60908", 400, 500), category: "Accessories", shopUrl: "#" },
@@ -174,6 +202,8 @@ export const feedLooks: Look[] = [
     description:
       "Pack less, look more. Versatile silhouettes in earth tones that take you from gallery to rooftop bar.",
     trendScore: 82,
+    likes: 6200,
+    mood: "adventure" as const,
     items: [
       { id: "i17", name: "Linen Utility Shirt", brand: "Apiece Apart", price: 265, image: UNSPLASH("photo-1596755094514-f87e34085b2c", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i18", name: "Cargo Culottes", brand: "COS", price: 135, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -198,6 +228,9 @@ export const feedLooks: Look[] = [
       "The eternal palette. There's nothing more powerful than a woman who has mastered the art of black.",
     badge: "editors-pick" as const,
     trendScore: 96,
+    likes: 11300,
+    trending: true,
+    mood: "minimal" as const,
     items: [
       { id: "i21", name: "Cashmere Turtleneck", brand: "Nili Lotan", price: 495, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i22", name: "Tailored Wool Coat", brand: "Max Mara", price: 895, image: UNSPLASH("photo-1539533018447-63fcce2678e3", 400, 500), category: "Outerwear", shopUrl: "#" },
@@ -222,6 +255,8 @@ export const feedLooks: Look[] = [
       "Prints that feel fresh, not fussy. The kind of outfit that makes everyone ask where you got it.",
     badge: "trending" as const,
     trendScore: 89,
+    likes: 5400,
+    mood: "romantic" as const,
     items: [
       { id: "i25", name: "Printed Wrap Dress", brand: "Diane von Furstenberg", price: 398, image: UNSPLASH("photo-1572804013309-59a88b7e92f1", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i26", name: "Raffia Basket Bag", brand: "Loewe", price: 450, image: UNSPLASH("photo-1590874103328-eac38a683ce7", 400, 500), category: "Bags", shopUrl: "#" },
@@ -245,6 +280,8 @@ export const feedLooks: Look[] = [
     description:
       "The modern suit is your armor. Structured enough to command respect, relaxed enough to feel like you.",
     trendScore: 85,
+    likes: 8900,
+    mood: "classic" as const,
     items: [
       { id: "i29", name: "Double-Breasted Blazer", brand: "Toteme", price: 690, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#" },
       { id: "i30", name: "High-Waist Trousers", brand: "Toteme", price: 390, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },

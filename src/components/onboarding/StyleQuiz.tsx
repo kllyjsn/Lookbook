@@ -52,6 +52,30 @@ export function StyleQuiz() {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedBudget, setSelectedBudget] = useState<string>("mid");
   const completeOnboarding = useStore((s) => s.completeOnboarding);
+  const updateStyleDNA = useStore((s) => s.updateStyleDNA);
+  const setBudgetPreference = useStore((s) => s.setBudgetPreference);
+
+  const handleComplete = () => {
+    const colors = ["#1A1A1A", "#C5A572", "#C4797A", "#B8A9C9", "#A8B5A0", "#E8D5D0"];
+    const rawEntries = selectedStyles.map((id, i) => {
+      const option = styleOptions.find((o) => o.id === id);
+      return {
+        style: option?.label ?? id,
+        rawPct: Math.max(15, 90 - i * 20),
+        color: colors[i % colors.length],
+      };
+    });
+    const total = rawEntries.reduce((sum, d) => sum + d.rawPct, 0);
+    const styleDNA = rawEntries.map(({ rawPct, ...rest }) => ({
+      ...rest,
+      percentage: Math.round((rawPct / total) * 100),
+    }));
+    if (styleDNA.length > 0) {
+      updateStyleDNA(styleDNA);
+    }
+    setBudgetPreference(selectedBudget);
+    completeOnboarding();
+  };
 
   const toggleStyle = (id: string) => {
     setSelectedStyles((prev) =>
@@ -354,7 +378,7 @@ export function StyleQuiz() {
             </p>
             <motion.button
               whileTap={{ scale: 0.97 }}
-              onClick={completeOnboarding}
+              onClick={handleComplete}
               className="w-full py-4 rounded-full bg-ink text-cream font-inter text-sm font-medium tracking-wide flex items-center justify-center gap-2"
             >
               Start Discovering

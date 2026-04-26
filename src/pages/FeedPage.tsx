@@ -99,7 +99,7 @@ export function FeedPage() {
         <Logo variant="mark" size="sm" />
         <div className="flex items-center gap-3">
           <span className="text-[9px] font-inter tracking-[0.2em] uppercase text-ink-muted">
-            {(currentFeedIndex % feedLooks.length) + 1} / {feedLooks.length}
+            {hasSeenAll ? feedLooks.length : (currentFeedIndex % feedLooks.length) + 1} / {feedLooks.length}
           </span>
           <div className="w-16 h-1 bg-ink/10 rounded-full overflow-hidden">
             <motion.div
