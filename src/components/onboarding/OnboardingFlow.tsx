@@ -60,7 +60,7 @@ export function OnboardingFlow() {
   };
 
   const handleComplete = () => {
-    const dnaEntries = [
+    const raw = [
       { style: "Minimalist", percentage: selectedStyles.includes("minimalist") ? 35 : 10, color: "#1A1A1A" },
       { style: "Classic", percentage: selectedStyles.includes("classic") ? 30 : 12, color: "#C5A572" },
       { style: "Streetwear", percentage: selectedStyles.includes("streetwear") ? 25 : 8, color: "#2D2D2D" },
@@ -68,7 +68,14 @@ export function OnboardingFlow() {
       { style: "Evening", percentage: selectedStyles.includes("evening") ? 22 : 5, color: "#B8A9C9" },
       { style: "Bohemian", percentage: selectedStyles.includes("bohemian") ? 20 : 7, color: "#A8B5A0" },
     ];
-    updateStyleDNA(dnaEntries);
+    const total = raw.reduce((sum, e) => sum + e.percentage, 0);
+    const normalized = raw.map((e) => ({
+      ...e,
+      percentage: Math.round((e.percentage / total) * 100),
+    }));
+    const roundingError = 100 - normalized.reduce((sum, e) => sum + e.percentage, 0);
+    normalized[0].percentage += roundingError;
+    updateStyleDNA(normalized);
     completeOnboarding();
   };
 

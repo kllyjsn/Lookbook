@@ -66,7 +66,7 @@ export function SwipeCard({
     const now = Date.now();
     if (now - lastTapRef.current < 350) {
       setShowHeartBurst(true);
-      onDoubleTapLike?.();
+      setTimeout(() => onDoubleTapLike?.(), 800);
       setTimeout(() => setShowHeartBurst(false), 900);
       lastTapRef.current = 0;
     } else {
