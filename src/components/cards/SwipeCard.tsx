@@ -28,6 +28,8 @@ export function SwipeCard({
   const [showHeartBurst, setShowHeartBurst] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const lastTapRef = useRef(0);
+  const doubleTapTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const singleTapTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -39,6 +41,10 @@ export function SwipeCard({
   const scale = useTransform(x, [-300, 0, 300], [0.95, 1, 0.95]);
 
   const handleDragEnd = (_: unknown, info: PanInfo) => {
+    clearTimeout(doubleTapTimeoutRef.current);
+    clearTimeout(singleTapTimeoutRef.current);
+    lastTapRef.current = 0;
+
     const threshold = 100;
     const velocity = 0.5;
 
@@ -66,12 +72,12 @@ export function SwipeCard({
     const now = Date.now();
     if (now - lastTapRef.current < 350) {
       setShowHeartBurst(true);
-      setTimeout(() => onDoubleTapLike?.(), 800);
+      doubleTapTimeoutRef.current = setTimeout(() => onDoubleTapLike?.(), 800);
       setTimeout(() => setShowHeartBurst(false), 900);
       lastTapRef.current = 0;
     } else {
       lastTapRef.current = now;
-      setTimeout(() => {
+      singleTapTimeoutRef.current = setTimeout(() => {
         if (lastTapRef.current === now) {
           onTap();
         }
