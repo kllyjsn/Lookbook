@@ -1,9 +1,10 @@
 import { motion } from "framer-motion";
-import { Flame, Users, CalendarHeart, LayoutGrid, User } from "lucide-react";
+import { Flame, Search, Users, CalendarHeart, LayoutGrid, User } from "lucide-react";
 import { useStore } from "../../stores/useStore";
 
 const tabs = [
   { id: "feed", icon: Flame, label: "Discover" },
+  { id: "search", icon: Search, label: "Shop" },
   { id: "community", icon: Users, label: "Community" },
   { id: "stylist", icon: CalendarHeart, label: "Stylist" },
   { id: "capsule", icon: LayoutGrid, label: "Capsule" },
@@ -27,15 +28,22 @@ export function TabBar() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 whileTap={{ scale: 0.9 }}
-                className="relative flex flex-col items-center justify-center w-16 h-full"
+                className="relative flex flex-col items-center justify-center flex-1 h-full gap-0.5"
               >
                 <Icon
-                  size={22}
+                  size={20}
                   strokeWidth={isActive ? 2 : 1.5}
                   className={`transition-colors duration-200 ${
                     isActive ? "text-ink" : "text-ink-muted"
                   }`}
                 />
+                <span
+                  className={`text-[9px] font-inter tracking-wide transition-colors duration-200 ${
+                    isActive ? "text-ink font-semibold" : "text-ink-muted"
+                  }`}
+                >
+                  {tab.label}
+                </span>
                 {isActive && (
                   <motion.div
                     layoutId="tab-indicator"

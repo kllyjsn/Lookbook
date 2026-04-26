@@ -14,12 +14,22 @@ interface AppState {
   // Feed state
   currentFeedIndex: number;
   setCurrentFeedIndex: (index: number) => void;
+  totalSwipes: number;
 
   // Liked / passed looks
   likedLooks: Look[];
   passedLooks: Look[];
   likeLook: (look: Look) => void;
   passLook: (look: Look) => void;
+
+  // Undo
+  lastSwipedLook: Look | null;
+  lastSwipeAction: "like" | "pass" | null;
+  undoLastSwipe: () => void;
+
+  // Tutorial
+  hasSeenSwipeTutorial: boolean;
+  dismissSwipeTutorial: () => void;
 
   // Collections
   collections: SavedCollection[];
@@ -60,6 +70,7 @@ export const useStore = create<AppState>()(
     (set) => ({
       currentFeedIndex: 0,
       setCurrentFeedIndex: (index) => set({ currentFeedIndex: index }),
+      totalSwipes: 0,
 
       likedLooks: [],
       passedLooks: [],
@@ -67,12 +78,40 @@ export const useStore = create<AppState>()(
         set((state) => ({
           likedLooks: [...state.likedLooks, look],
           currentFeedIndex: state.currentFeedIndex + 1,
+          totalSwipes: state.totalSwipes + 1,
+          lastSwipedLook: look,
+          lastSwipeAction: "like" as const,
         })),
       passLook: (look) =>
         set((state) => ({
           passedLooks: [...state.passedLooks, look],
           currentFeedIndex: state.currentFeedIndex + 1,
+          totalSwipes: state.totalSwipes + 1,
+          lastSwipedLook: look,
+          lastSwipeAction: "pass" as const,
         })),
+
+      lastSwipedLook: null,
+      lastSwipeAction: null,
+      undoLastSwipe: () =>
+        set((state) => {
+          if (!state.lastSwipedLook || !state.lastSwipeAction) return state;
+          const newState: Partial<AppState> = {
+            currentFeedIndex: Math.max(0, state.currentFeedIndex - 1),
+            totalSwipes: Math.max(0, state.totalSwipes - 1),
+            lastSwipedLook: null,
+            lastSwipeAction: null,
+          };
+          if (state.lastSwipeAction === "like") {
+            newState.likedLooks = state.likedLooks.slice(0, -1);
+          } else {
+            newState.passedLooks = state.passedLooks.slice(0, -1);
+          }
+          return newState;
+        }),
+
+      hasSeenSwipeTutorial: false,
+      dismissSwipeTutorial: () => set({ hasSeenSwipeTutorial: true }),
 
       collections: [
         { id: "favorites", name: "Favorites", looks: [], createdAt: Date.now() },
@@ -151,6 +190,8 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        hasSeenSwipeTutorial: state.hasSeenSwipeTutorial,
+        totalSwipes: state.totalSwipes,
       }),
     }
   )

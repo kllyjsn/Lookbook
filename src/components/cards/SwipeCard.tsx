@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { motion, useMotionValue, useTransform, animate, type PanInfo } from "framer-motion";
-import { Heart, X, ShoppingBag, Bookmark } from "lucide-react";
+import { Heart, X, ShoppingBag, Bookmark, TrendingUp } from "lucide-react";
 import type { Look } from "../../data/mockData";
 
 
@@ -10,8 +10,13 @@ interface SwipeCardProps {
   onSwipeLeft: () => void;
   onSwipeUp: () => void;
   onTap: () => void;
+  onDoubleTap: () => void;
   isTop: boolean;
+  cardIndex?: number;
+  totalCards?: number;
 }
+
+const trendingTags = ["Trending", "New", "Party"];
 
 export function SwipeCard({
   look,
@@ -19,11 +24,15 @@ export function SwipeCard({
   onSwipeLeft,
   onSwipeUp,
   onTap,
+  onDoubleTap,
   isTop,
+  cardIndex,
+  totalCards,
 }: SwipeCardProps) {
   const [exitDirection, setExitDirection] = useState<"left" | "right" | "up" | null>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const lastTapRef = useRef(0);
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -33,6 +42,8 @@ export function SwipeCard({
   const nopeOpacity = useTransform(x, [-80, 0], [1, 0]);
   const shopOpacity = useTransform(y, [-80, 0], [1, 0]);
   const scale = useTransform(x, [-300, 0, 300], [0.95, 1, 0.95]);
+
+  const hasTrendingTag = look.tags.some((t) => trendingTags.includes(t.label));
 
   const handleDragEnd = (_: unknown, info: PanInfo) => {
     const threshold = 100;
@@ -56,6 +67,24 @@ export function SwipeCard({
     }
   };
 
+  const handleClick = () => {
+    if (Math.abs(x.get()) < 5 && Math.abs(y.get()) < 5) {
+      const now = Date.now();
+      if (now - lastTapRef.current < 300) {
+        onDoubleTap();
+        lastTapRef.current = 0;
+      } else {
+        lastTapRef.current = now;
+        setTimeout(() => {
+          if (lastTapRef.current !== 0) {
+            onTap();
+            lastTapRef.current = 0;
+          }
+        }, 300);
+      }
+    }
+  };
+
   if (exitDirection) {
     return null;
   }
@@ -72,13 +101,14 @@ export function SwipeCard({
       initial={isTop ? { scale: 0.97, opacity: 0.8 } : { scale: 0.93, opacity: 0.5 }}
       animate={isTop ? { scale: 1, opacity: 1 } : { scale: 0.95, opacity: 0.7 }}
       transition={{ duration: 0.3 }}
-      onClick={() => {
-        if (Math.abs(x.get()) < 5 && Math.abs(y.get()) < 5) {
-          onTap();
-        }
-      }}
+      onClick={handleClick}
     >
       <div className="relative w-full h-full rounded-2xl overflow-hidden card-shadow bg-charcoal">
+        {/* Shimmer loading placeholder */}
+        {!imgLoaded && (
+          <div className="absolute inset-0 shimmer-loading" />
+        )}
+
         {/* Image */}
         <img
           src={look.image}
@@ -91,14 +121,36 @@ export function SwipeCard({
         {/* Top gradient + magazine masthead */}
         <div className="absolute inset-x-0 top-0 gradient-top p-6 pt-8">
           <div className="flex items-center justify-between">
-            <span className="text-white/60 text-[10px] font-inter tracking-[0.3em] uppercase">
-              {look.season}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-white/60 text-[10px] font-inter tracking-[0.3em] uppercase">
+                {look.season}
+              </span>
+              {hasTrendingTag && (
+                <span className="flex items-center gap-1 bg-gold/90 text-white text-[9px] font-inter font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full">
+                  <TrendingUp size={9} />
+                  HOT
+                </span>
+              )}
+            </div>
             <span className="text-white/60 text-[10px] font-inter tracking-[0.3em] uppercase">
               {look.occasion}
             </span>
           </div>
         </div>
+
+        {/* Card progress indicator */}
+        {isTop && cardIndex !== undefined && totalCards !== undefined && (
+          <div className="absolute top-[52px] left-6 right-6 flex gap-1">
+            {Array.from({ length: Math.min(totalCards, 12) }).map((_, i) => (
+              <div
+                key={i}
+                className={`h-0.5 flex-1 rounded-full transition-colors ${
+                  i <= cardIndex ? "bg-white/60" : "bg-white/15"
+                }`}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Bottom gradient + content */}
         <div className="absolute inset-x-0 bottom-0 gradient-bottom p-6 pb-8">

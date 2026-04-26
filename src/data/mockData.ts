@@ -237,6 +237,94 @@ export const feedLooks: Look[] = [
       { id: "i32", name: "Pointed Pumps", brand: "Stuart Weitzman", price: 395, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
     ],
   },
+  {
+    id: "look-9",
+    image: UNSPLASH("photo-1490481651871-ab68de25d43d", 800, 1200),
+    title: "Coastal Drift",
+    subtitle: "Where the shore meets style",
+    photographer: "Tamara Bellis",
+    tags: [
+      { label: "Resort", color: "#A8B5A0" },
+      { label: "Relaxed", color: "#C5A572" },
+    ],
+    occasion: "Vacation",
+    priceRange: "$120 – $450",
+    season: "Spring/Summer",
+    description:
+      "Sun-bleached linens and ocean-worn textures. The kind of ease that only comes from not trying at all.",
+    items: [
+      { id: "i33", name: "Linen Oversized Shirt", brand: "Jacquemus", price: 380, image: UNSPLASH("photo-1596755094514-f87e34085b2c", 400, 500), category: "Tops", shopUrl: "#" },
+      { id: "i34", name: "Wide-Leg Linen Pants", brand: "COS", price: 125, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
+      { id: "i35", name: "Woven Slide Sandals", brand: "The Row", price: 450, image: UNSPLASH("photo-1603487742131-4160ec999306", 400, 500), category: "Shoes", shopUrl: "#" },
+      { id: "i36", name: "Shell Pendant Necklace", brand: "Alighieri", price: 290, image: UNSPLASH("photo-1599643478518-a784e5dc4c8f", 400, 500), category: "Accessories", shopUrl: "#" },
+    ],
+  },
+  {
+    id: "look-10",
+    image: UNSPLASH("photo-1495385794356-15371f348c31", 800, 1200),
+    title: "New Romantic",
+    subtitle: "Softness is strength",
+    photographer: "Flaunter",
+    tags: [
+      { label: "Feminine", color: "#E8D5D0" },
+      { label: "Trending", color: "#B8A9C9" },
+    ],
+    occasion: "Date Night",
+    priceRange: "$200 – $700",
+    season: "Spring/Summer",
+    description:
+      "Layers of tulle, whispers of silk. Modern romance means dressing for yourself first.",
+    items: [
+      { id: "i37", name: "Tulle Midi Skirt", brand: "Molly Goddard", price: 520, image: UNSPLASH("photo-1583496661160-fb5886a0aabd", 400, 500), category: "Bottoms", shopUrl: "#" },
+      { id: "i38", name: "Cropped Cashmere Cardi", brand: "Khaite", price: 680, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
+      { id: "i39", name: "Pearl Drop Earrings", brand: "Sophie Buhai", price: 395, image: UNSPLASH("photo-1535632066927-ab7c9ab60908", 400, 500), category: "Accessories", shopUrl: "#" },
+      { id: "i40", name: "Satin Mary Janes", brand: "Repetto", price: 345, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+    ],
+  },
+  {
+    id: "look-11",
+    image: UNSPLASH("photo-1509631179647-0177331693ae", 800, 1200),
+    title: "Studio 54",
+    subtitle: "Disco never died",
+    photographer: "Dom Hill",
+    tags: [
+      { label: "Party", color: "#C5A572" },
+      { label: "New", color: "#C4797A" },
+    ],
+    occasion: "Night Out",
+    priceRange: "$250 – $900",
+    season: "Fall/Winter",
+    description:
+      "Metallics catch every light. This is not about blending in — it's about owning every room you walk into.",
+    items: [
+      { id: "i41", name: "Metallic Halter Top", brand: "Fannie Schiavoni", price: 450, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
+      { id: "i42", name: "High-Waist Palazzo Pants", brand: "Stella McCartney", price: 790, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
+      { id: "i43", name: "Platform Sandals", brand: "Giuseppe Zanotti", price: 695, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+      { id: "i44", name: "Chain-Link Clutch", brand: "Paco Rabanne", price: 890, image: UNSPLASH("photo-1548036328-c9fa89d128fa", 400, 500), category: "Bags", shopUrl: "#" },
+    ],
+  },
+  {
+    id: "look-12",
+    image: UNSPLASH("photo-1487222477894-8943e31ef7b2", 800, 1200),
+    title: "Nordic Clean",
+    subtitle: "Scandinavian precision",
+    photographer: "Matthew Sichkaruk",
+    tags: [
+      { label: "Scandi", color: "#8A8A8A" },
+      { label: "Minimal", color: "#1A1A1A" },
+    ],
+    occasion: "Everyday",
+    priceRange: "$150 – $600",
+    season: "All Season",
+    description:
+      "Perfectly proportioned. The Scandinavian approach to dressing is a philosophy: function, form, and nothing more.",
+    items: [
+      { id: "i45", name: "Oversized Wool Coat", brand: "Arket", price: 350, image: UNSPLASH("photo-1539533018447-63fcce2678e3", 400, 500), category: "Outerwear", shopUrl: "#" },
+      { id: "i46", name: "Ribbed Cotton Tee", brand: "COS", price: 45, image: UNSPLASH("photo-1521572163474-6864f9cf17ab", 400, 500), category: "Tops", shopUrl: "#" },
+      { id: "i47", name: "Straight Wool Trousers", brand: "Filippa K", price: 295, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
+      { id: "i48", name: "Leather Chelsea Boots", brand: "Ganni", price: 475, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+    ],
+  },
 ];
 
 export const eventTypes: EventType[] = [

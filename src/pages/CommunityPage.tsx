@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, BadgeCheck } from "lucide-react";
+import { Search, BadgeCheck, Flame, Trophy, ArrowRight } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { PostCard } from "../components/community/PostCard";
 import { CreatorProfile } from "../components/community/CreatorProfile";
@@ -145,6 +145,46 @@ export function CommunityPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
           >
+            {/* Style Challenge Banner (For You only) */}
+            {activeTab === "forYou" && (
+              <div className="px-6 mb-5">
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-ink via-charcoal to-ink p-5"
+                >
+                  <div className="absolute top-2 right-2 opacity-10">
+                    <Trophy size={80} className="text-gold" />
+                  </div>
+                  <div className="relative z-10">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Flame size={14} className="text-gold" />
+                      <span className="text-[10px] font-inter font-semibold tracking-[0.2em] uppercase text-gold">
+                        Weekly Challenge
+                      </span>
+                    </div>
+                    <h3 className="font-editorial text-xl text-white mb-1">
+                      Quiet Luxury
+                    </h3>
+                    <p className="text-xs font-inter text-white/60 mb-3">
+                      Show us your best understated elegance. The Row, Toteme, COS energy.
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-inter text-white/40">2,847 entries</span>
+                        <span className="text-white/20">·</span>
+                        <span className="text-[10px] font-inter text-white/40">3 days left</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-gold text-xs font-inter font-medium">
+                        <span>Enter</span>
+                        <ArrowRight size={12} />
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+
             {/* Featured creators row (For You only) */}
             {activeTab === "forYou" && (
               <div className="mb-6">
