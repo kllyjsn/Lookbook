@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2 } from "lucide-react";
-import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
 import { LookDetail } from "../components/cards/LookDetail";
@@ -13,6 +12,9 @@ export function ProfilePage() {
   const styleDNA = useStore((s) => s.styleDNA);
   const likedLooks = useStore((s) => s.likedLooks);
   const collections = useStore((s) => s.collections);
+  const dailyStreak = useStore((s) => s.dailyStreak);
+  const totalSwipes = useStore((s) => s.totalSwipes);
+  const totalLoves = useStore((s) => s.totalLoves);
   const createCollection = useStore((s) => s.createCollection);
   const removeFromCollection = useStore((s) => s.removeFromCollection);
   const [activeSection, setActiveSection] = useState<ProfileSection>("dna");
@@ -34,10 +36,10 @@ export function ProfilePage() {
 
   return (
     <div className="h-full overflow-y-auto bg-cream pb-24">
-      {/* Header */}
+      {/* Masthead */}
       <div className="px-6 pt-6 pb-2">
-        <div className="flex items-center justify-between mb-4">
-          <Logo variant="mark" size="sm" />
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-masthead text-[15px]">LOOKBOOK</h1>
           <motion.button
             whileTap={{ scale: 0.9 }}
             className="w-9 h-9 rounded-full flex items-center justify-center border border-ink/10"
@@ -46,16 +48,34 @@ export function ProfilePage() {
           </motion.button>
         </div>
 
-        {/* Profile avatar & name */}
-        <div className="flex items-center gap-4 mb-6">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold to-blush flex items-center justify-center">
-            <span className="font-editorial text-xl text-white">Y</span>
+        {/* Profile — editorial style */}
+        <div className="mb-6">
+          <div className="flex items-center gap-4 mb-5">
+            <div className="w-14 h-14 rounded-full bg-ink flex items-center justify-center">
+              <span className="font-editorial text-lg text-cream">Y</span>
+            </div>
+            <div>
+              <h2 className="font-editorial text-xl text-ink">Your Profile</h2>
+              <p className="text-[11px] font-inter text-ink-muted tracking-wide">
+                {likedLooks.length} loved · {collections.reduce((sum, c) => sum + c.looks.length, 0)} saved
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="font-editorial text-xl text-ink">Your Profile</h2>
-            <p className="text-xs font-inter text-ink-muted">
-              {likedLooks.length} looks loved · {collections.reduce((sum, c) => sum + c.looks.length, 0)} saved
-            </p>
+
+          {/* Stats — minimal, editorial */}
+          <div className="flex border-t border-b border-ink/[0.06] divide-x divide-ink/[0.06]">
+            <div className="flex-1 py-3 text-center">
+              <p className="font-editorial text-lg text-ink">{dailyStreak}</p>
+              <p className="text-[9px] font-inter text-ink-muted tracking-[0.1em] uppercase">Streak</p>
+            </div>
+            <div className="flex-1 py-3 text-center">
+              <p className="font-editorial text-lg text-ink">{totalSwipes}</p>
+              <p className="text-[9px] font-inter text-ink-muted tracking-[0.1em] uppercase">Discovered</p>
+            </div>
+            <div className="flex-1 py-3 text-center">
+              <p className="font-editorial text-lg text-ink">{totalLoves}</p>
+              <p className="text-[9px] font-inter text-ink-muted tracking-[0.1em] uppercase">Loved</p>
+            </div>
           </div>
         </div>
 

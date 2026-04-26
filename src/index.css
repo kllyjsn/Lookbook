@@ -37,6 +37,7 @@ body {
   color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   overscroll-behavior: none;
 }
 
@@ -50,26 +51,34 @@ body {
   width: 0px;
 }
 
-/* Magazine typography utilities */
+/* Magazine typography — sharp and modern */
 .font-editorial {
   font-family: var(--font-playfair);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
+  font-feature-settings: "liga" 1, "kern" 1;
 }
 
 .font-subhead {
   font-family: var(--font-cormorant);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
+  font-feature-settings: "liga" 1;
 }
 
 .font-body {
   font-family: var(--font-inter);
-  letter-spacing: 0em;
+  letter-spacing: 0.01em;
 }
 
 .text-masthead {
   font-family: var(--font-playfair);
-  font-weight: 700;
-  letter-spacing: 0.15em;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* Ultra-wide tracking for fashion labels */
+.tracking-fashion {
+  letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 
@@ -82,30 +91,32 @@ body {
 
 /* Glass morphism */
 .glass {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
 }
 
 .glass-dark {
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
 }
 
-/* Card shadow */
+/* Card shadow — deeper and more editorial */
 .card-shadow {
   box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.05),
-    0 10px 30px -5px rgba(0, 0, 0, 0.08);
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    0 8px 24px -4px rgba(0, 0, 0, 0.1),
+    0 20px 48px -12px rgba(0, 0, 0, 0.06);
 }
 
-/* Gradient overlays for text on images */
+/* Gradient overlays — richer and more cinematic */
 .gradient-bottom {
   background: linear-gradient(
     to top,
-    rgba(0, 0, 0, 0.7) 0%,
-    rgba(0, 0, 0, 0.4) 40%,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0.5) 35%,
+    rgba(0, 0, 0, 0.15) 65%,
     rgba(0, 0, 0, 0) 100%
   );
 }
@@ -113,8 +124,9 @@ body {
 .gradient-top {
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.4) 0%,
-    rgba(0, 0, 0, 0) 60%
+    rgba(0, 0, 0, 0.45) 0%,
+    rgba(0, 0, 0, 0.15) 40%,
+    rgba(0, 0, 0, 0) 70%
   );
 }
 
@@ -165,4 +177,20 @@ img {
 /* Tab bar safe area */
 .safe-bottom {
   padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
+}
+
+/* Gold shimmer for primary buttons */
+.btn-gold {
+  background: linear-gradient(135deg, #C5A572 0%, #D4BC91 50%, #C5A572 100%);
+  box-shadow: 0 2px 12px -2px rgba(197, 165, 114, 0.4);
+}
+
+/* Subtle pulse for live indicators */
+@keyframes subtlePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.animate-subtle-pulse {
+  animation: subtlePulse 2s ease-in-out infinite;
 }

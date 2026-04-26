@@ -21,6 +21,17 @@ interface AppState {
   likeLook: (look: Look) => void;
   passLook: (look: Look) => void;
 
+  // Engagement / dopamine
+  dailyStreak: number;
+  lastActiveDate: string;
+  totalSwipes: number;
+  totalLoves: number;
+  heartBurstKey: number;
+  triggerHeartBurst: () => void;
+  clearHeartBurst: () => void;
+  advanceFeed: () => void;
+  checkStreak: () => void;
+
   // Collections
   collections: SavedCollection[];
   addToCollection: (collectionId: string, look: Look) => void;
@@ -59,15 +70,41 @@ export const useStore = create<AppState>()(
       likedLooks: [],
       passedLooks: [],
       likeLook: (look) =>
-        set((state) => ({
-          likedLooks: [...state.likedLooks, look],
-          currentFeedIndex: state.currentFeedIndex + 1,
-        })),
+        set((state) => {
+          if (state.likedLooks.some((l) => l.id === look.id)) return {};
+          return {
+            likedLooks: [...state.likedLooks, look],
+            totalLoves: state.totalLoves + 1,
+          };
+        }),
       passLook: (look) =>
         set((state) => ({
           passedLooks: [...state.passedLooks, look],
-          currentFeedIndex: state.currentFeedIndex + 1,
         })),
+
+      dailyStreak: 1,
+      lastActiveDate: new Date().toDateString(),
+      totalSwipes: 0,
+      totalLoves: 0,
+      heartBurstKey: 0,
+      triggerHeartBurst: () => set((state) => ({ heartBurstKey: state.heartBurstKey + 1 })),
+      clearHeartBurst: () => set({ heartBurstKey: 0 }),
+      advanceFeed: () =>
+        set((state) => ({
+          currentFeedIndex: state.currentFeedIndex + 1,
+          totalSwipes: state.totalSwipes + 1,
+        })),
+      checkStreak: () =>
+        set((state) => {
+          const today = new Date().toDateString();
+          const yd = new Date(); yd.setDate(yd.getDate() - 1);
+          const yesterday = yd.toDateString();
+          if (state.lastActiveDate === today) return {};
+          if (state.lastActiveDate === yesterday) {
+            return { dailyStreak: state.dailyStreak + 1, lastActiveDate: today };
+          }
+          return { dailyStreak: 1, lastActiveDate: today };
+        }),
 
       collections: [
         { id: "favorites", name: "Favorites", looks: [], createdAt: Date.now() },
@@ -133,6 +170,10 @@ export const useStore = create<AppState>()(
         capsuleBudget: state.capsuleBudget,
         capsuleSelectedItems: state.capsuleSelectedItems,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        dailyStreak: state.dailyStreak,
+        lastActiveDate: state.lastActiveDate,
+        totalSwipes: state.totalSwipes,
+        totalLoves: state.totalLoves,
       }),
     }
   )

@@ -25,6 +25,11 @@ export interface Look {
   items: LookItem[];
   season: string;
   description: string;
+  matchPercent: number;
+  saves: number;
+  isNew?: boolean;
+  isTrending?: boolean;
+  scarcityLabel?: string;
 }
 
 export interface EventType {
@@ -63,10 +68,10 @@ const UNSPLASH = (id: string, w = 800, h = 1200) =>
 export const feedLooks: Look[] = [
   {
     id: "look-1",
-    image: UNSPLASH("photo-1509631179647-0177331693ae", 800, 1200),
+    image: "/generated/look-1.png",
     title: "Effortless Elegance",
     subtitle: "The new power dressing",
-    photographer: "Tamara Bellis",
+    photographer: "AI Editorial",
     tags: [
       { label: "Minimalist", color: "#1A1A1A" },
       { label: "Office", color: "#4A4A4A" },
@@ -74,6 +79,9 @@ export const feedLooks: Look[] = [
     occasion: "Work",
     priceRange: "$200 – $800",
     season: "Fall/Winter",
+    matchPercent: 94,
+    saves: 2431,
+    isNew: true,
     description:
       "Clean lines meet architectural silhouettes in this season's definitive work wardrobe. A masterclass in restraint.",
     items: [
@@ -85,10 +93,10 @@ export const feedLooks: Look[] = [
   },
   {
     id: "look-2",
-    image: UNSPLASH("photo-1496747611176-843222e1e57c", 800, 1200),
+    image: "/generated/look-2.png",
     title: "Summer Reverie",
     subtitle: "Soft hues, warm evenings",
-    photographer: "Flaunter",
+    photographer: "AI Editorial",
     tags: [
       { label: "Romantic", color: "#C4797A" },
       { label: "Evening", color: "#B8A9C9" },
@@ -96,6 +104,9 @@ export const feedLooks: Look[] = [
     occasion: "Date Night",
     priceRange: "$150 – $600",
     season: "Spring/Summer",
+    matchPercent: 87,
+    saves: 1856,
+    isTrending: true,
     description:
       "Diaphanous fabrics and sun-kissed palettes that move with you. Dress for the evening you deserve.",
     items: [
@@ -107,10 +118,10 @@ export const feedLooks: Look[] = [
   },
   {
     id: "look-3",
-    image: UNSPLASH("photo-1515886657613-9f3515b0c78f", 800, 1200),
+    image: "/generated/look-3.png",
     title: "Street Luxe",
     subtitle: "Where comfort meets couture",
-    photographer: "Dom Hill",
+    photographer: "AI Editorial",
     tags: [
       { label: "Streetwear", color: "#2D2D2D" },
       { label: "Casual", color: "#8A8A8A" },
@@ -118,6 +129,9 @@ export const feedLooks: Look[] = [
     occasion: "Weekend",
     priceRange: "$100 – $500",
     season: "All Season",
+    matchPercent: 91,
+    saves: 3204,
+    scarcityLabel: "Selling fast",
     description:
       "The art of looking effortlessly put-together. Elevated basics that work harder than your entire closet.",
     items: [
@@ -129,10 +143,10 @@ export const feedLooks: Look[] = [
   },
   {
     id: "look-4",
-    image: UNSPLASH("photo-1469334031218-e382a71b716b", 800, 1200),
+    image: "/generated/look-4.png",
     title: "Après Noir",
     subtitle: "After-dark allure",
-    photographer: "Tamara Bellis",
+    photographer: "AI Editorial",
     tags: [
       { label: "Evening", color: "#1A1A1A" },
       { label: "Glamour", color: "#C5A572" },
@@ -140,6 +154,9 @@ export const feedLooks: Look[] = [
     occasion: "Gala",
     priceRange: "$300 – $1,200",
     season: "Fall/Winter",
+    matchPercent: 78,
+    saves: 965,
+    scarcityLabel: "Only 2 left",
     description:
       "When the invitation says black tie, answer with conviction. Statement pieces that command every room.",
     items: [
@@ -151,10 +168,10 @@ export const feedLooks: Look[] = [
   },
   {
     id: "look-5",
-    image: UNSPLASH("photo-1483985988355-763728e1935b", 800, 1200),
+    image: "/generated/look-5.png",
     title: "Urban Safari",
     subtitle: "City exploring, redefined",
-    photographer: "Heidi Fin",
+    photographer: "AI Editorial",
     tags: [
       { label: "Adventure", color: "#A8B5A0" },
       { label: "Utility", color: "#8A8A8A" },
@@ -162,6 +179,9 @@ export const feedLooks: Look[] = [
     occasion: "Travel",
     priceRange: "$150 – $600",
     season: "Spring/Summer",
+    matchPercent: 85,
+    saves: 1122,
+    isNew: true,
     description:
       "Pack less, look more. Versatile silhouettes in earth tones that take you from gallery to rooftop bar.",
     items: [
@@ -173,10 +193,10 @@ export const feedLooks: Look[] = [
   },
   {
     id: "look-6",
-    image: UNSPLASH("photo-1485968579580-b6d095142e6e", 800, 1200),
+    image: "/generated/look-6.png",
     title: "Monochrome Mood",
     subtitle: "All black, everything",
-    photographer: "Matthew Sichkaruk",
+    photographer: "AI Editorial",
     tags: [
       { label: "Minimalist", color: "#1A1A1A" },
       { label: "Chic", color: "#4A4A4A" },
@@ -184,6 +204,9 @@ export const feedLooks: Look[] = [
     occasion: "Any",
     priceRange: "$200 – $900",
     season: "All Season",
+    matchPercent: 96,
+    saves: 4108,
+    isTrending: true,
     description:
       "The eternal palette. There's nothing more powerful than a woman who has mastered the art of black.",
     items: [
@@ -195,10 +218,10 @@ export const feedLooks: Look[] = [
   },
   {
     id: "look-7",
-    image: UNSPLASH("photo-1529139574466-a303027c1d8b", 800, 1200),
+    image: "/generated/look-7.png",
     title: "Garden Party",
     subtitle: "Florals but make it modern",
-    photographer: "Tamara Bellis",
+    photographer: "AI Editorial",
     tags: [
       { label: "Feminine", color: "#E8D5D0" },
       { label: "Social", color: "#C4797A" },
@@ -206,6 +229,8 @@ export const feedLooks: Look[] = [
     occasion: "Brunch",
     priceRange: "$100 – $400",
     season: "Spring/Summer",
+    matchPercent: 82,
+    saves: 1540,
     description:
       "Prints that feel fresh, not fussy. The kind of outfit that makes everyone ask where you got it.",
     items: [
@@ -217,10 +242,10 @@ export const feedLooks: Look[] = [
   },
   {
     id: "look-8",
-    image: UNSPLASH("photo-1539109136881-3be0616acf4b", 800, 1200),
+    image: "/generated/look-8.png",
     title: "Power Suit",
     subtitle: "Boardroom to bar",
-    photographer: "Christina Wocintech",
+    photographer: "AI Editorial",
     tags: [
       { label: "Tailored", color: "#1A1A1A" },
       { label: "Power", color: "#C5A572" },
@@ -228,6 +253,10 @@ export const feedLooks: Look[] = [
     occasion: "Interview",
     priceRange: "$300 – $1,000",
     season: "All Season",
+    matchPercent: 89,
+    saves: 2017,
+    isTrending: true,
+    scarcityLabel: "Only 5 left",
     description:
       "The modern suit is your armor. Structured enough to command respect, relaxed enough to feel like you.",
     items: [
