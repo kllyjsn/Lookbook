@@ -92,6 +92,7 @@ export function SwipeCard({
   const [showConfetti, setShowConfetti] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const lastTapRef = useRef(0);
+  const singleTapTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -135,7 +136,12 @@ export function SwipeCard({
 
     const now = Date.now();
     if (now - lastTapRef.current < 300) {
-      // Double-tap → like with heart animation
+      // Double-tap → cancel pending single-tap and like
+      if (singleTapTimeoutRef.current) {
+        clearTimeout(singleTapTimeoutRef.current);
+        singleTapTimeoutRef.current = null;
+      }
+      lastTapRef.current = 0;
       setDoubleTapHeart({ x: e.clientX, y: e.clientY });
       triggerConfetti();
       setTimeout(() => setDoubleTapHeart(null), 800);
@@ -143,7 +149,8 @@ export function SwipeCard({
     } else {
       // Single tap → open detail (delayed to check for double)
       lastTapRef.current = now;
-      setTimeout(() => {
+      singleTapTimeoutRef.current = setTimeout(() => {
+        singleTapTimeoutRef.current = null;
         if (Date.now() - lastTapRef.current >= 280) {
           onTap();
         }

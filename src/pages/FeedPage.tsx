@@ -74,7 +74,7 @@ export function FeedPage() {
       <div className="flex items-center justify-between py-3 px-6">
         <Logo variant="mark" size="sm" />
         <span className="text-[9px] font-inter tracking-[0.2em] uppercase text-ink-muted">
-          {currentFeedIndex + 1} / {feedLooks.length}
+          {(currentFeedIndex % feedLooks.length) + 1} / {feedLooks.length}
         </span>
       </div>
 
