@@ -55,12 +55,17 @@ export function SearchPage() {
 
   useEffect(() => {
     return () => {
-      if (analyzeTimerRef.current) clearTimeout(analyzeTimerRef.current);
       if (uploadedImage && uploadedImage.startsWith("blob:")) {
         URL.revokeObjectURL(uploadedImage);
       }
     };
   }, [uploadedImage]);
+
+  useEffect(() => {
+    return () => {
+      if (analyzeTimerRef.current) clearTimeout(analyzeTimerRef.current);
+    };
+  }, []);
 
   const matchedLook = feedLooks[0];
 
