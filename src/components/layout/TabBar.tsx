@@ -18,7 +18,7 @@ export function TabBar() {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 safe-bottom">
       <div className="glass border-t border-ink/5">
-        <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-1">
+        <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             const Icon = tab.icon;
@@ -28,7 +28,7 @@ export function TabBar() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 whileTap={{ scale: 0.9 }}
-                className="relative flex flex-col items-center justify-center w-14 h-full gap-0.5"
+                className="relative flex flex-col items-center justify-center w-16 h-full gap-0.5"
               >
                 <Icon
                   size={20}
@@ -38,10 +38,8 @@ export function TabBar() {
                   }`}
                 />
                 <span
-                  className={`text-[9px] font-inter leading-none transition-all duration-200 ${
-                    isActive
-                      ? "text-ink font-semibold opacity-100"
-                      : "text-ink-muted opacity-70"
+                  className={`text-[9px] font-inter tracking-[0.05em] transition-colors duration-200 ${
+                    isActive ? "text-ink font-medium" : "text-ink-muted"
                   }`}
                 >
                   {tab.label}
@@ -49,7 +47,7 @@ export function TabBar() {
                 {isActive && (
                   <motion.div
                     layoutId="tab-indicator"
-                    className="absolute -top-0 w-8 h-0.5 rounded-full bg-ink"
+                    className="absolute -bottom-0 w-1 h-1 rounded-full bg-ink"
                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
                   />
                 )}

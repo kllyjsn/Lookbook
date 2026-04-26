@@ -1,11 +1,12 @@
 import { useCallback, useMemo, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
 import { SearchPage } from "./SearchPage";
 import { Logo } from "../components/ui/Logo";
 import { RefreshCw, Sparkles, Camera } from "lucide-react";
-import { feedLooks } from "../data/mockData";
+import { feedLooks, moodFilters } from "../data/mockData";
+import type { MoodFilter } from "../data/mockData";
 import { useStore } from "../stores/useStore";
 
 export function FeedPage() {
@@ -17,18 +18,30 @@ export function FeedPage() {
   const showLookDetail = useStore((s) => s.showLookDetail);
   const setShowLookDetail = useStore((s) => s.setShowLookDetail);
   const setActiveTab = useStore((s) => s.setActiveTab);
+  const activeMoodFilter = useStore((s) => s.activeMoodFilter);
+  const setActiveMoodFilter = useStore((s) => s.setActiveMoodFilter);
+  const undoLastSwipe = useStore((s) => s.undoLastSwipe);
+  const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
   const [showSearch, setShowSearch] = useState(false);
 
-  const hasSeenAll = currentFeedIndex >= feedLooks.length;
+  const filteredLooks = useMemo(
+    () =>
+      activeMoodFilter === "all"
+        ? feedLooks
+        : feedLooks.filter((l) => l.mood === activeMoodFilter),
+    [activeMoodFilter]
+  );
+
+  const hasSeenAll = currentFeedIndex >= filteredLooks.length;
 
   const currentLook = useMemo(
-    () => feedLooks[currentFeedIndex % feedLooks.length],
-    [currentFeedIndex]
+    () => filteredLooks[currentFeedIndex % filteredLooks.length],
+    [currentFeedIndex, filteredLooks]
   );
   const nextLook = useMemo(
-    () => feedLooks[(currentFeedIndex + 1) % feedLooks.length],
-    [currentFeedIndex]
+    () => filteredLooks[(currentFeedIndex + 1) % filteredLooks.length],
+    [currentFeedIndex, filteredLooks]
   );
 
   const handleSwipeRight = useCallback(() => {
@@ -47,7 +60,7 @@ export function FeedPage() {
     setShowLookDetail(currentLook);
   }, [currentLook, setShowLookDetail]);
 
-  const handleDoubleTapLike = useCallback(() => {
+  const handleDoubleTap = useCallback(() => {
     likeLook(currentLook);
   }, [currentLook, likeLook]);
 
@@ -68,10 +81,17 @@ export function FeedPage() {
     setActiveTab("profile");
   }, [currentLook, addToCollection, setActiveTab]);
 
+  const handleMoodFilter = useCallback(
+    (mood: MoodFilter) => {
+      setActiveMoodFilter(mood);
+    },
+    [setActiveMoodFilter]
+  );
+
   return (
     <div className="h-full flex flex-col bg-cream">
       {/* Header */}
-      <div className="flex items-center justify-between py-4 px-6">
+      <div className="flex items-center justify-between py-3 px-6">
         <Logo variant="mark" size="sm" />
         <div className="flex items-center gap-3">
           <span className="text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted">
@@ -94,6 +114,26 @@ export function FeedPage() {
               <Camera size={14} className="text-ink" />
             </motion.button>
           )}
+        </div>
+      </div>
+
+      {/* Mood filter pills */}
+      <div className="px-4 pb-2">
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+          {moodFilters.map((filter) => (
+            <motion.button
+              key={filter.id}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleMoodFilter(filter.id)}
+              className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-inter font-medium transition-all ${
+                activeMoodFilter === filter.id
+                  ? "bg-ink text-cream"
+                  : "bg-ivory text-ink-muted border border-ink/5 hover:border-ink/15"
+              }`}
+            >
+              {filter.label}
+            </motion.button>
+          ))}
         </div>
       </div>
 
@@ -150,6 +190,7 @@ export function FeedPage() {
                 onSwipeLeft={() => {}}
                 onSwipeUp={() => {}}
                 onTap={() => {}}
+                onDoubleTap={() => {}}
                 isTop={false}
               />
               {/* Top card (current) */}
@@ -160,7 +201,7 @@ export function FeedPage() {
                 onSwipeLeft={handleSwipeLeft}
                 onSwipeUp={handleSwipeUp}
                 onTap={handleTap}
-                onDoubleTapLike={handleDoubleTapLike}
+                onDoubleTap={handleDoubleTap}
                 isTop={true}
               />
             </AnimatePresence>
@@ -176,9 +217,11 @@ export function FeedPage() {
             onLike={handleButtonLike}
             onShop={handleButtonShop}
             onSave={handleButtonSave}
+            onUndo={undoLastSwipe}
+            canUndo={!!lastSwipedLook}
           />
           <p className="text-center text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted mt-1">
-            Swipe right to love &middot; Left to pass &middot; Double-tap to love
+            Swipe right to love · Left to pass · Up to shop · Double-tap to love
           </p>
         </div>
       )}
