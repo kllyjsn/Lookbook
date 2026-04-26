@@ -1,8 +1,11 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
 import { Logo } from "../components/ui/Logo";
+import { TrendingBar } from "../components/feed/TrendingBar";
+import { DoubleTapHeart } from "../components/feed/DoubleTapHeart";
+import { SwipeStreak } from "../components/feed/SwipeStreak";
 import { feedLooks } from "../data/mockData";
 import { useStore } from "../stores/useStore";
 
@@ -14,6 +17,10 @@ export function FeedPage() {
   const showLookDetail = useStore((s) => s.showLookDetail);
   const setShowLookDetail = useStore((s) => s.setShowLookDetail);
   const setActiveTab = useStore((s) => s.setActiveTab);
+  const likedLooks = useStore((s) => s.likedLooks);
+
+  const [doubleTapPos, setDoubleTapPos] = useState<{ x: number; y: number } | null>(null);
+  const [streak, setStreak] = useState(0);
 
   const currentLook = useMemo(
     () => feedLooks[currentFeedIndex % feedLooks.length],
@@ -26,15 +33,27 @@ export function FeedPage() {
 
   const handleSwipeRight = useCallback(() => {
     likeLook(currentLook);
+    setStreak((s) => s + 1);
   }, [currentLook, likeLook]);
 
   const handleSwipeLeft = useCallback(() => {
     passLook(currentLook);
+    setStreak(0);
   }, [currentLook, passLook]);
 
   const handleSwipeUp = useCallback(() => {
     setShowLookDetail(currentLook);
   }, [currentLook, setShowLookDetail]);
+
+  const handleDoubleTap = useCallback(
+    (x: number, y: number) => {
+      setDoubleTapPos({ x, y });
+      likeLook(currentLook);
+      setStreak((s) => s + 1);
+      setTimeout(() => setDoubleTapPos(null), 800);
+    },
+    [currentLook, likeLook]
+  );
 
   const handleTap = useCallback(() => {
     setShowLookDetail(currentLook);
@@ -42,10 +61,12 @@ export function FeedPage() {
 
   const handleButtonLike = useCallback(() => {
     likeLook(currentLook);
+    setStreak((s) => s + 1);
   }, [currentLook, likeLook]);
 
   const handleButtonPass = useCallback(() => {
     passLook(currentLook);
+    setStreak(0);
   }, [currentLook, passLook]);
 
   const handleButtonShop = useCallback(() => {
@@ -60,9 +81,20 @@ export function FeedPage() {
   return (
     <div className="h-full flex flex-col bg-cream">
       {/* Header */}
-      <div className="flex items-center justify-center py-4 px-6">
+      <div className="flex items-center justify-between py-3 px-6">
         <Logo variant="mark" size="sm" />
+        <div className="flex items-center gap-3">
+          {streak >= 3 && <SwipeStreak count={streak} />}
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-ivory">
+            <span className="text-[10px] font-inter font-medium text-ink-muted">
+              {likedLooks.length} loved
+            </span>
+          </div>
+        </div>
       </div>
+
+      {/* Trending tags */}
+      <TrendingBar />
 
       {/* Card stack area */}
       <div className="flex-1 relative px-4 pb-2">
@@ -76,6 +108,7 @@ export function FeedPage() {
               onSwipeLeft={() => {}}
               onSwipeUp={() => {}}
               onTap={() => {}}
+              onDoubleTap={() => {}}
               isTop={false}
             />
             {/* Top card (current) */}
@@ -86,8 +119,16 @@ export function FeedPage() {
               onSwipeLeft={handleSwipeLeft}
               onSwipeUp={handleSwipeUp}
               onTap={handleTap}
+              onDoubleTap={handleDoubleTap}
               isTop={true}
             />
+          </AnimatePresence>
+
+          {/* Double-tap heart overlay */}
+          <AnimatePresence>
+            {doubleTapPos && (
+              <DoubleTapHeart x={doubleTapPos.x} y={doubleTapPos.y} />
+            )}
           </AnimatePresence>
         </div>
       </div>
@@ -101,7 +142,7 @@ export function FeedPage() {
           onSave={handleButtonSave}
         />
         <p className="text-center text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted mt-1">
-          Swipe right to love · Left to pass · Up to shop
+          Swipe right to love · Left to pass · Tap to shop
         </p>
       </div>
 

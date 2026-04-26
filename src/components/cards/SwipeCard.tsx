@@ -3,13 +3,13 @@ import { motion, useMotionValue, useTransform, animate, type PanInfo } from "fra
 import { Heart, X, ShoppingBag, Bookmark } from "lucide-react";
 import type { Look } from "../../data/mockData";
 
-
 interface SwipeCardProps {
   look: Look;
   onSwipeRight: () => void;
   onSwipeLeft: () => void;
   onSwipeUp: () => void;
   onTap: () => void;
+  onDoubleTap: (x: number, y: number) => void;
   isTop: boolean;
 }
 
@@ -19,11 +19,14 @@ export function SwipeCard({
   onSwipeLeft,
   onSwipeUp,
   onTap,
+  onDoubleTap,
   isTop,
 }: SwipeCardProps) {
   const [exitDirection, setExitDirection] = useState<"left" | "right" | "up" | null>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const lastTapRef = useRef(0);
+  const isDraggingRef = useRef(false);
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -33,6 +36,10 @@ export function SwipeCard({
   const nopeOpacity = useTransform(x, [-80, 0], [1, 0]);
   const shopOpacity = useTransform(y, [-80, 0], [1, 0]);
   const scale = useTransform(x, [-300, 0, 300], [0.95, 1, 0.95]);
+
+  const handleDragStart = () => {
+    isDraggingRef.current = true;
+  };
 
   const handleDragEnd = (_: unknown, info: PanInfo) => {
     const threshold = 100;
@@ -54,6 +61,32 @@ export function SwipeCard({
       animate(x, 0, { type: "spring", stiffness: 300, damping: 20 });
       animate(y, 0, { type: "spring", stiffness: 300, damping: 20 });
     }
+
+    setTimeout(() => {
+      isDraggingRef.current = false;
+    }, 50);
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (isDraggingRef.current) return;
+    if (Math.abs(x.get()) > 5 || Math.abs(y.get()) > 5) return;
+
+    const now = Date.now();
+    const timeSinceLastTap = now - lastTapRef.current;
+    lastTapRef.current = now;
+
+    if (timeSinceLastTap < 300) {
+      const rect = containerRef.current?.getBoundingClientRect();
+      const relX = e.clientX - (rect?.left ?? 0);
+      const relY = e.clientY - (rect?.top ?? 0);
+      onDoubleTap(relX, relY);
+    } else {
+      setTimeout(() => {
+        if (Date.now() - lastTapRef.current >= 290) {
+          onTap();
+        }
+      }, 300);
+    }
   };
 
   if (exitDirection) {
@@ -68,17 +101,21 @@ export function SwipeCard({
       drag={isTop}
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
       dragElastic={0.9}
+      onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       initial={isTop ? { scale: 0.97, opacity: 0.8 } : { scale: 0.93, opacity: 0.5 }}
       animate={isTop ? { scale: 1, opacity: 1 } : { scale: 0.95, opacity: 0.7 }}
       transition={{ duration: 0.3 }}
-      onClick={() => {
-        if (Math.abs(x.get()) < 5 && Math.abs(y.get()) < 5) {
-          onTap();
-        }
-      }}
+      onClick={handleClick}
     >
       <div className="relative w-full h-full rounded-2xl overflow-hidden card-shadow bg-charcoal">
+        {/* Skeleton loader */}
+        {!imgLoaded && (
+          <div className="absolute inset-0 bg-charcoal animate-pulse">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent skeleton-shimmer" />
+          </div>
+        )}
+
         {/* Image */}
         <img
           src={look.image}
@@ -180,41 +217,45 @@ interface SwipeButtonsProps {
 
 export function SwipeButtons({ onPass, onLike, onShop, onSave }: SwipeButtonsProps) {
   return (
-    <div className="flex items-center justify-center gap-5 py-4">
+    <div className="flex items-center justify-center gap-4 py-3">
       <motion.button
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={onPass}
-        className="w-14 h-14 rounded-full border-2 border-ink/10 flex items-center justify-center bg-cream hover:border-rose/40 hover:bg-rose/5 transition-colors"
+        className="w-13 h-13 rounded-full border-2 border-ink/10 flex flex-col items-center justify-center bg-cream hover:border-rose/40 hover:bg-rose/5 transition-colors gap-0.5 p-2"
       >
-        <X size={22} className="text-ink-muted" />
+        <X size={20} className="text-ink-muted" />
+        <span className="text-[8px] font-inter text-ink-muted">Pass</span>
       </motion.button>
 
       <motion.button
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={onShop}
-        className="w-12 h-12 rounded-full border-2 border-ink/10 flex items-center justify-center bg-cream hover:border-gold/40 hover:bg-gold/5 transition-colors"
+        className="w-11 h-11 rounded-full border-2 border-ink/10 flex flex-col items-center justify-center bg-cream hover:border-gold/40 hover:bg-gold/5 transition-colors gap-0.5 p-1.5"
       >
-        <ShoppingBag size={18} className="text-ink-muted" />
+        <ShoppingBag size={16} className="text-ink-muted" />
+        <span className="text-[7px] font-inter text-ink-muted">Shop</span>
       </motion.button>
 
       <motion.button
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={onLike}
-        className="w-14 h-14 rounded-full border-2 border-ink/10 flex items-center justify-center bg-cream hover:border-rose/40 hover:bg-rose/5 transition-colors"
+        className="w-14 h-14 rounded-full border-2 border-rose/30 flex flex-col items-center justify-center bg-rose/5 hover:bg-rose/10 transition-colors gap-0.5 p-2"
       >
-        <Heart size={22} className="text-ink-muted" />
+        <Heart size={22} className="text-rose" />
+        <span className="text-[8px] font-inter text-rose font-medium">Love</span>
       </motion.button>
 
       <motion.button
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={onSave}
-        className="w-12 h-12 rounded-full border-2 border-ink/10 flex items-center justify-center bg-cream hover:border-gold/40 hover:bg-gold/5 transition-colors"
+        className="w-11 h-11 rounded-full border-2 border-ink/10 flex flex-col items-center justify-center bg-cream hover:border-gold/40 hover:bg-gold/5 transition-colors gap-0.5 p-1.5"
       >
-        <Bookmark size={18} className="text-ink-muted" />
+        <Bookmark size={16} className="text-ink-muted" />
+        <span className="text-[7px] font-inter text-ink-muted">Save</span>
       </motion.button>
     </div>
   );

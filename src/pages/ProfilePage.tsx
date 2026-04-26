@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2 } from "lucide-react";
+import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2, Flame, TrendingUp, Eye } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
@@ -47,7 +47,7 @@ export function ProfilePage() {
         </div>
 
         {/* Profile avatar & name */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-4 mb-4">
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold to-blush flex items-center justify-center">
             <span className="font-editorial text-xl text-white">Y</span>
           </div>
@@ -56,6 +56,31 @@ export function ProfilePage() {
             <p className="text-xs font-inter text-ink-muted">
               {likedLooks.length} looks loved · {collections.reduce((sum, c) => sum + c.looks.length, 0)} saved
             </p>
+          </div>
+        </div>
+
+        {/* Stats row */}
+        <div className="flex gap-2 mb-6">
+          <div className="flex-1 p-3 rounded-xl bg-ivory text-center">
+            <div className="flex items-center justify-center gap-1 mb-1">
+              <Eye size={12} className="text-ink-muted" />
+              <span className="text-lg font-inter font-bold text-ink">{likedLooks.length + (collections.reduce((sum, c) => sum + c.looks.length, 0))}</span>
+            </div>
+            <span className="text-[9px] font-inter text-ink-muted tracking-wide uppercase">Looks Viewed</span>
+          </div>
+          <div className="flex-1 p-3 rounded-xl bg-ivory text-center">
+            <div className="flex items-center justify-center gap-1 mb-1">
+              <Flame size={12} className="text-rose" />
+              <span className="text-lg font-inter font-bold text-ink">{likedLooks.length}</span>
+            </div>
+            <span className="text-[9px] font-inter text-ink-muted tracking-wide uppercase">Loved</span>
+          </div>
+          <div className="flex-1 p-3 rounded-xl bg-ivory text-center">
+            <div className="flex items-center justify-center gap-1 mb-1">
+              <TrendingUp size={12} className="text-gold" />
+              <span className="text-lg font-inter font-bold text-ink">{collections.length}</span>
+            </div>
+            <span className="text-[9px] font-inter text-ink-muted tracking-wide uppercase">Collections</span>
           </div>
         </div>
 
