@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
@@ -8,6 +8,95 @@ import { RefreshCw, Sparkles, Camera } from "lucide-react";
 import { feedLooks, moodFilters } from "../data/mockData";
 import type { MoodFilter } from "../data/mockData";
 import { useStore } from "../stores/useStore";
+
+function TodaysEditHeader() {
+  const now = new Date();
+  const day = now.toLocaleDateString("en-US", { weekday: "long" });
+  const date = now.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+  });
+
+  return (
+    <div className="px-6 pb-2">
+      <div className="flex items-center justify-between mb-1">
+        <div>
+          <p className="text-[10px] font-inter tracking-[0.2em] uppercase text-ink-muted">
+            {day}
+          </p>
+          <h2 className="font-editorial text-lg text-ink leading-tight">
+            Today's Edit
+          </h2>
+        </div>
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-ink/5">
+          <Sparkles size={12} className="text-gold" />
+          <span className="text-[10px] font-inter font-medium text-ink-light">
+            {date}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SwipeTutorialHint({ onDismiss }: { onDismiss: () => void }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="absolute inset-0 z-30 flex items-center justify-center bg-black/50 rounded-2xl"
+      onClick={onDismiss}
+    >
+      <div className="text-center px-8">
+        <motion.div
+          animate={{ x: [0, 60, 0, -60, 0, 0, -40] }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            repeatDelay: 1,
+          }}
+          className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mx-auto mb-4"
+        >
+          <span className="text-white text-lg">👆</span>
+        </motion.div>
+        <p className="text-white font-inter text-sm font-medium mb-1">
+          Swipe to discover
+        </p>
+        <div className="space-y-1">
+          <p className="text-white/70 text-xs font-inter">
+            → Right to <span className="text-green-400 font-medium">Love</span>
+          </p>
+          <p className="text-white/70 text-xs font-inter">
+            ← Left to <span className="text-rose font-medium">Pass</span>
+          </p>
+          <p className="text-white/70 text-xs font-inter">
+            ↑ Up to <span className="text-gold font-medium">Shop</span>
+          </p>
+          <p className="text-white/60 text-[10px] font-inter mt-2">
+            Double-tap to quick-love
+          </p>
+        </div>
+        <p className="text-white/40 text-[10px] font-inter mt-4">
+          Tap anywhere to start
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
+function DoubleTapHeart() {
+  return (
+    <motion.div
+      initial={{ scale: 0, opacity: 1 }}
+      animate={{ scale: [0, 1.4, 1], opacity: [1, 1, 0] }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+      className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none"
+    >
+      <span className="text-6xl drop-shadow-lg">❤️</span>
+    </motion.div>
+  );
+}
 
 export function FeedPage() {
   const currentFeedIndex = useStore((s) => s.currentFeedIndex);
@@ -23,7 +112,17 @@ export function FeedPage() {
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
   const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
+  const hasSeenSwipeTutorial = useStore((s) => s.hasSeenSwipeTutorial);
+  const dismissSwipeTutorial = useStore((s) => s.dismissSwipeTutorial);
   const [showSearch, setShowSearch] = useState(false);
+  const [doubleTapKey, setDoubleTapKey] = useState(0);
+  const heartTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  useEffect(() => {
+    return () => {
+      if (heartTimeoutRef.current) clearTimeout(heartTimeoutRef.current);
+    };
+  }, []);
 
   const filteredLooks = useMemo(
     () =>
@@ -61,7 +160,12 @@ export function FeedPage() {
   }, [currentLook, setShowLookDetail]);
 
   const handleDoubleTap = useCallback(() => {
+    if (heartTimeoutRef.current) clearTimeout(heartTimeoutRef.current);
+    setDoubleTapKey((k) => k + 1);
     likeLook(currentLook);
+    heartTimeoutRef.current = setTimeout(() => {
+      setDoubleTapKey(0);
+    }, 800);
   }, [currentLook, likeLook]);
 
   const handleButtonLike = useCallback(() => {
@@ -116,6 +220,9 @@ export function FeedPage() {
           )}
         </div>
       </div>
+
+      {/* Today's Edit header */}
+      <TodaysEditHeader />
 
       {/* Mood filter pills */}
       <div className="px-4 pb-2">
@@ -204,6 +311,18 @@ export function FeedPage() {
                 onDoubleTap={handleDoubleTap}
                 isTop={true}
               />
+            </AnimatePresence>
+
+            {/* Swipe tutorial hint */}
+            <AnimatePresence>
+              {!hasSeenSwipeTutorial && !hasSeenAll && (
+                <SwipeTutorialHint onDismiss={dismissSwipeTutorial} />
+              )}
+            </AnimatePresence>
+
+            {/* Double-tap heart animation */}
+            <AnimatePresence>
+              {doubleTapKey > 0 && <DoubleTapHeart key={doubleTapKey} />}
             </AnimatePresence>
           </div>
         )}

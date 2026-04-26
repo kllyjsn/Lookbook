@@ -29,6 +29,10 @@ interface AppState {
   lastSwipeAction: "like" | "pass" | null;
   undoLastSwipe: () => void;
 
+  // Tutorial
+  hasSeenSwipeTutorial: boolean;
+  dismissSwipeTutorial: () => void;
+
   // Collections
   collections: SavedCollection[];
   addToCollection: (collectionId: string, look: Look) => void;
@@ -198,6 +202,9 @@ export const useStore = create<AppState>()(
           };
         }),
 
+      hasSeenSwipeTutorial: false,
+      dismissSwipeTutorial: () => set({ hasSeenSwipeTutorial: true }),
+
       collections: [
         { id: "favorites", name: "Favorites", looks: [], createdAt: Date.now() },
         { id: "wishlist", name: "Wishlist", looks: [], createdAt: Date.now() },
@@ -280,6 +287,7 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        hasSeenSwipeTutorial: state.hasSeenSwipeTutorial,
       }),
     }
   )
