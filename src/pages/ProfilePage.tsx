@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2 } from "lucide-react";
+import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2, Palette, ShoppingBag, Check, X as XIcon } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
 import { LookDetail } from "../components/cards/LookDetail";
+import { BagDrawer } from "../components/ui/BagDrawer";
 import type { Look } from "../data/mockData";
 
-type ProfileSection = "dna" | "liked" | "collections";
+type ProfileSection = "dna" | "liked" | "collections" | "colorSeason";
 
 export function ProfilePage() {
   const styleDNA = useStore((s) => s.styleDNA);
@@ -21,6 +22,10 @@ export function ProfilePage() {
   const [isGridView, setIsGridView] = useState(true);
   const [showNewCollection, setShowNewCollection] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState("");
+  const computeColorSeason = useStore((s) => s.computeColorSeason);
+  const colorSeason = useStore((s) => s.colorSeason);
+  const bagItems = useStore((s) => s.bagItems);
+  const [showBag, setShowBag] = useState(false);
 
   const handleCreateCollection = () => {
     if (newCollectionName.trim()) {
@@ -38,12 +43,26 @@ export function ProfilePage() {
       <div className="px-6 pt-6 pb-2">
         <div className="flex items-center justify-between mb-4">
           <Logo variant="mark" size="sm" />
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            className="w-9 h-9 rounded-full flex items-center justify-center border border-ink/10"
-          >
-            <Settings size={16} className="text-ink-muted" />
-          </motion.button>
+          <div className="flex items-center gap-2">
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setShowBag(true)}
+              className="relative w-9 h-9 rounded-full flex items-center justify-center border border-ink/10"
+            >
+              <ShoppingBag size={16} className="text-ink-muted" />
+              {bagItems.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose rounded-full text-[9px] font-inter font-bold text-white flex items-center justify-center">
+                  {bagItems.length}
+                </span>
+              )}
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              className="w-9 h-9 rounded-full flex items-center justify-center border border-ink/10"
+            >
+              <Settings size={16} className="text-ink-muted" />
+            </motion.button>
+          </div>
         </div>
 
         {/* Profile avatar & name */}
@@ -63,6 +82,7 @@ export function ProfilePage() {
         <div className="flex gap-1 bg-ivory rounded-xl p-1">
           {([
             { id: "dna" as const, label: "Style DNA" },
+            { id: "colorSeason" as const, label: "Colors" },
             { id: "liked" as const, label: "Loved" },
             { id: "collections" as const, label: "Collections" },
           ]).map((tab) => (
@@ -139,6 +159,116 @@ export function ProfilePage() {
                   ))}
                 </div>
               </div>
+            </motion.div>
+          )}
+
+          {activeSection === "colorSeason" && (
+            <motion.div
+              key="colorSeason"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              {!colorSeason ? (
+                <div className="flex flex-col items-center py-12">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                    className="w-20 h-20 rounded-full bg-gradient-to-br from-lavender/20 to-blush/20 flex items-center justify-center mb-6"
+                  >
+                    <Palette size={32} className="text-lavender" />
+                  </motion.div>
+                  <h3 className="font-editorial text-xl text-ink text-center mb-2">
+                    Discover Your Color Season
+                  </h3>
+                  <p className="font-subhead text-sm text-ink-muted italic text-center mb-6 max-w-xs">
+                    Based on your Style DNA, we'll reveal which colors make you shine
+                  </p>
+                  <motion.button
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => computeColorSeason()}
+                    className="px-8 py-3.5 rounded-full bg-ink text-cream font-inter text-sm font-medium flex items-center gap-2"
+                  >
+                    <Palette size={16} />
+                    Analyze My Colors
+                  </motion.button>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <motion.h3
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="font-editorial text-2xl text-ink mb-2"
+                    >
+                      You're a {colorSeason.season}
+                    </motion.h3>
+                    <p className="font-subhead text-sm text-ink-muted italic">
+                      {colorSeason.description}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="text-xs font-inter font-semibold tracking-[0.12em] uppercase text-ink-muted mb-3">
+                      Your Palette
+                    </h4>
+                    <div className="flex gap-2 justify-center">
+                      {colorSeason.palette.map((color) => (
+                        <motion.div
+                          key={color}
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: "spring", stiffness: 300 }}
+                          className="w-12 h-12 rounded-xl border border-ink/10 shadow-sm"
+                          style={{ backgroundColor: color }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 rounded-xl bg-ivory">
+                      <div className="flex items-center gap-1.5 mb-3">
+                        <Check size={14} className="text-green-600" />
+                        <h4 className="text-xs font-inter font-semibold tracking-[0.1em] uppercase text-ink-muted">
+                          Best Colors
+                        </h4>
+                      </div>
+                      <div className="space-y-1.5">
+                        {colorSeason.bestColors.map((color) => (
+                          <p key={color} className="text-sm font-inter text-ink">
+                            {color}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-xl bg-ivory">
+                      <div className="flex items-center gap-1.5 mb-3">
+                        <XIcon size={14} className="text-rose" />
+                        <h4 className="text-xs font-inter font-semibold tracking-[0.1em] uppercase text-ink-muted">
+                          Avoid
+                        </h4>
+                      </div>
+                      <div className="space-y-1.5">
+                        {colorSeason.avoidColors.map((color) => (
+                          <p key={color} className="text-sm font-inter text-ink-muted">
+                            {color}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <motion.button
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => computeColorSeason()}
+                    className="w-full py-3 rounded-full border border-ink/10 text-ink font-inter text-xs font-medium"
+                  >
+                    Recalculate
+                  </motion.button>
+                </div>
+              )}
             </motion.div>
           )}
 
@@ -415,6 +545,8 @@ export function ProfilePage() {
           />
         )}
       </AnimatePresence>
+
+      <BagDrawer isOpen={showBag} onClose={() => setShowBag(false)} />
     </div>
   );
 }

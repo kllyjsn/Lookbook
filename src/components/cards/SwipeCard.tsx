@@ -1,7 +1,9 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion";
-import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2 } from "lucide-react";
+import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2, Flame } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { trendingHeat } from "../../data/mockData";
+import { useStore } from "../../stores/useStore";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -13,6 +15,12 @@ const badgeConfig = {
   "trending": { label: "TRENDING", icon: TrendingUp, bg: "bg-rose/90", text: "text-white" },
   "editors-pick": { label: "EDITOR'S PICK", icon: Award, bg: "bg-gold/90", text: "text-white" },
   "new": { label: "NEW", icon: Zap, bg: "bg-ink/80", text: "text-cream" },
+} as const;
+
+const heatConfig = {
+  "warm": { label: "Rising", color: "text-amber-300", flames: 1 },
+  "hot": { label: "Hot", color: "text-orange-400", flames: 2 },
+  "fire": { label: "Viral", color: "text-red-400", flames: 3 },
 } as const;
 
 interface SwipeCardProps {
@@ -34,6 +42,10 @@ export function SwipeCard({
   onDoubleTap,
   isTop,
 }: SwipeCardProps) {
+  const getStyleMatch = useStore((s) => s.getStyleMatch);
+  const styleMatch = isTop ? getStyleMatch(look) : 0;
+  const heat = trendingHeat[look.id];
+
   const [exitDirection, setExitDirection] = useState<"left" | "right" | "up" | null>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [showHeartBurst, setShowHeartBurst] = useState(false);
@@ -238,7 +250,43 @@ export function SwipeCard({
               <span className="text-xs font-inter text-white/50">
                 {look.items.length} pieces
               </span>
+              {heat && (
+                <>
+                  <span className="text-white/30">·</span>
+                  <span className={`flex items-center gap-0.5 text-xs font-inter font-semibold ${heatConfig[heat].color}`}>
+                    {Array.from({ length: heatConfig[heat].flames }).map((_, i) => (
+                      <Flame key={i} size={10} fill="currentColor" />
+                    ))}
+                    {heatConfig[heat].label}
+                  </span>
+                </>
+              )}
             </div>
+            {isTop && styleMatch > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="mt-2"
+              >
+                <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm rounded-full px-3 py-1.5">
+                  <div className="w-12 h-1.5 bg-white/20 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${styleMatch}%` }}
+                      transition={{ delay: 0.6, duration: 0.8, ease: "easeOut" }}
+                      className="h-full rounded-full"
+                      style={{
+                        backgroundColor: styleMatch >= 80 ? "#4ade80" : styleMatch >= 60 ? "#C5A572" : "#8A8A8A",
+                      }}
+                    />
+                  </div>
+                  <span className="text-[10px] font-inter font-semibold text-white/90">
+                    {styleMatch}% match
+                  </span>
+                </div>
+              </motion.div>
+            )}
           </div>
         </div>
 
