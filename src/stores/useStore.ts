@@ -23,6 +23,7 @@ interface AppState {
   likeLook: (look: Look) => void;
   passLook: (look: Look) => void;
   saveLook: (look: Look) => void;
+  likeFromReels: (look: Look) => void;
 
   // Undo swipe
   lastSwipedLook: Look | null;
@@ -225,6 +226,16 @@ export const useStore = create<AppState>()(
             ? state.likedLooks
             : [...state.likedLooks, look],
         })),
+      likeFromReels: (look) =>
+        set((state) => {
+          const newLiked = state.likedLooks.some((l) => l.id === look.id)
+            ? state.likedLooks
+            : [...state.likedLooks, look];
+          return {
+            likedLooks: newLiked,
+            styleDNA: computeDNA(newLiked),
+          };
+        }),
 
       undoLastSwipe: () =>
         set((state) => {

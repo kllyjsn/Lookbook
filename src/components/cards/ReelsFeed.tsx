@@ -21,7 +21,7 @@ export function ReelsFeed({ looks, onOpenDetail }: ReelsFeedProps) {
   const [direction, setDirection] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const touchStartY = useRef(0);
-  const likeLook = useStore((s) => s.likeLook);
+  const likeFromReels = useStore((s) => s.likeFromReels);
   const addToCollection = useStore((s) => s.addToCollection);
   const getStyleMatch = useStore((s) => s.getStyleMatch);
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
@@ -32,18 +32,14 @@ export function ReelsFeed({ looks, onOpenDetail }: ReelsFeedProps) {
   const heat = trendingHeat[currentLook.id];
 
   const goNext = useCallback(() => {
-    if (currentIndex < looks.length - 1) {
-      setDirection(1);
-      setCurrentIndex((i) => i + 1);
-    }
-  }, [currentIndex, looks.length]);
+    setDirection(1);
+    setCurrentIndex((i) => (i < looks.length - 1 ? i + 1 : i));
+  }, [looks.length]);
 
   const goPrev = useCallback(() => {
-    if (currentIndex > 0) {
-      setDirection(-1);
-      setCurrentIndex((i) => i - 1);
-    }
-  }, [currentIndex]);
+    setDirection(-1);
+    setCurrentIndex((i) => (i > 0 ? i - 1 : i));
+  }, []);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
@@ -74,7 +70,7 @@ export function ReelsFeed({ looks, onOpenDetail }: ReelsFeedProps) {
 
   const handleLike = () => {
     if (!likedIds.has(currentLook.id)) {
-      likeLook(currentLook);
+      likeFromReels(currentLook);
       setLikedIds((prev) => new Set(prev).add(currentLook.id));
     }
   };
