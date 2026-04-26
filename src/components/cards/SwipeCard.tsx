@@ -44,6 +44,7 @@ export function SwipeCard({
   const doubleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const singleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressActiveRef = useRef(false);
   const doubleTapDetectedRef = useRef(false);
   const swipedRef = useRef(false);
 
@@ -79,6 +80,7 @@ export function SwipeCard({
     }
     setShowHeartBurst(false);
     setShowQuickShop(false);
+    longPressActiveRef.current = false;
   }, []);
 
   const handleDragEnd = (_: unknown, info: PanInfo) => {
@@ -110,6 +112,10 @@ export function SwipeCard({
   };
 
   const handleClick = useCallback(() => {
+    if (longPressActiveRef.current) {
+      longPressActiveRef.current = false;
+      return;
+    }
     if (Math.abs(x.get()) > 5 || Math.abs(y.get()) > 5) return;
     if (swipedRef.current) return;
 
@@ -144,6 +150,7 @@ export function SwipeCard({
   const handlePointerDown = useCallback(() => {
     if (!isTop) return;
     longPressTimerRef.current = setTimeout(() => {
+      longPressActiveRef.current = true;
       setShowQuickShop(true);
     }, 500);
   }, [isTop]);

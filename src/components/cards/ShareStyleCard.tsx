@@ -9,6 +9,7 @@ interface ShareStyleCardProps {
 }
 
 export function ShareStyleCard({ look, styleDNA, onClose }: ShareStyleCardProps) {
+  if (styleDNA.length === 0) return null;
   const topStyle = styleDNA.reduce((a, b) => (a.percentage > b.percentage ? a : b), styleDNA[0]);
 
   const handleShare = async () => {
