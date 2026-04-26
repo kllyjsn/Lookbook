@@ -1,7 +1,13 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, useMotionValue, useTransform, animate, type PanInfo } from "framer-motion";
-import { Heart, X, ShoppingBag, Bookmark } from "lucide-react";
+import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap } from "lucide-react";
 import type { Look } from "../../data/mockData";
+
+const badgeConfig = {
+  "trending": { label: "TRENDING", icon: TrendingUp, bg: "bg-rose/90", text: "text-white" },
+  "editors-pick": { label: "EDITOR'S PICK", icon: Award, bg: "bg-gold/90", text: "text-white" },
+  "new": { label: "NEW", icon: Zap, bg: "bg-ink/80", text: "text-cream" },
+} as const;
 
 
 interface SwipeCardProps {
@@ -100,8 +106,6 @@ export function SwipeCard({
     return null;
   }
 
-  const badge = look.badge;
-
   return (
     <motion.div
       ref={containerRef}
@@ -117,11 +121,8 @@ export function SwipeCard({
       onClick={handleClick}
     >
       <div className="relative w-full h-full rounded-2xl overflow-hidden card-shadow bg-charcoal">
-        {/* Skeleton shimmer */}
-        {!imgLoaded && (
-          <div className="absolute inset-0 skeleton-shimmer" />
-        )}
-
+        {/* Shimmer skeleton */}
+        {!imgLoaded && <div className="absolute inset-0 shimmer bg-charcoal" />}
         {/* Image */}
         <img
           src={look.image}
@@ -137,28 +138,30 @@ export function SwipeCard({
             <span className="text-white/60 text-[10px] font-inter tracking-[0.3em] uppercase">
               {look.season}
             </span>
-            <span className="text-white/60 text-[10px] font-inter tracking-[0.3em] uppercase">
-              {look.occasion}
-            </span>
+            {look.badge && (() => {
+              const badge = badgeConfig[look.badge];
+              const BadgeIcon = badge.icon;
+              return (
+                <motion.div
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.3, type: "spring", stiffness: 400 }}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full ${badge.bg} backdrop-blur-sm`}
+                >
+                  <BadgeIcon size={10} className={badge.text} />
+                  <span className={`text-[9px] font-inter font-semibold tracking-wider ${badge.text}`}>
+                    {badge.label}
+                  </span>
+                </motion.div>
+              );
+            })()}
+            {!look.badge && (
+              <span className="text-white/60 text-[10px] font-inter tracking-[0.3em] uppercase">
+                {look.occasion}
+              </span>
+            )}
           </div>
         </div>
-
-        {/* Editorial badge */}
-        {badge && (
-          <div className="absolute top-16 left-5 z-20">
-            <div
-              className={`px-3 py-1.5 rounded-full text-[9px] font-inter font-bold tracking-[0.2em] uppercase backdrop-blur-sm ${
-                badge === "TRENDING"
-                  ? "bg-rose/90 text-white"
-                  : badge === "EDITOR'S PICK"
-                  ? "bg-gold/90 text-white"
-                  : "bg-white/90 text-ink"
-              }`}
-            >
-              {badge}
-            </div>
-          </div>
-        )}
 
         {/* Bottom gradient + content */}
         <div className="absolute inset-x-0 bottom-0 gradient-bottom p-6 pb-8">

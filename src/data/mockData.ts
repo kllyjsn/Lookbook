@@ -25,7 +25,7 @@ export interface Look {
   items: LookItem[];
   season: string;
   description: string;
-  badge?: "TRENDING" | "EDITOR'S PICK" | "NEW";
+  badge?: "trending" | "editors-pick" | "new";
 }
 
 export interface EventType {
@@ -68,6 +68,7 @@ export const feedLooks: Look[] = [
     title: "Effortless Elegance",
     subtitle: "The new power dressing",
     photographer: "Tamara Bellis",
+    badge: "editors-pick",
     tags: [
       { label: "Minimalist", color: "#1A1A1A" },
       { label: "Office", color: "#4A4A4A" },
@@ -75,7 +76,6 @@ export const feedLooks: Look[] = [
     occasion: "Work",
     priceRange: "$200 – $800",
     season: "Fall/Winter",
-    badge: "EDITOR'S PICK",
     description:
       "Clean lines meet architectural silhouettes in this season's definitive work wardrobe. A masterclass in restraint.",
     items: [
@@ -98,7 +98,7 @@ export const feedLooks: Look[] = [
     occasion: "Date Night",
     priceRange: "$150 – $600",
     season: "Spring/Summer",
-    badge: "TRENDING",
+    badge: "trending",
     description:
       "Diaphanous fabrics and sun-kissed palettes that move with you. Dress for the evening you deserve.",
     items: [
@@ -114,6 +114,7 @@ export const feedLooks: Look[] = [
     title: "Street Luxe",
     subtitle: "Where comfort meets couture",
     photographer: "Dom Hill",
+    badge: "trending",
     tags: [
       { label: "Streetwear", color: "#2D2D2D" },
       { label: "Casual", color: "#8A8A8A" },
@@ -121,7 +122,6 @@ export const feedLooks: Look[] = [
     occasion: "Weekend",
     priceRange: "$100 – $500",
     season: "All Season",
-    badge: "NEW",
     description:
       "The art of looking effortlessly put-together. Elevated basics that work harder than your entire closet.",
     items: [
@@ -159,6 +159,7 @@ export const feedLooks: Look[] = [
     title: "Urban Safari",
     subtitle: "City exploring, redefined",
     photographer: "Heidi Fin",
+    badge: "new",
     tags: [
       { label: "Adventure", color: "#A8B5A0" },
       { label: "Utility", color: "#8A8A8A" },
@@ -203,6 +204,7 @@ export const feedLooks: Look[] = [
     title: "Garden Party",
     subtitle: "Florals but make it modern",
     photographer: "Tamara Bellis",
+    badge: "editors-pick",
     tags: [
       { label: "Feminine", color: "#E8D5D0" },
       { label: "Social", color: "#C4797A" },
@@ -210,7 +212,6 @@ export const feedLooks: Look[] = [
     occasion: "Brunch",
     priceRange: "$100 – $400",
     season: "Spring/Summer",
-    badge: "TRENDING",
     description:
       "Prints that feel fresh, not fussy. The kind of outfit that makes everyone ask where you got it.",
     items: [
@@ -255,7 +256,7 @@ export const feedLooks: Look[] = [
     occasion: "Vacation",
     priceRange: "$120 \u2013 $450",
     season: "Spring/Summer",
-    badge: "NEW",
+    badge: "new",
     description:
       "Sun-bleached linens and oceanic hues for the woman who carries her own calm. Effortlessly coastal.",
     items: [
@@ -278,7 +279,7 @@ export const feedLooks: Look[] = [
     occasion: "Any",
     priceRange: "$400 \u2013 $2,000",
     season: "All Season",
-    badge: "EDITOR'S PICK",
+    badge: "editors-pick",
     description:
       "No logos. No flash. Just impeccable fabric, perfect cut, and the quiet confidence that comes with knowing.",
     items: [
@@ -301,7 +302,7 @@ export const feedLooks: Look[] = [
     occasion: "Party",
     priceRange: "$200 \u2013 $800",
     season: "All Season",
-    badge: "TRENDING",
+    badge: "trending",
     description:
       "Electric color meets sharp tailoring. For the woman who doesn\u2019t just enter a room \u2014 she owns it.",
     items: [

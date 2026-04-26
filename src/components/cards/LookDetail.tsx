@@ -13,7 +13,7 @@ interface LookDetailProps {
 
 export function LookDetail({ look, onClose }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
-  const likeLook = useStore((s) => s.likeLook);
+  const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -53,7 +53,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
           {/* Hero image — magazine spread */}
           <div className="relative w-full aspect-[3/4] max-h-[70vh]">
             {!imgLoaded && (
-              <div className="absolute inset-0 skeleton-shimmer" />
+              <div className="absolute inset-0 shimmer bg-charcoal" />
             )}
             <img
               src={look.image}
@@ -74,14 +74,14 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                   <div className="mb-3">
                     <span
                       className={`px-3 py-1 rounded-full text-[9px] font-inter font-bold tracking-[0.2em] uppercase ${
-                        look.badge === "TRENDING"
+                        look.badge === "trending"
                           ? "bg-rose/90 text-white"
-                          : look.badge === "EDITOR'S PICK"
+                          : look.badge === "editors-pick"
                           ? "bg-gold/90 text-white"
                           : "bg-white/90 text-ink"
                       }`}
                     >
-                      {look.badge}
+                      {look.badge === "trending" ? "TRENDING" : look.badge === "editors-pick" ? "EDITOR'S PICK" : "NEW"}
                     </span>
                   </div>
                 )}
@@ -133,7 +133,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 whileTap={{ scale: 0.95 }}
                 onClick={() => {
                   if (!liked) {
-                    likeLook(look);
+                    saveLook(look);
                     setLiked(true);
                   }
                 }}

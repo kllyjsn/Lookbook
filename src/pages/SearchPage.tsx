@@ -13,6 +13,7 @@ export function SearchPage() {
   const [selectedLook, setSelectedLook] = useState<typeof feedLooks[0] | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
