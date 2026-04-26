@@ -45,6 +45,7 @@ export function SwipeCard({
   const singleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressActiveRef = useRef(false);
+  const quickShopHideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const doubleTapDetectedRef = useRef(false);
   const swipedRef = useRef(false);
 
@@ -62,6 +63,7 @@ export function SwipeCard({
       if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
       if (singleTapTimerRef.current) clearTimeout(singleTapTimerRef.current);
       if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+      if (quickShopHideTimerRef.current) clearTimeout(quickShopHideTimerRef.current);
     };
   }, []);
 
@@ -77,6 +79,10 @@ export function SwipeCard({
     if (longPressTimerRef.current) {
       clearTimeout(longPressTimerRef.current);
       longPressTimerRef.current = null;
+    }
+    if (quickShopHideTimerRef.current) {
+      clearTimeout(quickShopHideTimerRef.current);
+      quickShopHideTimerRef.current = null;
     }
     setShowHeartBurst(false);
     setShowQuickShop(false);
@@ -149,6 +155,13 @@ export function SwipeCard({
 
   const handlePointerDown = useCallback(() => {
     if (!isTop) return;
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+    }
+    if (quickShopHideTimerRef.current) {
+      clearTimeout(quickShopHideTimerRef.current);
+      quickShopHideTimerRef.current = null;
+    }
     longPressTimerRef.current = setTimeout(() => {
       longPressActiveRef.current = true;
       setShowQuickShop(true);
@@ -160,7 +173,10 @@ export function SwipeCard({
       clearTimeout(longPressTimerRef.current);
       longPressTimerRef.current = null;
     }
-    setTimeout(() => setShowQuickShop(false), 1500);
+    quickShopHideTimerRef.current = setTimeout(() => {
+      setShowQuickShop(false);
+      quickShopHideTimerRef.current = null;
+    }, 1500);
   }, []);
 
   if (exitDirection) {
