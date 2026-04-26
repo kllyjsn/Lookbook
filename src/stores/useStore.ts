@@ -69,10 +69,13 @@ export const useStore = create<AppState>()(
       likedLooks: [],
       passedLooks: [],
       likeLook: (look) =>
-        set((state) => ({
-          likedLooks: [...state.likedLooks, look],
-          totalLoves: state.totalLoves + 1,
-        })),
+        set((state) => {
+          if (state.likedLooks.some((l) => l.id === look.id)) return {};
+          return {
+            likedLooks: [...state.likedLooks, look],
+            totalLoves: state.totalLoves + 1,
+          };
+        }),
       passLook: (look) =>
         set((state) => ({
           passedLooks: [...state.passedLooks, look],
@@ -92,7 +95,8 @@ export const useStore = create<AppState>()(
       checkStreak: () =>
         set((state) => {
           const today = new Date().toDateString();
-          const yesterday = new Date(Date.now() - 86400000).toDateString();
+          const yd = new Date(); yd.setDate(yd.getDate() - 1);
+          const yesterday = yd.toDateString();
           if (state.lastActiveDate === today) return {};
           if (state.lastActiveDate === yesterday) {
             return { dailyStreak: state.dailyStreak + 1, lastActiveDate: today };
