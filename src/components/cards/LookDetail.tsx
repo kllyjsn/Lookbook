@@ -18,9 +18,10 @@ function formatCount(n: number): string {
 interface LookDetailProps {
   look: Look;
   onClose: () => void;
+  onNavigate?: (look: Look) => void;
 }
 
-export function LookDetail({ look, onClose }: LookDetailProps) {
+export function LookDetail({ look, onClose, onNavigate }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
@@ -196,7 +197,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               <SimilarVibes
                 lookIds={look.similarVibes}
                 onLookTap={(similarLook) => {
-                  setShowLookDetail(similarLook);
+                  (onNavigate ?? setShowLookDetail)(similarLook);
                 }}
               />
             )}

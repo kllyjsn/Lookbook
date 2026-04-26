@@ -271,6 +271,7 @@ export function FeedPage() {
       <AnimatePresence>
         {showLookDetail && (
           <LookDetail
+            key={showLookDetail.id}
             look={showLookDetail}
             onClose={() => setShowLookDetail(null)}
           />
