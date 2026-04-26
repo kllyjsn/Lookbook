@@ -12,7 +12,7 @@ export function SearchPage() {
   const [showResults, setShowResults] = useState(false);
   const [selectedLook, setSelectedLook] = useState<typeof feedLooks[0] | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const analyzeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -20,7 +20,9 @@ export function SearchPage() {
       const url = URL.createObjectURL(file);
       setUploadedImage(url);
       setIsAnalyzing(true);
-      setTimeout(() => {
+      if (analyzeTimerRef.current) clearTimeout(analyzeTimerRef.current);
+      analyzeTimerRef.current = setTimeout(() => {
+        analyzeTimerRef.current = null;
         setIsAnalyzing(false);
         setShowResults(true);
       }, 2000);
@@ -30,13 +32,19 @@ export function SearchPage() {
   const handleDemoAnalyze = () => {
     setUploadedImage(feedLooks[0].image);
     setIsAnalyzing(true);
-    setTimeout(() => {
+    if (analyzeTimerRef.current) clearTimeout(analyzeTimerRef.current);
+    analyzeTimerRef.current = setTimeout(() => {
+      analyzeTimerRef.current = null;
       setIsAnalyzing(false);
       setShowResults(true);
     }, 2000);
   };
 
   const resetSearch = () => {
+    if (analyzeTimerRef.current) {
+      clearTimeout(analyzeTimerRef.current);
+      analyzeTimerRef.current = null;
+    }
     if (uploadedImage && uploadedImage.startsWith("blob:")) {
       URL.revokeObjectURL(uploadedImage);
     }
@@ -47,6 +55,7 @@ export function SearchPage() {
 
   useEffect(() => {
     return () => {
+      if (analyzeTimerRef.current) clearTimeout(analyzeTimerRef.current);
       if (uploadedImage && uploadedImage.startsWith("blob:")) {
         URL.revokeObjectURL(uploadedImage);
       }
