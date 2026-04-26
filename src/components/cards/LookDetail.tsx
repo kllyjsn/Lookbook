@@ -124,6 +124,15 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({
+                      title: `LKBK — ${look.title}`,
+                      text: look.description,
+                      url: window.location.href,
+                    }).catch(() => {});
+                  }
+                }}
                 className="w-12 h-12 rounded-full flex items-center justify-center border border-ink/10 hover:border-ink/30"
               >
                 <Share2 size={18} className="text-ink-muted" />
