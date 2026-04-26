@@ -2,14 +2,14 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useStore } from "./stores/useStore";
 import { TabBar } from "./components/layout/TabBar";
 import { FeedPage } from "./pages/FeedPage";
-import { SearchPage } from "./pages/SearchPage";
+import { CommunityPage } from "./pages/CommunityPage";
 import { StylistPage } from "./pages/StylistPage";
 import { CapsulePage } from "./pages/CapsulePage";
 import { ProfilePage } from "./pages/ProfilePage";
 
 const pages: Record<string, React.FC> = {
   feed: FeedPage,
-  search: SearchPage,
+  community: CommunityPage,
   stylist: StylistPage,
   capsule: CapsulePage,
   profile: ProfilePage,

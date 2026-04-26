@@ -41,6 +41,11 @@ interface AppState {
   capsuleSelectedItems: string[];
   toggleCapsuleItem: (itemId: string) => void;
 
+  // Community
+  followedCreators: string[];
+  followCreator: (id: string) => void;
+  unfollowCreator: (id: string) => void;
+
   // UI state
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -116,6 +121,18 @@ export const useStore = create<AppState>()(
             : [...state.capsuleSelectedItems, itemId],
         })),
 
+      followedCreators: [],
+      followCreator: (id) =>
+        set((state) => ({
+          followedCreators: state.followedCreators.includes(id)
+            ? state.followedCreators
+            : [...state.followedCreators, id],
+        })),
+      unfollowCreator: (id) =>
+        set((state) => ({
+          followedCreators: state.followedCreators.filter((cid) => cid !== id),
+        })),
+
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
       showLookDetail: null,
@@ -132,6 +149,7 @@ export const useStore = create<AppState>()(
         styleDNA: state.styleDNA,
         capsuleBudget: state.capsuleBudget,
         capsuleSelectedItems: state.capsuleSelectedItems,
+        followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
       }),
     }
