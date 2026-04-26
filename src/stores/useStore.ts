@@ -165,6 +165,7 @@ export const useStore = create<AppState>()(
         passedLooks: state.passedLooks,
         collections: state.collections,
         styleDNA: state.styleDNA,
+        budgetPreference: state.budgetPreference,
         capsuleBudget: state.capsuleBudget,
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
