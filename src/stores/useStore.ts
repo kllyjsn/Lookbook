@@ -168,10 +168,10 @@ export const useStore = create<AppState>()(
         set((state) => {
           if (!state.lastSwipedLook || !state.lastSwipeAction) return state;
           const newLiked = state.lastSwipeAction === "like"
-            ? state.likedLooks.filter((l) => l.id !== state.lastSwipedLook!.id)
+            ? (() => { const idx = state.likedLooks.findLastIndex((l) => l.id === state.lastSwipedLook!.id); return idx >= 0 ? [...state.likedLooks.slice(0, idx), ...state.likedLooks.slice(idx + 1)] : state.likedLooks; })()
             : state.likedLooks;
           const newPassed = state.lastSwipeAction === "pass"
-            ? state.passedLooks.filter((l) => l.id !== state.lastSwipedLook!.id)
+            ? (() => { const idx = state.passedLooks.findLastIndex((l) => l.id === state.lastSwipedLook!.id); return idx >= 0 ? [...state.passedLooks.slice(0, idx), ...state.passedLooks.slice(idx + 1)] : state.passedLooks; })()
             : state.passedLooks;
           return {
             likedLooks: newLiked,
