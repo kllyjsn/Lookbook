@@ -135,7 +135,7 @@ export function FeedPage() {
           {/* Double-tap heart overlay */}
           <AnimatePresence>
             {doubleTapPos && (
-              <DoubleTapHeart x={doubleTapPos.x} y={doubleTapPos.y} />
+              <DoubleTapHeart key={`${doubleTapPos.x}-${doubleTapPos.y}`} x={doubleTapPos.x} y={doubleTapPos.y} />
             )}
           </AnimatePresence>
         </div>
