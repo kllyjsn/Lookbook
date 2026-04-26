@@ -1,4 +1,5 @@
-import { useState, useRef, useCallback, useMemo } from "react";
+import { useState, useRef, useCallback, useMemo, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, useMotionValue, useTransform, animate, type PanInfo } from "framer-motion";
 import { Heart, X, ShoppingBag, Bookmark, Award, TrendingUp, Flame } from "lucide-react";
 import type { Look } from "../../data/mockData";
@@ -93,6 +94,24 @@ export function SwipeCard({
   const containerRef = useRef<HTMLDivElement>(null);
   const lastTapRef = useRef(0);
   const singleTapTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingTimeouts = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
+
+  const safeTimeout = useCallback((fn: () => void, ms: number) => {
+    const id = setTimeout(() => {
+      pendingTimeouts.current.delete(id);
+      fn();
+    }, ms);
+    pendingTimeouts.current.add(id);
+    return id;
+  }, []);
+
+  useEffect(() => {
+    const timeouts = pendingTimeouts.current;
+    return () => {
+      if (singleTapTimeoutRef.current) clearTimeout(singleTapTimeoutRef.current);
+      timeouts.forEach((id) => clearTimeout(id));
+    };
+  }, []);
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -105,8 +124,8 @@ export function SwipeCard({
 
   const triggerConfetti = useCallback(() => {
     setShowConfetti(true);
-    setTimeout(() => setShowConfetti(false), 1200);
-  }, []);
+    safeTimeout(() => setShowConfetti(false), 1200);
+  }, [safeTimeout]);
 
   const handleDragEnd = (_: unknown, info: PanInfo) => {
     const threshold = 100;
@@ -115,16 +134,16 @@ export function SwipeCard({
     if (info.offset.y < -threshold || info.velocity.y < -velocity) {
       setExitDirection("up");
       animate(y, -1000, { duration: 0.3 });
-      setTimeout(onSwipeUp, 300);
+      safeTimeout(onSwipeUp, 300);
     } else if (info.offset.x > threshold || info.velocity.x > velocity) {
       triggerConfetti();
       animate(x, 1000, { duration: 0.4 });
-      setTimeout(() => setExitDirection("right"), 400);
-      setTimeout(onSwipeRight, 400);
+      safeTimeout(() => setExitDirection("right"), 400);
+      safeTimeout(onSwipeRight, 400);
     } else if (info.offset.x < -threshold || info.velocity.x < -velocity) {
       setExitDirection("left");
       animate(x, -1000, { duration: 0.3 });
-      setTimeout(onSwipeLeft, 300);
+      safeTimeout(onSwipeLeft, 300);
     } else {
       animate(x, 0, { type: "spring", stiffness: 300, damping: 20 });
       animate(y, 0, { type: "spring", stiffness: 300, damping: 20 });
@@ -144,8 +163,8 @@ export function SwipeCard({
       lastTapRef.current = 0;
       setDoubleTapHeart({ x: e.clientX, y: e.clientY });
       triggerConfetti();
-      setTimeout(() => setDoubleTapHeart(null), 800);
-      setTimeout(onSwipeRight, 400);
+      safeTimeout(() => setDoubleTapHeart(null), 800);
+      safeTimeout(onSwipeRight, 400);
     } else {
       // Single tap → open detail (delayed to check for double)
       lastTapRef.current = now;
@@ -310,8 +329,11 @@ export function SwipeCard({
         )}
       </div>
 
-      {/* Double-tap heart burst */}
-      {doubleTapHeart && <HeartBurst x={doubleTapHeart.x} y={doubleTapHeart.y} />}
+      {/* Double-tap heart burst — rendered via portal so it survives card unmount */}
+      {doubleTapHeart && createPortal(
+        <HeartBurst x={doubleTapHeart.x} y={doubleTapHeart.y} />,
+        document.body
+      )}
     </motion.div>
   );
 }
