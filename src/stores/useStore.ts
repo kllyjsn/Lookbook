@@ -26,6 +26,7 @@ interface AppState {
   // Undo
   lastSwipedLook: Look | null;
   lastSwipeAction: "like" | "pass" | null;
+  lastSwipeWasNew: boolean;
   undoLastSwipe: () => void;
 
   // Tutorial
@@ -78,28 +79,33 @@ export const useStore = create<AppState>()(
       likedLooks: [],
       passedLooks: [],
       likeLook: (look) =>
-        set((state) => ({
-          likedLooks: state.likedLooks.some((l) => l.id === look.id)
-            ? state.likedLooks
-            : [...state.likedLooks, look],
-          currentFeedIndex: state.currentFeedIndex + 1,
-          totalSwipes: state.totalSwipes + 1,
-          lastSwipedLook: look,
-          lastSwipeAction: "like" as const,
-        })),
+        set((state) => {
+          const isNew = !state.likedLooks.some((l) => l.id === look.id);
+          return {
+            likedLooks: isNew ? [...state.likedLooks, look] : state.likedLooks,
+            currentFeedIndex: state.currentFeedIndex + 1,
+            totalSwipes: state.totalSwipes + 1,
+            lastSwipedLook: look,
+            lastSwipeAction: "like" as const,
+            lastSwipeWasNew: isNew,
+          };
+        }),
       passLook: (look) =>
-        set((state) => ({
-          passedLooks: state.passedLooks.some((l) => l.id === look.id)
-            ? state.passedLooks
-            : [...state.passedLooks, look],
-          currentFeedIndex: state.currentFeedIndex + 1,
-          totalSwipes: state.totalSwipes + 1,
-          lastSwipedLook: look,
-          lastSwipeAction: "pass" as const,
-        })),
+        set((state) => {
+          const isNew = !state.passedLooks.some((l) => l.id === look.id);
+          return {
+            passedLooks: isNew ? [...state.passedLooks, look] : state.passedLooks,
+            currentFeedIndex: state.currentFeedIndex + 1,
+            totalSwipes: state.totalSwipes + 1,
+            lastSwipedLook: look,
+            lastSwipeAction: "pass" as const,
+            lastSwipeWasNew: isNew,
+          };
+        }),
 
       lastSwipedLook: null,
       lastSwipeAction: null,
+      lastSwipeWasNew: false,
       undoLastSwipe: () =>
         set((state) => {
           if (!state.lastSwipedLook || !state.lastSwipeAction) return state;
@@ -108,11 +114,18 @@ export const useStore = create<AppState>()(
             totalSwipes: Math.max(0, state.totalSwipes - 1),
             lastSwipedLook: null,
             lastSwipeAction: null,
+            lastSwipeWasNew: false,
           };
-          if (state.lastSwipeAction === "like") {
-            newState.likedLooks = state.likedLooks.slice(0, -1);
-          } else {
-            newState.passedLooks = state.passedLooks.slice(0, -1);
+          if (state.lastSwipeWasNew) {
+            if (state.lastSwipeAction === "like") {
+              newState.likedLooks = state.likedLooks.filter(
+                (l) => l.id !== state.lastSwipedLook!.id
+              );
+            } else {
+              newState.passedLooks = state.passedLooks.filter(
+                (l) => l.id !== state.lastSwipedLook!.id
+              );
+            }
           }
           return newState;
         }),
