@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Heart, MessageCircle, Bookmark, ShoppingBag, BadgeCheck } from "lucide-react";
 import type { CommunityPost } from "../../data/communityData";
 import { FollowButton } from "./FollowButton";
@@ -21,6 +21,22 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [showHeartBurst, setShowHeartBurst] = useState(false);
+  const lastTapRef = useRef(0);
+
+  const handleDoubleTap = useCallback(() => {
+    const now = Date.now();
+    if (now - lastTapRef.current < 300) {
+      if (!liked) {
+        setLiked(true);
+        setShowHeartBurst(true);
+        setTimeout(() => setShowHeartBurst(false), 900);
+      }
+      lastTapRef.current = 0;
+    } else {
+      lastTapRef.current = now;
+    }
+  }, [liked]);
 
   return (
     <motion.article
@@ -62,8 +78,14 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
         <FollowButton creatorId={post.creator.id} />
       </div>
 
-      {/* Image */}
-      <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-charcoal mb-3">
+      {/* Image — double-tap to like */}
+      <div
+        className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-charcoal mb-3"
+        onClick={handleDoubleTap}
+      >
+        {!imgLoaded && (
+          <div className="absolute inset-0 shimmer bg-charcoal" />
+        )}
         <img
           src={post.image}
           alt={post.title}
@@ -87,6 +109,21 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
             </span>
           ))}
         </div>
+
+        {/* Heart burst on double-tap */}
+        <AnimatePresence>
+          {showHeartBurst && (
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 1.5, opacity: 0 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className="absolute inset-0 flex items-center justify-center pointer-events-none"
+            >
+              <Heart size={80} className="text-white drop-shadow-lg" fill="white" strokeWidth={0} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Engagement bar */}
