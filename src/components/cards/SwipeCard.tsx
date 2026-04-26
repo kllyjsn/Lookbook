@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { motion, useMotionValue, useTransform, animate, type PanInfo } from "framer-motion";
 import { Heart, X, ShoppingBag, Bookmark } from "lucide-react";
 import type { Look } from "../../data/mockData";
@@ -10,6 +10,7 @@ interface SwipeCardProps {
   onSwipeLeft: () => void;
   onSwipeUp: () => void;
   onTap: () => void;
+  onDoubleTapLike?: () => void;
   isTop: boolean;
 }
 
@@ -19,11 +20,14 @@ export function SwipeCard({
   onSwipeLeft,
   onSwipeUp,
   onTap,
+  onDoubleTapLike,
   isTop,
 }: SwipeCardProps) {
   const [exitDirection, setExitDirection] = useState<"left" | "right" | "up" | null>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [showHeartBurst, setShowHeartBurst] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const lastTapRef = useRef(0);
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -56,9 +60,30 @@ export function SwipeCard({
     }
   };
 
+  const handleClick = useCallback(() => {
+    if (Math.abs(x.get()) > 5 || Math.abs(y.get()) > 5) return;
+
+    const now = Date.now();
+    if (now - lastTapRef.current < 350) {
+      setShowHeartBurst(true);
+      onDoubleTapLike?.();
+      setTimeout(() => setShowHeartBurst(false), 900);
+      lastTapRef.current = 0;
+    } else {
+      lastTapRef.current = now;
+      setTimeout(() => {
+        if (lastTapRef.current === now) {
+          onTap();
+        }
+      }, 350);
+    }
+  }, [onTap, onDoubleTapLike, x, y]);
+
   if (exitDirection) {
     return null;
   }
+
+  const badge = look.badge;
 
   return (
     <motion.div
@@ -72,13 +97,14 @@ export function SwipeCard({
       initial={isTop ? { scale: 0.97, opacity: 0.8 } : { scale: 0.93, opacity: 0.5 }}
       animate={isTop ? { scale: 1, opacity: 1 } : { scale: 0.95, opacity: 0.7 }}
       transition={{ duration: 0.3 }}
-      onClick={() => {
-        if (Math.abs(x.get()) < 5 && Math.abs(y.get()) < 5) {
-          onTap();
-        }
-      }}
+      onClick={handleClick}
     >
       <div className="relative w-full h-full rounded-2xl overflow-hidden card-shadow bg-charcoal">
+        {/* Skeleton shimmer */}
+        {!imgLoaded && (
+          <div className="absolute inset-0 skeleton-shimmer" />
+        )}
+
         {/* Image */}
         <img
           src={look.image}
@@ -99,6 +125,23 @@ export function SwipeCard({
             </span>
           </div>
         </div>
+
+        {/* Editorial badge */}
+        {badge && (
+          <div className="absolute top-16 left-5 z-20">
+            <div
+              className={`px-3 py-1.5 rounded-full text-[9px] font-inter font-bold tracking-[0.2em] uppercase backdrop-blur-sm ${
+                badge === "TRENDING"
+                  ? "bg-rose/90 text-white"
+                  : badge === "EDITOR'S PICK"
+                  ? "bg-gold/90 text-white"
+                  : "bg-white/90 text-ink"
+              }`}
+            >
+              {badge}
+            </div>
+          </div>
+        )}
 
         {/* Bottom gradient + content */}
         <div className="absolute inset-x-0 bottom-0 gradient-bottom p-6 pb-8">
@@ -123,7 +166,7 @@ export function SwipeCard({
               <span className="text-xs font-inter text-white/50">
                 {look.priceRange}
               </span>
-              <span className="text-white/30">·</span>
+              <span className="text-white/30">&middot;</span>
               <span className="text-xs font-inter text-white/50">
                 {look.items.length} pieces
               </span>
@@ -166,6 +209,19 @@ export function SwipeCard({
             </span>
           </div>
         </motion.div>
+
+        {/* Double-tap heart burst */}
+        {showHeartBurst && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: [0, 1.3, 1], opacity: [0, 1, 0] }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+            >
+              <Heart size={80} className="text-white" fill="white" strokeWidth={0} />
+            </motion.div>
+          </div>
+        )}
       </div>
     </motion.div>
   );

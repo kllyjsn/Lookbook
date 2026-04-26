@@ -40,6 +40,10 @@ export function FeedPage() {
     setShowLookDetail(currentLook);
   }, [currentLook, setShowLookDetail]);
 
+  const handleDoubleTapLike = useCallback(() => {
+    likeLook(currentLook);
+  }, [currentLook, likeLook]);
+
   const handleButtonLike = useCallback(() => {
     likeLook(currentLook);
   }, [currentLook, likeLook]);
@@ -86,6 +90,7 @@ export function FeedPage() {
               onSwipeLeft={handleSwipeLeft}
               onSwipeUp={handleSwipeUp}
               onTap={handleTap}
+              onDoubleTapLike={handleDoubleTapLike}
               isTop={true}
             />
           </AnimatePresence>
@@ -101,7 +106,7 @@ export function FeedPage() {
           onSave={handleButtonSave}
         />
         <p className="text-center text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted mt-1">
-          Swipe right to love · Left to pass · Up to shop
+          Swipe right to love &middot; Left to pass &middot; Double-tap to love
         </p>
       </div>
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark } from "lucide-react";
+import { X, Heart, ShoppingBag, Share2, Bookmark, Check } from "lucide-react";
 import type { Look } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
@@ -17,6 +17,29 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
   const addToCollection = useStore((s) => s.addToCollection);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [shared, setShared] = useState(false);
+
+  const handleShare = async () => {
+    const shareData = {
+      title: `LKBK: ${look.title}`,
+      text: `${look.subtitle} — ${look.description}`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(
+          `${look.title} — ${look.subtitle}\n${look.description}\n${window.location.href}`
+        );
+        setShared(true);
+        setTimeout(() => setShared(false), 2000);
+      }
+    } catch {
+      // user cancelled share dialog
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -29,6 +52,9 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
         <div className="h-full overflow-y-auto">
           {/* Hero image — magazine spread */}
           <div className="relative w-full aspect-[3/4] max-h-[70vh]">
+            {!imgLoaded && (
+              <div className="absolute inset-0 skeleton-shimmer" />
+            )}
             <img
               src={look.image}
               alt={look.title}
@@ -43,8 +69,24 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
+                {/* Badge */}
+                {look.badge && (
+                  <div className="mb-3">
+                    <span
+                      className={`px-3 py-1 rounded-full text-[9px] font-inter font-bold tracking-[0.2em] uppercase ${
+                        look.badge === "TRENDING"
+                          ? "bg-rose/90 text-white"
+                          : look.badge === "EDITOR'S PICK"
+                          ? "bg-gold/90 text-white"
+                          : "bg-white/90 text-ink"
+                      }`}
+                    >
+                      {look.badge}
+                    </span>
+                  </div>
+                )}
                 <span className="text-[10px] font-inter tracking-[0.3em] uppercase text-white/60 block mb-2">
-                  {look.season} · {look.occasion}
+                  {look.season} &middot; {look.occasion}
                 </span>
                 <h1 className="font-editorial text-4xl text-white leading-tight mb-2">
                   {look.title}
@@ -124,9 +166,18 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.95 }}
-                className="w-12 h-12 rounded-full flex items-center justify-center border border-ink/10 hover:border-ink/30"
+                onClick={handleShare}
+                className={`w-12 h-12 rounded-full flex items-center justify-center border transition-colors ${
+                  shared
+                    ? "border-green-400/40 bg-green-400/10"
+                    : "border-ink/10 hover:border-ink/30"
+                }`}
               >
-                <Share2 size={18} className="text-ink-muted" />
+                {shared ? (
+                  <Check size={18} className="text-green-500" />
+                ) : (
+                  <Share2 size={18} className="text-ink-muted" />
+                )}
               </motion.button>
             </div>
 

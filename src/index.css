@@ -166,3 +166,39 @@ img {
 .safe-bottom {
   padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
 }
+
+/* Skeleton shimmer loading */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    #2D2D2D 0%,
+    #3D3D3D 30%,
+    #4D4D4D 50%,
+    #3D3D3D 70%,
+    #2D2D2D 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+.skeleton-shimmer-light {
+  background: linear-gradient(
+    90deg,
+    #F5F0EB 0%,
+    #FAF9F6 30%,
+    #FFFFFF 50%,
+    #FAF9F6 70%,
+    #F5F0EB 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
