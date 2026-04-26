@@ -74,16 +74,20 @@ export function OnboardingPage() {
   };
 
   const handleComplete = () => {
-    const styleDNA = selectedStyles.map((id, i) => {
+    const colors = ["#1A1A1A", "#C5A572", "#C4797A", "#B8A9C9", "#A8B5A0", "#E8D5D0"];
+    const rawEntries = selectedStyles.map((id, i) => {
       const option = styleOptions.find((o) => o.id === id);
-      const colors = ["#1A1A1A", "#C5A572", "#C4797A", "#B8A9C9", "#A8B5A0", "#E8D5D0"];
-      const pct = Math.max(15, 90 - i * 20);
       return {
         style: option?.label ?? id,
-        percentage: pct,
+        rawPct: Math.max(15, 90 - i * 20),
         color: colors[i % colors.length],
       };
     });
+    const total = rawEntries.reduce((sum, d) => sum + d.rawPct, 0);
+    const styleDNA = rawEntries.map(({ rawPct, ...rest }) => ({
+      ...rest,
+      percentage: Math.round((rawPct / total) * 100),
+    }));
     if (styleDNA.length > 0) {
       updateStyleDNA(styleDNA);
     }
