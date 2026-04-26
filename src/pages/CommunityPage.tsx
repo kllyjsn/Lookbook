@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, BadgeCheck, Sparkles, Clock } from "lucide-react";
+import { Search, BadgeCheck, Users } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { PostCard } from "../components/community/PostCard";
 import { CreatorProfile } from "../components/community/CreatorProfile";
@@ -11,7 +11,6 @@ import { ProductCard } from "../components/cards/ProductCard";
 import { useStore } from "../stores/useStore";
 import { creators, communityPosts, mustHaveLists } from "../data/communityData";
 import type { Creator, CommunityPost, MustHaveList } from "../data/communityData";
-
 
 type CommunityTab = "forYou" | "following" | "mustHaves";
 
@@ -146,47 +145,29 @@ export function CommunityPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
           >
-            {/* OOTD Challenge banner (For You only) */}
+            {/* Seasonal editorial banner (For You only) */}
             {activeTab === "forYou" && (
-              <div className="px-6 mb-5">
+              <div className="px-6 mb-6">
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="relative overflow-hidden rounded-2xl"
+                  className="relative rounded-2xl overflow-hidden aspect-[5/2]"
                 >
                   <img
-                    src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&h=300&fit=crop&q=80"
-                    alt="OOTD Challenge"
-                    className="w-full h-36 object-cover"
+                    src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&h=320&fit=crop&q=80"
+                    alt="Now trending"
+                    className="img-editorial"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-r from-ink/80 via-ink/60 to-transparent" />
-                  <div className="absolute inset-0 flex items-center p-5">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-1.5 mb-1.5">
-                        <Sparkles size={12} className="text-gold" />
-                        <span className="text-[9px] font-inter font-bold tracking-[0.2em] uppercase text-gold">
-                          Daily Challenge
-                        </span>
-                      </div>
-                      <h3 className="font-editorial text-lg text-white leading-tight mb-1">
-                        OOTD: Summer Whites
-                      </h3>
-                      <p className="text-[11px] font-inter text-white/60 mb-2">
-                        Style an all-white look. Best picks get featured.
-                      </p>
-                      <div className="flex items-center gap-3">
-                        <motion.button
-                          whileTap={{ scale: 0.95 }}
-                          className="px-4 py-1.5 rounded-full bg-gold text-white text-[10px] font-inter font-semibold"
-                        >
-                          Join Challenge
-                        </motion.button>
-                        <span className="flex items-center gap-1 text-[10px] font-inter text-white/40">
-                          <Clock size={10} />
-                          8h left
-                        </span>
-                      </div>
-                    </div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
+                  <div className="absolute inset-0 flex flex-col justify-center p-6">
+                    <span className="text-[9px] font-inter tracking-[0.3em] uppercase text-gold mb-1.5">
+                      NOW TRENDING
+                    </span>
+                    <h3 className="font-editorial text-xl text-white leading-tight mb-1">
+                      Quiet Luxury
+                      <br />
+                      <span className="font-subhead italic text-white/80 text-base">is having a moment</span>
+                    </h3>
                   </div>
                 </motion.div>
               </div>
@@ -240,24 +221,24 @@ export function CommunityPage() {
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="flex flex-col items-center py-16"
+                  className="flex flex-col items-center py-12"
                 >
-                  <div className="w-16 h-16 rounded-full bg-ivory flex items-center justify-center mb-4">
-                    <span className="font-editorial text-2xl text-ink-muted">?</span>
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-lavender/20 to-blush/20 flex items-center justify-center mb-5">
+                    <Users size={28} className="text-lavender/40" />
                   </div>
                   <p className="font-editorial text-lg text-ink mb-1">
-                    No posts yet
+                    {activeTab === "following" ? "Your circle, your style" : "Fresh content incoming"}
                   </p>
-                  <p className="text-xs font-inter text-ink-muted text-center max-w-[240px]">
+                  <p className="font-subhead text-sm text-ink-muted italic text-center max-w-[260px]">
                     {activeTab === "following"
-                      ? "Follow creators to see their posts here"
-                      : "Check back soon for new content"}
+                      ? "Follow creators whose aesthetic speaks to you. Their latest posts will appear here."
+                      : "Our editors are curating the best looks for you. Check back soon."}
                   </p>
                   {activeTab === "following" && (
                     <motion.button
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setActiveTab("forYou")}
-                      className="mt-4 px-6 py-2.5 rounded-full bg-ink text-cream text-sm font-inter font-medium"
+                      className="mt-5 px-6 py-2.5 rounded-full bg-ink text-cream text-sm font-inter font-medium"
                     >
                       Discover Creators
                     </motion.button>

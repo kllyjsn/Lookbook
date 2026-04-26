@@ -1,13 +1,22 @@
-import { useCallback, useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useCallback, useMemo, useState, useEffect, useRef } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Heart, RefreshCw, Sparkles, Camera } from "lucide-react";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
 import { SearchPage } from "./SearchPage";
 import { Logo } from "../components/ui/Logo";
-import { RefreshCw, Sparkles, Camera } from "lucide-react";
-import { feedLooks, moodFilters } from "../data/mockData";
-import type { MoodFilter } from "../data/mockData";
+import { feedLooks } from "../data/mockData";
 import { useStore } from "../stores/useStore";
+
+const trendingTags = [
+  { label: "All", id: "all", keywords: [] as string[] },
+  { label: "Quiet Luxury", id: "quiet-luxury", keywords: ["minimalist", "chic", "tailored"] },
+  { label: "Tomato Girl", id: "tomato-girl", keywords: ["romantic", "feminine", "social"] },
+  { label: "Office Siren", id: "office-siren", keywords: ["office", "power", "tailored"] },
+  { label: "Coastal", id: "coastal", keywords: ["adventure", "casual", "utility"] },
+  { label: "Old Money", id: "old-money", keywords: ["minimalist", "evening", "glamour"] },
+  { label: "Coquette", id: "coquette", keywords: ["romantic", "feminine", "evening"] },
+];
 
 export function FeedPage() {
   const currentFeedIndex = useStore((s) => s.currentFeedIndex);
@@ -18,22 +27,37 @@ export function FeedPage() {
   const showLookDetail = useStore((s) => s.showLookDetail);
   const setShowLookDetail = useStore((s) => s.setShowLookDetail);
   const setActiveTab = useStore((s) => s.setActiveTab);
-  const activeMoodFilter = useStore((s) => s.activeMoodFilter);
-  const setActiveMoodFilter = useStore((s) => s.setActiveMoodFilter);
-  const undoLastSwipe = useStore((s) => s.undoLastSwipe);
-  const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
+  const [activeTrend, setActiveTrend] = useState("all");
   const [showSearch, setShowSearch] = useState(false);
 
-  const filteredLooks = useMemo(
-    () =>
-      activeMoodFilter === "all"
-        ? feedLooks
-        : feedLooks.filter((l) => l.mood === activeMoodFilter),
-    [activeMoodFilter]
-  );
+  const filteredLooks = useMemo(() => {
+    if (activeTrend === "all") return feedLooks;
+    const tag = trendingTags.find((t) => t.id === activeTrend);
+    if (!tag || tag.keywords.length === 0) return feedLooks;
+    return feedLooks.filter((look) =>
+      look.tags.some((t) => tag.keywords.includes(t.label.toLowerCase()))
+    );
+  }, [activeTrend]);
+  const [heartBurst, setHeartBurst] = useState<{ x: number; y: number } | null>(null);
+  const heartBurstTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const hasSeenAll = currentFeedIndex >= filteredLooks.length;
+
+  useEffect(() => {
+    return () => {
+      if (heartBurstTimeout.current) clearTimeout(heartBurstTimeout.current);
+    };
+  }, []);
+
+  const handleDoubleTap = useCallback((coords: { x: number; y: number }) => {
+    setHeartBurst(coords);
+    if (heartBurstTimeout.current) clearTimeout(heartBurstTimeout.current);
+    heartBurstTimeout.current = setTimeout(() => {
+      setHeartBurst(null);
+      heartBurstTimeout.current = null;
+    }, 900);
+  }, []);
 
   const currentLook = useMemo(
     () => filteredLooks[currentFeedIndex % filteredLooks.length],
@@ -60,10 +84,6 @@ export function FeedPage() {
     setShowLookDetail(currentLook);
   }, [currentLook, setShowLookDetail]);
 
-  const handleDoubleTap = useCallback(() => {
-    likeLook(currentLook);
-  }, [currentLook, likeLook]);
-
   const handleButtonLike = useCallback(() => {
     likeLook(currentLook);
   }, [currentLook, likeLook]);
@@ -81,27 +101,20 @@ export function FeedPage() {
     setActiveTab("profile");
   }, [currentLook, addToCollection, setActiveTab]);
 
-  const handleMoodFilter = useCallback(
-    (mood: MoodFilter) => {
-      setActiveMoodFilter(mood);
-    },
-    [setActiveMoodFilter]
-  );
-
   return (
     <div className="h-full flex flex-col bg-cream">
       {/* Header */}
       <div className="flex items-center justify-between py-3 px-6">
         <Logo variant="mark" size="sm" />
         <div className="flex items-center gap-3">
-          <span className="text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted">
-            {Math.min(currentFeedIndex + 1, feedLooks.length)} / {feedLooks.length}
+          <span className="text-[9px] font-inter tracking-[0.2em] uppercase text-ink-muted">
+            {hasSeenAll ? filteredLooks.length : (currentFeedIndex % filteredLooks.length) + 1} / {filteredLooks.length}
           </span>
           <div className="w-16 h-1 bg-ink/10 rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-gold rounded-full"
               initial={{ width: 0 }}
-              animate={{ width: `${Math.min(((currentFeedIndex + 1) / feedLooks.length) * 100, 100)}%` }}
+              animate={{ width: `${Math.min(((currentFeedIndex + 1) / filteredLooks.length) * 100, 100)}%` }}
               transition={{ duration: 0.3 }}
             />
           </div>
@@ -117,21 +130,21 @@ export function FeedPage() {
         </div>
       </div>
 
-      {/* Mood filter pills */}
+      {/* Trending tags strip */}
       <div className="px-4 pb-2">
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-          {moodFilters.map((filter) => (
+        <div className="flex gap-2 overflow-x-auto no-select" style={{ scrollbarWidth: "none" }}>
+          {trendingTags.map((tag) => (
             <motion.button
-              key={filter.id}
+              key={tag.id}
               whileTap={{ scale: 0.95 }}
-              onClick={() => handleMoodFilter(filter.id)}
-              className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-inter font-medium transition-all ${
-                activeMoodFilter === filter.id
+              onClick={() => { setActiveTrend(tag.id); setCurrentFeedIndex(0); }}
+              className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-[10px] font-inter font-medium tracking-wide transition-all ${
+                activeTrend === tag.id
                   ? "bg-ink text-cream"
-                  : "bg-ivory text-ink-muted border border-ink/5 hover:border-ink/15"
+                  : "bg-ivory text-ink-muted border border-ink/5"
               }`}
             >
-              {filter.label}
+              {tag.label}
             </motion.button>
           ))}
         </div>
@@ -190,7 +203,6 @@ export function FeedPage() {
                 onSwipeLeft={() => {}}
                 onSwipeUp={() => {}}
                 onTap={() => {}}
-                onDoubleTap={() => {}}
                 isTop={false}
               />
               {/* Top card (current) */}
@@ -217,11 +229,9 @@ export function FeedPage() {
             onLike={handleButtonLike}
             onShop={handleButtonShop}
             onSave={handleButtonSave}
-            onUndo={undoLastSwipe}
-            canUndo={!!lastSwipedLook}
           />
           <p className="text-center text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted mt-1">
-            Swipe right to love · Left to pass · Up to shop · Double-tap to love
+            Double-tap to love · Swipe up to shop
           </p>
         </div>
       )}
@@ -245,6 +255,23 @@ export function FeedPage() {
               <span className="text-ink text-lg font-inter">&times;</span>
             </motion.button>
             <SearchPage />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Double-tap heart burst — lives in FeedPage so it survives SwipeCard unmount */}
+      <AnimatePresence>
+        {heartBurst && (
+          <motion.div
+            key="heart-burst"
+            className="fixed pointer-events-none z-[100]"
+            style={{ left: heartBurst.x - 40, top: heartBurst.y - 40 }}
+            initial={{ opacity: 1, scale: 0 }}
+            animate={{ opacity: 0, scale: 1.5 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            <Heart size={80} className="text-rose" fill="currentColor" strokeWidth={0} />
           </motion.div>
         )}
       </AnimatePresence>

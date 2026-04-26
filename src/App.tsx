@@ -6,7 +6,7 @@ import { CommunityPage } from "./pages/CommunityPage";
 import { StylistPage } from "./pages/StylistPage";
 import { CapsulePage } from "./pages/CapsulePage";
 import { ProfilePage } from "./pages/ProfilePage";
-import { OnboardingPage } from "./pages/OnboardingPage";
+import { StyleQuiz } from "./components/onboarding/StyleQuiz";
 
 const pages: Record<string, React.FC> = {
   feed: FeedPage,
@@ -22,7 +22,7 @@ export default function App() {
   const Page = pages[activeTab] ?? FeedPage;
 
   if (!hasCompletedOnboarding) {
-    return <OnboardingPage />;
+    return <StyleQuiz />;
   }
 
   return (

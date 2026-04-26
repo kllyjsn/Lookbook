@@ -1,16 +1,10 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
+import { X, Heart, ShoppingBag, Share2, Bookmark, Award, TrendingUp, Flame } from "lucide-react";
 import type { Look } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
 import { useStore } from "../../stores/useStore";
-
-function formatCount(n: number): string {
-  if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
-  if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
-  return String(n);
-}
 
 interface LookDetailProps {
   look: Look;
@@ -79,38 +73,23 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
 
           {/* Editorial content */}
           <div className="px-6 py-8 max-w-2xl mx-auto">
-            {/* Tags + badges */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {look.trending && (
-                <span className="flex items-center gap-1 text-[10px] font-inter font-semibold tracking-[0.1em] uppercase text-white bg-ink rounded-full px-3 py-1.5">
-                  <TrendingUp size={10} />
-                  Trending
-                </span>
-              )}
-              {look.editorsChoice && (
-                <span className="text-[10px] font-inter font-semibold tracking-[0.1em] uppercase text-white bg-gold rounded-full px-3 py-1.5">
-                  Editor's Pick
+            {/* Badge + Tags */}
+            <div className="flex flex-wrap items-center gap-2 mb-6">
+              {look.badge && (
+                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-inter font-semibold tracking-wide uppercase ${
+                  look.badge === "editors-pick" ? "bg-gold/10 text-gold border border-gold/20" :
+                  look.badge === "trending" ? "bg-rose/10 text-rose border border-rose/20" :
+                  "bg-ink/5 text-ink border border-ink/10"
+                }`}>
+                  {look.badge === "editors-pick" && <Award size={10} />}
+                  {look.badge === "trending" && <TrendingUp size={10} />}
+                  {look.badge === "new" && <Flame size={10} />}
+                  {look.badge === "editors-pick" ? "Editor's Pick" : look.badge === "trending" ? "Trending" : "Just In"}
                 </span>
               )}
               {look.tags.map((tag) => (
                 <Tag key={tag.label} label={tag.label} color={tag.color} />
               ))}
-            </div>
-
-            {/* Engagement stats */}
-            <div className="flex items-center gap-4 mb-5">
-              <span className="flex items-center gap-1.5 text-sm font-inter text-ink-muted">
-                <Heart size={14} className="text-rose" fill="currentColor" />
-                {formatCount(look.likes)} loves
-              </span>
-              <span className="text-ink-muted/40">·</span>
-              <span className="text-sm font-inter text-ink-muted">
-                {look.items.length} pieces
-              </span>
-              <span className="text-ink-muted/40">·</span>
-              <span className="text-sm font-inter text-ink-muted">
-                {look.priceRange}
-              </span>
             </div>
 
             {/* Description */}
@@ -160,8 +139,8 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 onClick={() => {
                   if (navigator.share) {
                     navigator.share({
-                      title: `LKBK — ${look.title}`,
-                      text: look.description,
+                      title: look.title,
+                      text: `${look.title} — ${look.subtitle}. ${look.description}`,
                       url: window.location.href,
                     }).catch(() => {});
                   }

@@ -27,7 +27,7 @@ export function TabBar() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 whileTap={{ scale: 0.9 }}
-                className="relative flex flex-col items-center justify-center w-16 h-full gap-0.5"
+                className="relative flex flex-col items-center justify-center gap-0.5 w-16 h-full"
               >
                 <Icon
                   size={20}
@@ -37,8 +37,8 @@ export function TabBar() {
                   }`}
                 />
                 <span
-                  className={`text-[9px] font-inter tracking-[0.05em] transition-colors duration-200 ${
-                    isActive ? "text-ink font-medium" : "text-ink-muted"
+                  className={`text-[9px] font-inter tracking-wide transition-colors duration-200 ${
+                    isActive ? "text-ink font-semibold" : "text-ink-muted"
                   }`}
                 >
                   {tab.label}
