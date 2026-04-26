@@ -70,8 +70,10 @@ export function SwipeCard({
     const now = Date.now();
     if (now - lastTapRef.current < 300) {
       setShowHeartBurst(true);
-      onDoubleTap();
-      setTimeout(() => setShowHeartBurst(false), 800);
+      setTimeout(() => {
+        setShowHeartBurst(false);
+        onDoubleTap();
+      }, 700);
     } else {
       setTimeout(() => {
         if (Date.now() - lastTapRef.current >= 280) {

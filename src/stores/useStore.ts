@@ -127,7 +127,7 @@ function computeDNA(likedLooks: Look[]): StyleDNAEntry[] {
 
   return Object.entries(counts).map(([style, count]) => ({
     style,
-    percentage: Math.round((count / total) * 100) || 1,
+    percentage: Math.round((count / total) * 100),
     color: colors[style] ?? "#8A8A8A",
   }));
 }
@@ -138,7 +138,7 @@ export const useStore = create<AppState>()(
       currentFeedIndex: 0,
       setCurrentFeedIndex: (index) => set({ currentFeedIndex: index }),
       activeMoodFilter: "all" as MoodFilter,
-      setActiveMoodFilter: (mood) => set({ activeMoodFilter: mood, currentFeedIndex: 0 }),
+      setActiveMoodFilter: (mood) => set({ activeMoodFilter: mood, currentFeedIndex: 0, lastSwipedLook: null, lastSwipeAction: null }),
 
       likedLooks: [],
       passedLooks: [],
