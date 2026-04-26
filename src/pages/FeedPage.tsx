@@ -49,7 +49,8 @@ export function FeedPage() {
 
   const handleSwipeUp = useCallback(() => {
     setShowLookDetail(currentLook);
-  }, [currentLook, setShowLookDetail]);
+    advanceFeed();
+  }, [currentLook, setShowLookDetail, advanceFeed]);
 
   const handleTap = useCallback(() => {
     setShowLookDetail(currentLook);
