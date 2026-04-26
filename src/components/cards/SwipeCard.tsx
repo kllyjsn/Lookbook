@@ -46,6 +46,7 @@ export function SwipeCard({
 
   const handleDragStart = () => {
     isDraggingRef.current = true;
+    if (tapTimeoutRef.current) clearTimeout(tapTimeoutRef.current);
   };
 
   const handleDragEnd = (_: unknown, info: PanInfo) => {
