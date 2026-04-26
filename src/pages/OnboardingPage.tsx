@@ -66,6 +66,7 @@ export function OnboardingPage() {
   const [selectedBudget, setSelectedBudget] = useState<string | null>(null);
   const completeOnboarding = useStore((s) => s.completeOnboarding);
   const updateStyleDNA = useStore((s) => s.updateStyleDNA);
+  const setBudgetPreference = useStore((s) => s.setBudgetPreference);
 
   const toggleStyle = (id: string) => {
     setSelectedStyles((prev) =>
@@ -90,6 +91,9 @@ export function OnboardingPage() {
     }));
     if (styleDNA.length > 0) {
       updateStyleDNA(styleDNA);
+    }
+    if (selectedBudget) {
+      setBudgetPreference(selectedBudget);
     }
     completeOnboarding();
   };

@@ -13,7 +13,7 @@ interface LookDetailProps {
 
 export function LookDetail({ look, onClose }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
-  const likeLook = useStore((s) => s.likeLook);
+  const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -91,7 +91,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 whileTap={{ scale: 0.95 }}
                 onClick={() => {
                   if (!liked) {
-                    likeLook(look);
+                    saveLook(look);
                     setLiked(true);
                   }
                 }}
