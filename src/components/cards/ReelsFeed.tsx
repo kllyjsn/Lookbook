@@ -82,6 +82,12 @@ export function ReelsFeed({ looks, onOpenDetail }: ReelsFeedProps) {
     }
   };
 
+  const reelVariants = {
+    enter: (d: number) => ({ y: d > 0 ? "100%" : "-100%", opacity: 0.5 }),
+    center: { y: 0, opacity: 1 },
+    exit: (d: number) => ({ y: d > 0 ? "-100%" : "100%", opacity: 0.5 }),
+  };
+
   return (
     <div
       ref={containerRef}
@@ -93,9 +99,10 @@ export function ReelsFeed({ looks, onOpenDetail }: ReelsFeedProps) {
         <motion.div
           key={currentLook.id}
           custom={direction}
-          initial={{ y: direction > 0 ? "100%" : "-100%", opacity: 0.5 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: direction > 0 ? "-100%" : "100%", opacity: 0.5 }}
+          variants={reelVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
           transition={{ type: "spring", damping: 30, stiffness: 300 }}
           className="absolute inset-0"
         >
