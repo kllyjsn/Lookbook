@@ -194,6 +194,8 @@ export function SwipeCard({
       onClick={handleClick}
     >
       <div className="relative w-full h-full rounded-2xl overflow-hidden card-shadow bg-charcoal">
+        {/* Shimmer skeleton */}
+        {!imgLoaded && <div className="absolute inset-0 shimmer bg-charcoal" />}
         {/* Image */}
         <img
           src={look.image}
