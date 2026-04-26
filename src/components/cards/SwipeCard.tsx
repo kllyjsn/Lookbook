@@ -1,8 +1,13 @@
-import { useState, useRef } from "react";
-import { motion, useMotionValue, useTransform, animate, type PanInfo } from "framer-motion";
-import { Heart, X, ShoppingBag, Bookmark } from "lucide-react";
+import { useState, useRef, useCallback } from "react";
+import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion";
+import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Undo2 } from "lucide-react";
 import type { Look } from "../../data/mockData";
 
+function formatCount(n: number): string {
+  if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
+  return String(n);
+}
 
 interface SwipeCardProps {
   look: Look;
@@ -10,6 +15,7 @@ interface SwipeCardProps {
   onSwipeLeft: () => void;
   onSwipeUp: () => void;
   onTap: () => void;
+  onDoubleTap: () => void;
   isTop: boolean;
 }
 
@@ -19,11 +25,14 @@ export function SwipeCard({
   onSwipeLeft,
   onSwipeUp,
   onTap,
+  onDoubleTap,
   isTop,
 }: SwipeCardProps) {
   const [exitDirection, setExitDirection] = useState<"left" | "right" | "up" | null>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [showHeartBurst, setShowHeartBurst] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const lastTapRef = useRef(0);
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -56,6 +65,23 @@ export function SwipeCard({
     }
   };
 
+  const handleClick = useCallback(() => {
+    if (Math.abs(x.get()) > 5 || Math.abs(y.get()) > 5) return;
+    const now = Date.now();
+    if (now - lastTapRef.current < 300) {
+      setShowHeartBurst(true);
+      onDoubleTap();
+      setTimeout(() => setShowHeartBurst(false), 800);
+    } else {
+      setTimeout(() => {
+        if (Date.now() - lastTapRef.current >= 280) {
+          onTap();
+        }
+      }, 300);
+    }
+    lastTapRef.current = now;
+  }, [onTap, onDoubleTap, x, y]);
+
   if (exitDirection) {
     return null;
   }
@@ -72,13 +98,14 @@ export function SwipeCard({
       initial={isTop ? { scale: 0.97, opacity: 0.8 } : { scale: 0.93, opacity: 0.5 }}
       animate={isTop ? { scale: 1, opacity: 1 } : { scale: 0.95, opacity: 0.7 }}
       transition={{ duration: 0.3 }}
-      onClick={() => {
-        if (Math.abs(x.get()) < 5 && Math.abs(y.get()) < 5) {
-          onTap();
-        }
-      }}
+      onClick={handleClick}
     >
       <div className="relative w-full h-full rounded-2xl overflow-hidden card-shadow bg-charcoal">
+        {/* Skeleton loading state */}
+        {!imgLoaded && (
+          <div className="absolute inset-0 skeleton-shimmer" />
+        )}
+
         {/* Image */}
         <img
           src={look.image}
@@ -94,9 +121,22 @@ export function SwipeCard({
             <span className="text-white/60 text-[10px] font-inter tracking-[0.3em] uppercase">
               {look.season}
             </span>
-            <span className="text-white/60 text-[10px] font-inter tracking-[0.3em] uppercase">
-              {look.occasion}
-            </span>
+            <div className="flex items-center gap-2">
+              {look.trending && (
+                <span className="trending-badge flex items-center gap-1 text-[9px] font-inter font-semibold tracking-[0.1em] uppercase bg-white/20 backdrop-blur-sm text-white rounded-full px-2.5 py-1">
+                  <TrendingUp size={10} />
+                  Trending
+                </span>
+              )}
+              {look.editorsChoice && (
+                <span className="text-[9px] font-inter font-semibold tracking-[0.1em] uppercase bg-gold/90 text-white rounded-full px-2.5 py-1">
+                  Editor's Pick
+                </span>
+              )}
+              <span className="text-white/60 text-[10px] font-inter tracking-[0.3em] uppercase">
+                {look.occasion}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -120,6 +160,11 @@ export function SwipeCard({
               {look.subtitle}
             </p>
             <div className="flex items-center gap-3 pt-1">
+              <span className="flex items-center gap-1 text-xs font-inter text-white/60">
+                <Heart size={12} fill="currentColor" />
+                {formatCount(look.likes)}
+              </span>
+              <span className="text-white/30">·</span>
               <span className="text-xs font-inter text-white/50">
                 {look.priceRange}
               </span>
@@ -166,6 +211,21 @@ export function SwipeCard({
             </span>
           </div>
         </motion.div>
+
+        {/* Double-tap heart burst animation */}
+        <AnimatePresence>
+          {showHeartBurst && (
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 1.5, opacity: 0 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className="absolute inset-0 flex items-center justify-center pointer-events-none z-20"
+            >
+              <Heart size={80} className="text-white drop-shadow-lg" fill="white" strokeWidth={0} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.div>
   );
@@ -176,11 +236,29 @@ interface SwipeButtonsProps {
   onLike: () => void;
   onShop: () => void;
   onSave: () => void;
+  onUndo: () => void;
+  canUndo: boolean;
 }
 
-export function SwipeButtons({ onPass, onLike, onShop, onSave }: SwipeButtonsProps) {
+export function SwipeButtons({ onPass, onLike, onShop, onSave, onUndo, canUndo }: SwipeButtonsProps) {
   return (
-    <div className="flex items-center justify-center gap-5 py-4">
+    <div className="flex items-center justify-center gap-4 py-4">
+      <AnimatePresence>
+        {canUndo && (
+          <motion.button
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={onUndo}
+            className="w-10 h-10 rounded-full border-2 border-ink/10 flex items-center justify-center bg-cream hover:border-lavender/40 hover:bg-lavender/5 transition-colors"
+          >
+            <Undo2 size={14} className="text-ink-muted" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
       <motion.button
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}

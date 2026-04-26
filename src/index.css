@@ -166,3 +166,39 @@ img {
 .safe-bottom {
   padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
 }
+
+/* Skeleton shimmer loading effect */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-charcoal) 25%,
+    #3a3a3a 37%,
+    var(--color-charcoal) 63%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Hide scrollbar but keep scroll */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Trending badge pulse */
+.trending-badge {
+  animation: trendingPulse 2s ease-in-out infinite;
+}
+
+@keyframes trendingPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2); }
+  50% { box-shadow: 0 0 0 4px rgba(255, 255, 255, 0); }
+}

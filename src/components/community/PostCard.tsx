@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Heart, MessageCircle, Bookmark, ShoppingBag, BadgeCheck } from "lucide-react";
+import { useState, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Heart, MessageCircle, Bookmark, ShoppingBag, BadgeCheck, TrendingUp, Flame } from "lucide-react";
 import type { CommunityPost } from "../../data/communityData";
 import { FollowButton } from "./FollowButton";
 
@@ -21,6 +21,23 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [showHeartBurst, setShowHeartBurst] = useState(false);
+  const lastTapRef = useRef(0);
+
+  const isViral = post.likes > 7000;
+  const isTrending = post.likes > 5000;
+
+  const handleImageClick = useCallback(() => {
+    const now = Date.now();
+    if (now - lastTapRef.current < 300) {
+      if (!liked) {
+        setLiked(true);
+        setShowHeartBurst(true);
+        setTimeout(() => setShowHeartBurst(false), 800);
+      }
+    }
+    lastTapRef.current = now;
+  }, [liked]);
 
   return (
     <motion.article
@@ -63,7 +80,15 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
       </div>
 
       {/* Image */}
-      <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-charcoal mb-3">
+      <div
+        className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-charcoal mb-3"
+        onClick={handleImageClick}
+      >
+        {/* Skeleton */}
+        {!imgLoaded && (
+          <div className="absolute inset-0 skeleton-shimmer" />
+        )}
+
         <img
           src={post.image}
           alt={post.title}
@@ -76,8 +101,20 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
           </h3>
         </div>
 
-        {/* Tags */}
-        <div className="absolute top-4 left-4 flex gap-2">
+        {/* Tags + viral badges */}
+        <div className="absolute top-4 left-4 flex gap-2 flex-wrap">
+          {isViral && (
+            <span className="flex items-center gap-1 text-[9px] font-inter font-bold tracking-[0.1em] uppercase text-white bg-rose/80 backdrop-blur-sm rounded-full px-2.5 py-1">
+              <Flame size={10} />
+              Viral
+            </span>
+          )}
+          {isTrending && !isViral && (
+            <span className="flex items-center gap-1 text-[9px] font-inter font-semibold tracking-[0.1em] uppercase text-white bg-white/20 backdrop-blur-sm rounded-full px-2.5 py-1">
+              <TrendingUp size={10} />
+              Trending
+            </span>
+          )}
           {post.tags.map((tag) => (
             <span
               key={tag.label}
@@ -87,6 +124,21 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
             </span>
           ))}
         </div>
+
+        {/* Double-tap heart burst */}
+        <AnimatePresence>
+          {showHeartBurst && (
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 1.5, opacity: 0 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className="absolute inset-0 flex items-center justify-center pointer-events-none z-20"
+            >
+              <Heart size={64} className="text-white drop-shadow-lg" fill="white" strokeWidth={0} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Engagement bar */}
@@ -96,12 +148,17 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
           onClick={() => setLiked(!liked)}
           className="flex items-center gap-1.5"
         >
-          <Heart
-            size={20}
-            className={liked ? "text-rose" : "text-ink-muted"}
-            fill={liked ? "currentColor" : "none"}
-            strokeWidth={1.5}
-          />
+          <motion.div
+            animate={liked ? { scale: [1, 1.3, 1] } : {}}
+            transition={{ duration: 0.3 }}
+          >
+            <Heart
+              size={20}
+              className={liked ? "text-rose" : "text-ink-muted"}
+              fill={liked ? "currentColor" : "none"}
+              strokeWidth={1.5}
+            />
+          </motion.div>
           <span className={`text-xs font-inter ${liked ? "text-rose" : "text-ink-muted"}`}>
             {formatCount(post.likes + (liked ? 1 : 0))}
           </span>
@@ -117,12 +174,17 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
           onClick={() => setSaved(!saved)}
           className="flex items-center gap-1.5"
         >
-          <Bookmark
-            size={20}
-            className={saved ? "text-gold" : "text-ink-muted"}
-            fill={saved ? "currentColor" : "none"}
-            strokeWidth={1.5}
-          />
+          <motion.div
+            animate={saved ? { scale: [1, 1.2, 1] } : {}}
+            transition={{ duration: 0.3 }}
+          >
+            <Bookmark
+              size={20}
+              className={saved ? "text-gold" : "text-ink-muted"}
+              fill={saved ? "currentColor" : "none"}
+              strokeWidth={1.5}
+            />
+          </motion.div>
           <span className={`text-xs font-inter ${saved ? "text-gold" : "text-ink-muted"}`}>
             {formatCount(post.saves + (saved ? 1 : 0))}
           </span>

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Look, StyleDNAEntry } from "../data/mockData";
+import type { Look, StyleDNAEntry, MoodFilter } from "../data/mockData";
 import { defaultStyleDNA } from "../data/mockData";
 
 interface SavedCollection {
@@ -14,6 +14,8 @@ interface AppState {
   // Feed state
   currentFeedIndex: number;
   setCurrentFeedIndex: (index: number) => void;
+  activeMoodFilter: MoodFilter;
+  setActiveMoodFilter: (mood: MoodFilter) => void;
 
   // Liked / passed looks
   likedLooks: Look[];
@@ -21,15 +23,21 @@ interface AppState {
   likeLook: (look: Look) => void;
   passLook: (look: Look) => void;
 
+  // Undo swipe
+  lastSwipedLook: Look | null;
+  lastSwipeAction: "like" | "pass" | null;
+  undoLastSwipe: () => void;
+
   // Collections
   collections: SavedCollection[];
   addToCollection: (collectionId: string, look: Look) => void;
   createCollection: (name: string) => string;
   removeFromCollection: (collectionId: string, lookId: string) => void;
 
-  // Style DNA
+  // Style DNA (computed from swipe behavior)
   styleDNA: StyleDNAEntry[];
   updateStyleDNA: (dna: StyleDNAEntry[]) => void;
+  computeStyleDNA: () => StyleDNAEntry[];
 
   // Event stylist
   selectedEvent: string | null;
@@ -55,24 +63,125 @@ interface AppState {
   completeOnboarding: () => void;
 }
 
+const tagToStyle: Record<string, string> = {
+  "Minimalist": "Minimalist",
+  "Office": "Classic",
+  "Romantic": "Romantic",
+  "Evening": "Romantic",
+  "Streetwear": "Streetwear",
+  "Casual": "Streetwear",
+  "Glamour": "Avant-Garde",
+  "Adventure": "Classic",
+  "Utility": "Classic",
+  "Chic": "Minimalist",
+  "Feminine": "Romantic",
+  "Social": "Romantic",
+  "Tailored": "Classic",
+  "Power": "Classic",
+  "Clean": "Minimalist",
+  "Scandi": "Minimalist",
+  "Quiet Luxury": "Classic",
+  "Investment": "Classic",
+  "Tokyo": "Avant-Garde",
+  "Creative": "Avant-Garde",
+  "Statement": "Avant-Garde",
+  "Corporate": "Classic",
+  "Siren": "Avant-Garde",
+  "Coastal": "Classic",
+  "Festival": "Avant-Garde",
+  "Boho": "Romantic",
+  "Vintage": "Romantic",
+  "Sustainable": "Minimalist",
+};
+
+function computeDNA(likedLooks: Look[]): StyleDNAEntry[] {
+  if (likedLooks.length === 0) return defaultStyleDNA;
+
+  const counts: Record<string, number> = {
+    "Minimalist": 0,
+    "Classic": 0,
+    "Romantic": 0,
+    "Streetwear": 0,
+    "Avant-Garde": 0,
+  };
+
+  for (const look of likedLooks) {
+    for (const tag of look.tags) {
+      const style = tagToStyle[tag.label];
+      if (style && style in counts) {
+        counts[style]++;
+      }
+    }
+  }
+
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  if (total === 0) return defaultStyleDNA;
+
+  const colors: Record<string, string> = {
+    "Minimalist": "#1A1A1A",
+    "Classic": "#C5A572",
+    "Romantic": "#E8D5D0",
+    "Streetwear": "#4A4A4A",
+    "Avant-Garde": "#B8A9C9",
+  };
+
+  return Object.entries(counts).map(([style, count]) => ({
+    style,
+    percentage: Math.round((count / total) * 100) || 1,
+    color: colors[style] ?? "#8A8A8A",
+  }));
+}
+
 export const useStore = create<AppState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       currentFeedIndex: 0,
       setCurrentFeedIndex: (index) => set({ currentFeedIndex: index }),
+      activeMoodFilter: "all" as MoodFilter,
+      setActiveMoodFilter: (mood) => set({ activeMoodFilter: mood, currentFeedIndex: 0 }),
 
       likedLooks: [],
       passedLooks: [],
+      lastSwipedLook: null,
+      lastSwipeAction: null,
+
       likeLook: (look) =>
-        set((state) => ({
-          likedLooks: [...state.likedLooks, look],
-          currentFeedIndex: state.currentFeedIndex + 1,
-        })),
+        set((state) => {
+          const newLiked = [...state.likedLooks, look];
+          return {
+            likedLooks: newLiked,
+            currentFeedIndex: state.currentFeedIndex + 1,
+            lastSwipedLook: look,
+            lastSwipeAction: "like" as const,
+            styleDNA: computeDNA(newLiked),
+          };
+        }),
       passLook: (look) =>
         set((state) => ({
           passedLooks: [...state.passedLooks, look],
           currentFeedIndex: state.currentFeedIndex + 1,
+          lastSwipedLook: look,
+          lastSwipeAction: "pass" as const,
         })),
+
+      undoLastSwipe: () =>
+        set((state) => {
+          if (!state.lastSwipedLook || !state.lastSwipeAction) return state;
+          const newLiked = state.lastSwipeAction === "like"
+            ? state.likedLooks.filter((l) => l.id !== state.lastSwipedLook!.id)
+            : state.likedLooks;
+          const newPassed = state.lastSwipeAction === "pass"
+            ? state.passedLooks.filter((l) => l.id !== state.lastSwipedLook!.id)
+            : state.passedLooks;
+          return {
+            likedLooks: newLiked,
+            passedLooks: newPassed,
+            currentFeedIndex: Math.max(0, state.currentFeedIndex - 1),
+            lastSwipedLook: null,
+            lastSwipeAction: null,
+            styleDNA: computeDNA(newLiked),
+          };
+        }),
 
       collections: [
         { id: "favorites", name: "Favorites", looks: [], createdAt: Date.now() },
@@ -107,6 +216,7 @@ export const useStore = create<AppState>()(
 
       styleDNA: defaultStyleDNA,
       updateStyleDNA: (dna) => set({ styleDNA: dna }),
+      computeStyleDNA: () => computeDNA(get().likedLooks),
 
       selectedEvent: null,
       setSelectedEvent: (eventId) => set({ selectedEvent: eventId }),
