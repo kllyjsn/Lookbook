@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
@@ -145,7 +145,14 @@ export function FeedPage() {
   const dismissSwipeTutorial = useStore((s) => s.dismissSwipeTutorial);
   const resetFeed = useStore((s) => s.resetFeed);
 
-  const [showDoubleTapHeart, setShowDoubleTapHeart] = useState(false);
+  const [doubleTapKey, setDoubleTapKey] = useState(0);
+  const heartTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  useEffect(() => {
+    return () => {
+      if (heartTimeoutRef.current) clearTimeout(heartTimeoutRef.current);
+    };
+  }, []);
 
   const hasSeenAllLooks = currentFeedIndex >= feedLooks.length;
 
@@ -175,10 +182,11 @@ export function FeedPage() {
 
   const handleDoubleTap = useCallback(() => {
     if (currentLook) {
-      setShowDoubleTapHeart(true);
+      if (heartTimeoutRef.current) clearTimeout(heartTimeoutRef.current);
+      setDoubleTapKey((k) => k + 1);
       likeLook(currentLook);
-      setTimeout(() => {
-        setShowDoubleTapHeart(false);
+      heartTimeoutRef.current = setTimeout(() => {
+        setDoubleTapKey(0);
       }, 800);
     }
   }, [currentLook, likeLook]);
@@ -280,7 +288,7 @@ export function FeedPage() {
 
           {/* Double-tap heart animation */}
           <AnimatePresence>
-            {showDoubleTapHeart && <DoubleTapHeart />}
+            {doubleTapKey > 0 && <DoubleTapHeart key={doubleTapKey} />}
           </AnimatePresence>
         </div>
       </div>
