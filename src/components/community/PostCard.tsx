@@ -86,7 +86,9 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
       >
         {/* Skeleton */}
         {!imgLoaded && (
-          <div className="absolute inset-0 skeleton-shimmer" />
+          <div className="absolute inset-0 bg-charcoal">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent skeleton-shimmer" />
+          </div>
         )}
         <img
           src={post.image}
