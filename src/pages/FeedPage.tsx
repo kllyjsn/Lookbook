@@ -4,7 +4,6 @@ import { Flame } from "lucide-react";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
 import { HeartBurst } from "../components/ui/HeartBurst";
-import { Logo } from "../components/ui/Logo";
 import { feedLooks } from "../data/mockData";
 import { useStore } from "../stores/useStore";
 
@@ -78,31 +77,27 @@ export function FeedPage() {
 
   return (
     <div className="h-full flex flex-col bg-cream">
-      {/* Header with streak + stats */}
+      {/* Header masthead */}
       <div className="flex items-center justify-between py-3 px-5">
-        <div className="flex items-center gap-2">
-          <Logo variant="mark" size="sm" />
+        <h1 className="text-masthead text-[15px]">LOOKBOOK</h1>
+        <div className="flex items-center gap-3">
           {dailyStreak > 1 && (
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              className="flex items-center gap-1 bg-gradient-to-r from-orange-400 to-rose px-2.5 py-1 rounded-full"
+            <div className="flex items-center gap-1">
+              <Flame size={12} className="text-gold" />
+              <span className="text-[10px] font-inter font-semibold text-ink">{dailyStreak}</span>
+            </div>
+          )}
+          {totalSwipes > 0 && (
+            <motion.span
+              key={totalSwipes}
+              initial={{ scale: 1.3, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="text-[10px] font-inter text-ink-muted tracking-wider"
             >
-              <Flame size={12} className="text-white" />
-              <span className="text-white text-[10px] font-inter font-bold">{dailyStreak}</span>
-            </motion.div>
+              {totalSwipes} discovered
+            </motion.span>
           )}
         </div>
-        {totalSwipes > 0 && (
-          <motion.span
-            key={totalSwipes}
-            initial={{ scale: 1.3, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="text-[10px] font-inter text-ink-muted tracking-wider"
-          >
-            {totalSwipes} discovered
-          </motion.span>
-        )}
       </div>
 
       {/* New Drops banner */}
