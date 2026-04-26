@@ -1,10 +1,11 @@
 import { motion } from "framer-motion";
-import { Flame, Users, CalendarHeart, LayoutGrid, User } from "lucide-react";
+import { Flame, Users, Camera, CalendarHeart, LayoutGrid, User } from "lucide-react";
 import { useStore } from "../../stores/useStore";
 
 const tabs = [
   { id: "feed", icon: Flame, label: "Discover" },
   { id: "community", icon: Users, label: "Community" },
+  { id: "search", icon: Camera, label: "Shop" },
   { id: "stylist", icon: CalendarHeart, label: "Stylist" },
   { id: "capsule", icon: LayoutGrid, label: "Capsule" },
   { id: "profile", icon: User, label: "Profile" },

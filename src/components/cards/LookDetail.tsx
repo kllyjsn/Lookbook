@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
+import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp, Check } from "lucide-react";
 import type { Look } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
@@ -23,6 +23,28 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
   const addToCollection = useStore((s) => s.addToCollection);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [shared, setShared] = useState(false);
+
+  const handleShare = async () => {
+    const shareData = {
+      title: `LKBK: ${look.title}`,
+      text: `${look.subtitle} — ${look.description}`,
+      url: window.location.href,
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(
+          `${look.title} — ${look.subtitle}\n${look.description}\n${window.location.href}`
+        );
+        setShared(true);
+        setTimeout(() => setShared(false), 2000);
+      }
+    } catch {
+      // user cancelled share dialog
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -157,18 +179,18 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  if (navigator.share) {
-                    navigator.share({
-                      title: `LKBK — ${look.title}`,
-                      text: look.description,
-                      url: window.location.href,
-                    }).catch(() => {});
-                  }
-                }}
-                className="w-12 h-12 rounded-full flex items-center justify-center border border-ink/10 hover:border-ink/30"
+                onClick={handleShare}
+                className={`w-12 h-12 rounded-full flex items-center justify-center border transition-colors ${
+                  shared
+                    ? "border-green-400/40 bg-green-400/10"
+                    : "border-ink/10 hover:border-ink/30"
+                }`}
               >
-                <Share2 size={18} className="text-ink-muted" />
+                {shared ? (
+                  <Check size={18} className="text-green-500" />
+                ) : (
+                  <Share2 size={18} className="text-ink-muted" />
+                )}
               </motion.button>
             </div>
 
