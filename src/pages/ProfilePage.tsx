@@ -47,16 +47,30 @@ export function ProfilePage() {
         </div>
 
         {/* Profile avatar & name */}
-        <div className="flex items-center gap-4 mb-6">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold to-blush flex items-center justify-center">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold to-blush flex items-center justify-center ring-2 ring-gold/20 ring-offset-2 ring-offset-cream">
             <span className="font-editorial text-xl text-white">Y</span>
           </div>
           <div>
-            <h2 className="font-editorial text-xl text-ink">Your Profile</h2>
+            <h2 className="font-editorial text-xl text-ink">Your Style</h2>
             <p className="text-xs font-inter text-ink-muted">
               {likedLooks.length} looks loved · {collections.reduce((sum, c) => sum + c.looks.length, 0)} saved
             </p>
           </div>
+        </div>
+
+        {/* Quick stats */}
+        <div className="grid grid-cols-3 gap-2 mb-6">
+          {[
+            { label: "Loved", value: likedLooks.length },
+            { label: "Saved", value: collections.reduce((sum, c) => sum + c.looks.length, 0) },
+            { label: "Collections", value: collections.length },
+          ].map((stat) => (
+            <div key={stat.label} className="bg-ivory rounded-xl p-3 text-center">
+              <p className="font-editorial text-lg text-ink">{stat.value}</p>
+              <p className="text-[9px] font-inter tracking-[0.15em] uppercase text-ink-muted">{stat.label}</p>
+            </div>
+          ))}
         </div>
 
         {/* Section tabs */}
@@ -150,14 +164,26 @@ export function ProfilePage() {
               exit={{ opacity: 0, y: -10 }}
             >
               {likedLooks.length === 0 ? (
-                <div className="flex flex-col items-center py-16">
-                  <Heart size={32} className="text-ink/10 mb-3" />
-                  <p className="font-subhead text-base text-ink-muted italic">
-                    No loved looks yet
+                <div className="flex flex-col items-center py-12">
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-rose/10 to-blush/20 flex items-center justify-center mb-5">
+                    <Heart size={32} className="text-rose/30" />
+                  </div>
+                  <p className="font-editorial text-lg text-ink mb-1">
+                    Your lookbook awaits
                   </p>
-                  <p className="text-xs font-inter text-ink-muted mt-1">
-                    Swipe right on looks you love
+                  <p className="font-subhead text-sm text-ink-muted italic text-center max-w-[260px] mb-5">
+                    Every look you love becomes part of your personal style archive. Double-tap or swipe right to start curating.
                   </p>
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      const setActiveTab = useStore.getState().setActiveTab;
+                      setActiveTab("feed");
+                    }}
+                    className="px-6 py-2.5 rounded-full bg-ink text-cream text-sm font-inter font-medium"
+                  >
+                    Start Discovering
+                  </motion.button>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-3">

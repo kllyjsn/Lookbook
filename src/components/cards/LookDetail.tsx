@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark } from "lucide-react";
+import { X, Heart, ShoppingBag, Share2, Bookmark, Award, TrendingUp, Flame } from "lucide-react";
 import type { Look } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
@@ -73,8 +73,20 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
 
           {/* Editorial content */}
           <div className="px-6 py-8 max-w-2xl mx-auto">
-            {/* Tags */}
-            <div className="flex gap-2 mb-6">
+            {/* Badge + Tags */}
+            <div className="flex flex-wrap items-center gap-2 mb-6">
+              {look.badge && (
+                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-inter font-semibold tracking-wide uppercase ${
+                  look.badge === "editors-pick" ? "bg-gold/10 text-gold border border-gold/20" :
+                  look.badge === "trending" ? "bg-rose/10 text-rose border border-rose/20" :
+                  "bg-ink/5 text-ink border border-ink/10"
+                }`}>
+                  {look.badge === "editors-pick" && <Award size={10} />}
+                  {look.badge === "trending" && <TrendingUp size={10} />}
+                  {look.badge === "new" && <Flame size={10} />}
+                  {look.badge === "editors-pick" ? "Editor's Pick" : look.badge === "trending" ? "Trending" : "Just In"}
+                </span>
+              )}
               {look.tags.map((tag) => (
                 <Tag key={tag.label} label={tag.label} color={tag.color} />
               ))}
@@ -124,6 +136,15 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({
+                      title: look.title,
+                      text: `${look.title} — ${look.subtitle}. ${look.description}`,
+                      url: window.location.href,
+                    });
+                  }
+                }}
                 className="w-12 h-12 rounded-full flex items-center justify-center border border-ink/10 hover:border-ink/30"
               >
                 <Share2 size={18} className="text-ink-muted" />

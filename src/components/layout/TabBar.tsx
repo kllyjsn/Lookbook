@@ -27,15 +27,22 @@ export function TabBar() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 whileTap={{ scale: 0.9 }}
-                className="relative flex flex-col items-center justify-center w-16 h-full"
+                className="relative flex flex-col items-center justify-center gap-0.5 w-16 h-full"
               >
                 <Icon
-                  size={22}
+                  size={20}
                   strokeWidth={isActive ? 2 : 1.5}
                   className={`transition-colors duration-200 ${
                     isActive ? "text-ink" : "text-ink-muted"
                   }`}
                 />
+                <span
+                  className={`text-[9px] font-inter tracking-wide transition-colors duration-200 ${
+                    isActive ? "text-ink font-semibold" : "text-ink-muted"
+                  }`}
+                >
+                  {tab.label}
+                </span>
                 {isActive && (
                   <motion.div
                     layoutId="tab-indicator"

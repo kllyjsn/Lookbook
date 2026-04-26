@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import { motion, useMotionValue, useTransform, animate, type PanInfo } from "framer-motion";
-import { Heart, X, ShoppingBag, Bookmark } from "lucide-react";
+import { Heart, X, ShoppingBag, Bookmark, Award, TrendingUp, Flame } from "lucide-react";
 import type { Look } from "../../data/mockData";
 
 
@@ -13,6 +13,71 @@ interface SwipeCardProps {
   isTop: boolean;
 }
 
+function BadgeLabel({ badge }: { badge: NonNullable<Look["badge"]> }) {
+  const config = {
+    "editors-pick": { label: "Editor's Pick", Icon: Award, bg: "bg-gold/90", text: "text-white" },
+    trending: { label: "Trending", Icon: TrendingUp, bg: "bg-rose/90", text: "text-white" },
+    new: { label: "Just In", Icon: Flame, bg: "bg-white/90", text: "text-ink" },
+  };
+  const { label, Icon, bg, text } = config[badge];
+  return (
+    <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full ${bg} backdrop-blur-sm`}>
+      <Icon size={12} className={text} />
+      <span className={`text-[10px] font-inter font-semibold tracking-wide uppercase ${text}`}>
+        {label}
+      </span>
+    </div>
+  );
+}
+
+function HeartBurst({ x, y }: { x: number; y: number }) {
+  return (
+    <motion.div
+      className="fixed pointer-events-none z-[100]"
+      style={{ left: x - 40, top: y - 40 }}
+      initial={{ opacity: 1, scale: 0 }}
+      animate={{ opacity: 0, scale: 1.5 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+    >
+      <Heart size={80} className="text-rose" fill="currentColor" strokeWidth={0} />
+    </motion.div>
+  );
+}
+
+interface ConfettiProps {
+  delay: number;
+  angle: number;
+  color: string;
+  distance: number;
+  size: number;
+  rotation: number;
+  durationExtra: number;
+}
+
+function ConfettiParticle({ delay, angle, color, distance, size, rotation, durationExtra }: ConfettiProps) {
+  return (
+    <motion.div
+      className="absolute pointer-events-none rounded-full"
+      style={{
+        width: size,
+        height: size,
+        backgroundColor: color,
+        left: "50%",
+        top: "40%",
+      }}
+      initial={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+      animate={{
+        opacity: 0,
+        x: Math.cos(angle) * distance,
+        y: Math.sin(angle) * distance - 30,
+        scale: 0,
+        rotate: rotation,
+      }}
+      transition={{ duration: 0.7 + durationExtra, delay, ease: "easeOut" }}
+    />
+  );
+}
+
 export function SwipeCard({
   look,
   onSwipeRight,
@@ -23,7 +88,10 @@ export function SwipeCard({
 }: SwipeCardProps) {
   const [exitDirection, setExitDirection] = useState<"left" | "right" | "up" | null>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [doubleTapHeart, setDoubleTapHeart] = useState<{ x: number; y: number } | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const lastTapRef = useRef(0);
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -33,6 +101,11 @@ export function SwipeCard({
   const nopeOpacity = useTransform(x, [-80, 0], [1, 0]);
   const shopOpacity = useTransform(y, [-80, 0], [1, 0]);
   const scale = useTransform(x, [-300, 0, 300], [0.95, 1, 0.95]);
+
+  const triggerConfetti = useCallback(() => {
+    setShowConfetti(true);
+    setTimeout(() => setShowConfetti(false), 1200);
+  }, []);
 
   const handleDragEnd = (_: unknown, info: PanInfo) => {
     const threshold = 100;
@@ -44,6 +117,7 @@ export function SwipeCard({
       setTimeout(onSwipeUp, 300);
     } else if (info.offset.x > threshold || info.velocity.x > velocity) {
       setExitDirection("right");
+      triggerConfetti();
       animate(x, 1000, { duration: 0.3 });
       setTimeout(onSwipeRight, 300);
     } else if (info.offset.x < -threshold || info.velocity.x < -velocity) {
@@ -55,6 +129,40 @@ export function SwipeCard({
       animate(y, 0, { type: "spring", stiffness: 300, damping: 20 });
     }
   };
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (Math.abs(x.get()) > 5 || Math.abs(y.get()) > 5) return;
+
+    const now = Date.now();
+    if (now - lastTapRef.current < 300) {
+      // Double-tap → like with heart animation
+      setDoubleTapHeart({ x: e.clientX, y: e.clientY });
+      triggerConfetti();
+      setTimeout(() => setDoubleTapHeart(null), 800);
+      setTimeout(onSwipeRight, 400);
+    } else {
+      // Single tap → open detail (delayed to check for double)
+      lastTapRef.current = now;
+      setTimeout(() => {
+        if (Date.now() - lastTapRef.current >= 280) {
+          onTap();
+        }
+      }, 300);
+    }
+  };
+
+  const confettiData = useMemo(
+    () =>
+      Array.from({ length: 16 }, (_, i) => ({
+        angle: (i / 16) * Math.PI * 2,
+        color: ["#C5A572", "#C4797A", "#B8A9C9", "#A8B5A0", "#E8D5D0"][i % 5],
+        distance: 80 + ((i * 37) % 120),
+        size: 4 + ((i * 13) % 6),
+        rotation: (i * 73) % 360,
+        durationExtra: ((i * 29) % 40) / 100,
+      })),
+    []
+  );
 
   if (exitDirection) {
     return null;
@@ -72,11 +180,7 @@ export function SwipeCard({
       initial={isTop ? { scale: 0.97, opacity: 0.8 } : { scale: 0.93, opacity: 0.5 }}
       animate={isTop ? { scale: 1, opacity: 1 } : { scale: 0.95, opacity: 0.7 }}
       transition={{ duration: 0.3 }}
-      onClick={() => {
-        if (Math.abs(x.get()) < 5 && Math.abs(y.get()) < 5) {
-          onTap();
-        }
-      }}
+      onClick={handleClick}
     >
       <div className="relative w-full h-full rounded-2xl overflow-hidden card-shadow bg-charcoal">
         {/* Image */}
@@ -94,9 +198,13 @@ export function SwipeCard({
             <span className="text-white/60 text-[10px] font-inter tracking-[0.3em] uppercase">
               {look.season}
             </span>
-            <span className="text-white/60 text-[10px] font-inter tracking-[0.3em] uppercase">
-              {look.occasion}
-            </span>
+            {look.badge ? (
+              <BadgeLabel badge={look.badge} />
+            ) : (
+              <span className="text-white/60 text-[10px] font-inter tracking-[0.3em] uppercase">
+                {look.occasion}
+              </span>
+            )}
           </div>
         </div>
 
@@ -127,6 +235,15 @@ export function SwipeCard({
               <span className="text-xs font-inter text-white/50">
                 {look.items.length} pieces
               </span>
+              {look.trendScore && (
+                <>
+                  <span className="text-white/30">·</span>
+                  <span className="text-xs font-inter text-gold/80 flex items-center gap-1">
+                    <TrendingUp size={10} />
+                    {look.trendScore}% match
+                  </span>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -166,7 +283,28 @@ export function SwipeCard({
             </span>
           </div>
         </motion.div>
+
+        {/* Confetti on like */}
+        {showConfetti && (
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {confettiData.map((particle, i) => (
+              <ConfettiParticle
+                key={i}
+                delay={i * 0.02}
+                angle={particle.angle}
+                color={particle.color}
+                distance={particle.distance}
+                size={particle.size}
+                rotation={particle.rotation}
+                durationExtra={particle.durationExtra}
+              />
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* Double-tap heart burst */}
+      {doubleTapHeart && <HeartBurst x={doubleTapHeart.x} y={doubleTapHeart.y} />}
     </motion.div>
   );
 }

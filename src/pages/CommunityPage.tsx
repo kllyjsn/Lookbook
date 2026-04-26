@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, BadgeCheck } from "lucide-react";
+import { Search, BadgeCheck, Users } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { PostCard } from "../components/community/PostCard";
 import { CreatorProfile } from "../components/community/CreatorProfile";
@@ -145,6 +145,34 @@ export function CommunityPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
           >
+            {/* Seasonal editorial banner (For You only) */}
+            {activeTab === "forYou" && (
+              <div className="px-6 mb-6">
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="relative rounded-2xl overflow-hidden aspect-[5/2]"
+                >
+                  <img
+                    src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&h=320&fit=crop&q=80"
+                    alt="Now trending"
+                    className="img-editorial"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
+                  <div className="absolute inset-0 flex flex-col justify-center p-6">
+                    <span className="text-[9px] font-inter tracking-[0.3em] uppercase text-gold mb-1.5">
+                      NOW TRENDING
+                    </span>
+                    <h3 className="font-editorial text-xl text-white leading-tight mb-1">
+                      Quiet Luxury
+                      <br />
+                      <span className="font-subhead italic text-white/80 text-base">is having a moment</span>
+                    </h3>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+
             {/* Featured creators row (For You only) */}
             {activeTab === "forYou" && (
               <div className="mb-6">
@@ -193,24 +221,24 @@ export function CommunityPage() {
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="flex flex-col items-center py-16"
+                  className="flex flex-col items-center py-12"
                 >
-                  <div className="w-16 h-16 rounded-full bg-ivory flex items-center justify-center mb-4">
-                    <span className="font-editorial text-2xl text-ink-muted">?</span>
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-lavender/20 to-blush/20 flex items-center justify-center mb-5">
+                    <Users size={28} className="text-lavender/40" />
                   </div>
                   <p className="font-editorial text-lg text-ink mb-1">
-                    No posts yet
+                    {activeTab === "following" ? "Your circle, your style" : "Fresh content incoming"}
                   </p>
-                  <p className="text-xs font-inter text-ink-muted text-center max-w-[240px]">
+                  <p className="font-subhead text-sm text-ink-muted italic text-center max-w-[260px]">
                     {activeTab === "following"
-                      ? "Follow creators to see their posts here"
-                      : "Check back soon for new content"}
+                      ? "Follow creators whose aesthetic speaks to you. Their latest posts will appear here."
+                      : "Our editors are curating the best looks for you. Check back soon."}
                   </p>
                   {activeTab === "following" && (
                     <motion.button
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setActiveTab("forYou")}
-                      className="mt-4 px-6 py-2.5 rounded-full bg-ink text-cream text-sm font-inter font-medium"
+                      className="mt-5 px-6 py-2.5 rounded-full bg-ink text-cream text-sm font-inter font-medium"
                     >
                       Discover Creators
                     </motion.button>
