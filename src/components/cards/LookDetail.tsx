@@ -19,7 +19,7 @@ interface LookDetailProps {
 
 export function LookDetail({ look, onClose }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
-  const likeLook = useStore((s) => s.likeLook);
+  const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -124,7 +124,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 whileTap={{ scale: 0.95 }}
                 onClick={() => {
                   if (!liked) {
-                    likeLook(look);
+                    saveLook(look);
                     setLiked(true);
                   }
                 }}
@@ -157,6 +157,15 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({
+                      title: `LKBK — ${look.title}`,
+                      text: look.description,
+                      url: window.location.href,
+                    }).catch(() => {});
+                  }
+                }}
                 className="w-12 h-12 rounded-full flex items-center justify-center border border-ink/10 hover:border-ink/30"
               >
                 <Share2 size={18} className="text-ink-muted" />

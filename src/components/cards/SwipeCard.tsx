@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion";
-import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Undo2 } from "lucide-react";
+import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2 } from "lucide-react";
 import type { Look } from "../../data/mockData";
 
 function formatCount(n: number): string {
@@ -8,6 +8,12 @@ function formatCount(n: number): string {
   if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
   return String(n);
 }
+
+const badgeConfig = {
+  "trending": { label: "TRENDING", icon: TrendingUp, bg: "bg-rose/90", text: "text-white" },
+  "editors-pick": { label: "EDITOR'S PICK", icon: Award, bg: "bg-gold/90", text: "text-white" },
+  "new": { label: "NEW", icon: Zap, bg: "bg-ink/80", text: "text-cream" },
+} as const;
 
 interface SwipeCardProps {
   look: Look;
@@ -149,7 +155,6 @@ export function SwipeCard({
         {!imgLoaded && (
           <div className="absolute inset-0 skeleton-shimmer" />
         )}
-
         {/* Image */}
         <img
           src={look.image}
@@ -177,6 +182,23 @@ export function SwipeCard({
                   Editor's Pick
                 </span>
               )}
+              {look.badge && (() => {
+                const badge = badgeConfig[look.badge];
+                const BadgeIcon = badge.icon;
+                return (
+                  <motion.div
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.3, type: "spring", stiffness: 400 }}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-full ${badge.bg} backdrop-blur-sm`}
+                  >
+                    <BadgeIcon size={10} className={badge.text} />
+                    <span className={`text-[9px] font-inter font-semibold tracking-wider ${badge.text}`}>
+                      {badge.label}
+                    </span>
+                  </motion.div>
+                );
+              })()}
               <span className="text-white/60 text-[10px] font-inter tracking-[0.3em] uppercase">
                 {look.occasion}
               </span>

@@ -79,7 +79,7 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
         <FollowButton creatorId={post.creator.id} />
       </div>
 
-      {/* Image */}
+      {/* Image — double-tap to like */}
       <div
         className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-charcoal mb-3"
         onClick={handleImageClick}
@@ -88,7 +88,6 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
         {!imgLoaded && (
           <div className="absolute inset-0 skeleton-shimmer" />
         )}
-
         <img
           src={post.image}
           alt={post.title}
