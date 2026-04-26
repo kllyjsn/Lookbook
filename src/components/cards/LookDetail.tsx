@@ -142,7 +142,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                       title: look.title,
                       text: `${look.title} — ${look.subtitle}. ${look.description}`,
                       url: window.location.href,
-                    });
+                    }).catch(() => {});
                   }
                 }}
                 className="w-12 h-12 rounded-full flex items-center justify-center border border-ink/10 hover:border-ink/30"

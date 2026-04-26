@@ -117,10 +117,10 @@ export function SwipeCard({
       animate(y, -1000, { duration: 0.3 });
       setTimeout(onSwipeUp, 300);
     } else if (info.offset.x > threshold || info.velocity.x > velocity) {
-      setExitDirection("right");
       triggerConfetti();
-      animate(x, 1000, { duration: 0.3 });
-      setTimeout(onSwipeRight, 300);
+      animate(x, 1000, { duration: 0.4 });
+      setTimeout(() => setExitDirection("right"), 400);
+      setTimeout(onSwipeRight, 400);
     } else if (info.offset.x < -threshold || info.velocity.x < -velocity) {
       setExitDirection("left");
       animate(x, -1000, { duration: 0.3 });
@@ -242,7 +242,7 @@ export function SwipeCard({
               <span className="text-xs font-inter text-white/50">
                 {look.items.length} pieces
               </span>
-              {look.trendScore && (
+              {look.trendScore != null && (
                 <>
                   <span className="text-white/30">·</span>
                   <span className="text-xs font-inter text-gold/80 flex items-center gap-1">
