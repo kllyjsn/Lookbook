@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart } from "lucide-react";
 
@@ -19,22 +20,31 @@ const particles = Array.from({ length: 8 }, (_, i) => {
 });
 
 export function HeartBurst({ show, onComplete }: HeartBurstProps) {
+  useEffect(() => {
+    if (!show) return;
+    const timer = setTimeout(onComplete, 900);
+    return () => clearTimeout(timer);
+  }, [show, onComplete]);
+
   return (
     <AnimatePresence>
       {show && (
-        <div className="absolute inset-0 z-50 pointer-events-none flex items-center justify-center">
+        <motion.div
+          key="heart-burst"
+          className="absolute inset-0 z-50 pointer-events-none flex items-center justify-center"
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+        >
           {/* Big center heart */}
           <motion.div
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 1.5, opacity: 0 }}
             transition={{
               type: "spring",
               stiffness: 400,
               damping: 12,
               duration: 0.6,
             }}
-            onAnimationComplete={onComplete}
           >
             <Heart
               size={80}
@@ -77,7 +87,7 @@ export function HeartBurst({ show, onComplete }: HeartBurstProps) {
             animate={{ width: 200, height: 200, opacity: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
           />
-        </div>
+        </motion.div>
       )}
     </AnimatePresence>
   );
