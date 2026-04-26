@@ -63,10 +63,10 @@ const UNSPLASH = (id: string, w = 800, h = 1200) =>
 export const feedLooks: Look[] = [
   {
     id: "look-1",
-    image: UNSPLASH("photo-1509631179647-0177331693ae", 800, 1200),
+    image: "/generated/look-1.png",
     title: "Effortless Elegance",
     subtitle: "The new power dressing",
-    photographer: "Tamara Bellis",
+    photographer: "AI Editorial",
     tags: [
       { label: "Minimalist", color: "#1A1A1A" },
       { label: "Office", color: "#4A4A4A" },
@@ -85,10 +85,10 @@ export const feedLooks: Look[] = [
   },
   {
     id: "look-2",
-    image: UNSPLASH("photo-1496747611176-843222e1e57c", 800, 1200),
+    image: "/generated/look-2.png",
     title: "Summer Reverie",
     subtitle: "Soft hues, warm evenings",
-    photographer: "Flaunter",
+    photographer: "AI Editorial",
     tags: [
       { label: "Romantic", color: "#C4797A" },
       { label: "Evening", color: "#B8A9C9" },
@@ -107,10 +107,10 @@ export const feedLooks: Look[] = [
   },
   {
     id: "look-3",
-    image: UNSPLASH("photo-1515886657613-9f3515b0c78f", 800, 1200),
+    image: "/generated/look-3.png",
     title: "Street Luxe",
     subtitle: "Where comfort meets couture",
-    photographer: "Dom Hill",
+    photographer: "AI Editorial",
     tags: [
       { label: "Streetwear", color: "#2D2D2D" },
       { label: "Casual", color: "#8A8A8A" },
@@ -129,10 +129,10 @@ export const feedLooks: Look[] = [
   },
   {
     id: "look-4",
-    image: UNSPLASH("photo-1469334031218-e382a71b716b", 800, 1200),
+    image: "/generated/look-4.png",
     title: "Après Noir",
     subtitle: "After-dark allure",
-    photographer: "Tamara Bellis",
+    photographer: "AI Editorial",
     tags: [
       { label: "Evening", color: "#1A1A1A" },
       { label: "Glamour", color: "#C5A572" },
@@ -151,10 +151,10 @@ export const feedLooks: Look[] = [
   },
   {
     id: "look-5",
-    image: UNSPLASH("photo-1483985988355-763728e1935b", 800, 1200),
+    image: "/generated/look-5.png",
     title: "Urban Safari",
     subtitle: "City exploring, redefined",
-    photographer: "Heidi Fin",
+    photographer: "AI Editorial",
     tags: [
       { label: "Adventure", color: "#A8B5A0" },
       { label: "Utility", color: "#8A8A8A" },
@@ -173,10 +173,10 @@ export const feedLooks: Look[] = [
   },
   {
     id: "look-6",
-    image: UNSPLASH("photo-1485968579580-b6d095142e6e", 800, 1200),
+    image: "/generated/look-6.png",
     title: "Monochrome Mood",
     subtitle: "All black, everything",
-    photographer: "Matthew Sichkaruk",
+    photographer: "AI Editorial",
     tags: [
       { label: "Minimalist", color: "#1A1A1A" },
       { label: "Chic", color: "#4A4A4A" },
@@ -195,10 +195,10 @@ export const feedLooks: Look[] = [
   },
   {
     id: "look-7",
-    image: UNSPLASH("photo-1529139574466-a303027c1d8b", 800, 1200),
+    image: "/generated/look-7.png",
     title: "Garden Party",
     subtitle: "Florals but make it modern",
-    photographer: "Tamara Bellis",
+    photographer: "AI Editorial",
     tags: [
       { label: "Feminine", color: "#E8D5D0" },
       { label: "Social", color: "#C4797A" },
@@ -217,10 +217,10 @@ export const feedLooks: Look[] = [
   },
   {
     id: "look-8",
-    image: UNSPLASH("photo-1539109136881-3be0616acf4b", 800, 1200),
+    image: "/generated/look-8.png",
     title: "Power Suit",
     subtitle: "Boardroom to bar",
-    photographer: "Christina Wocintech",
+    photographer: "AI Editorial",
     tags: [
       { label: "Tailored", color: "#1A1A1A" },
       { label: "Power", color: "#C5A572" },

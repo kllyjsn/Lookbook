@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { motion, useMotionValue, useTransform, animate, type PanInfo } from "framer-motion";
 import { Heart, X, ShoppingBag, Bookmark } from "lucide-react";
 import type { Look } from "../../data/mockData";
@@ -34,19 +34,25 @@ export function SwipeCard({
   const shopOpacity = useTransform(y, [-80, 0], [1, 0]);
   const scale = useTransform(x, [-300, 0, 300], [0.95, 1, 0.95]);
 
-  const handleDragEnd = (_: unknown, info: PanInfo) => {
-    const threshold = 100;
-    const velocity = 0.5;
+  const isDragging = useRef(false);
 
-    if (info.offset.y < -threshold || info.velocity.y < -velocity) {
+  const handleDragStart = useCallback(() => {
+    isDragging.current = true;
+  }, []);
+
+  const handleDragEnd = useCallback((_: unknown, info: PanInfo) => {
+    const threshold = 60;
+    const velocityThreshold = 300;
+
+    if (info.offset.y < -threshold || info.velocity.y < -velocityThreshold) {
       setExitDirection("up");
       animate(y, -1000, { duration: 0.3 });
       setTimeout(onSwipeUp, 300);
-    } else if (info.offset.x > threshold || info.velocity.x > velocity) {
+    } else if (info.offset.x > threshold || info.velocity.x > velocityThreshold) {
       setExitDirection("right");
       animate(x, 1000, { duration: 0.3 });
       setTimeout(onSwipeRight, 300);
-    } else if (info.offset.x < -threshold || info.velocity.x < -velocity) {
+    } else if (info.offset.x < -threshold || info.velocity.x < -velocityThreshold) {
       setExitDirection("left");
       animate(x, -1000, { duration: 0.3 });
       setTimeout(onSwipeLeft, 300);
@@ -54,7 +60,8 @@ export function SwipeCard({
       animate(x, 0, { type: "spring", stiffness: 300, damping: 20 });
       animate(y, 0, { type: "spring", stiffness: 300, damping: 20 });
     }
-  };
+    setTimeout(() => { isDragging.current = false; }, 50);
+  }, [x, y, onSwipeUp, onSwipeRight, onSwipeLeft]);
 
   if (exitDirection) {
     return null;
@@ -64,16 +71,18 @@ export function SwipeCard({
     <motion.div
       ref={containerRef}
       className={`absolute inset-0 no-select ${isTop ? "z-10" : "z-0"}`}
-      style={{ x, y, rotate, scale }}
+      style={{ x, y, rotate, scale, touchAction: "none" }}
       drag={isTop}
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
       dragElastic={0.9}
+      dragMomentum={false}
+      onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       initial={isTop ? { scale: 0.97, opacity: 0.8 } : { scale: 0.93, opacity: 0.5 }}
       animate={isTop ? { scale: 1, opacity: 1 } : { scale: 0.95, opacity: 0.7 }}
       transition={{ duration: 0.3 }}
       onClick={() => {
-        if (Math.abs(x.get()) < 5 && Math.abs(y.get()) < 5) {
+        if (!isDragging.current && Math.abs(x.get()) < 5 && Math.abs(y.get()) < 5) {
           onTap();
         }
       }}
