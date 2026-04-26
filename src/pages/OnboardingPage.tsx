@@ -62,18 +62,21 @@ export function OnboardingPage() {
       bohemian: { style: "Bohemian", color: "#A8B5A0" },
     };
 
+    const totalEntries = 6;
     const totalSelected = selectedStyles.length || 1;
-    const numOthers = 6 - totalSelected;
+    const numOthers = totalEntries - totalSelected;
     const basePercent = Math.floor(80 / totalSelected);
     const perOther = numOthers > 0 ? Math.floor(20 / numOthers) : 0;
     const assignedTotal = basePercent * totalSelected + perOther * numOthers;
-    let leftover = 100 - assignedTotal;
+    const leftover = 100 - assignedTotal;
+    const extraPerEntry = Math.floor(leftover / totalEntries);
+    let remainder = leftover - extraPerEntry * totalEntries;
 
     const dna = Object.entries(styleMap).map(([id, val]) => {
       const base = selectedStyles.includes(id) ? basePercent : perOther;
-      const extra = leftover > 0 ? 1 : 0;
-      if (extra) leftover--;
-      return { ...val, percentage: base + extra };
+      const bonus = extraPerEntry + (remainder > 0 ? 1 : 0);
+      if (remainder > 0) remainder--;
+      return { ...val, percentage: base + bonus };
     });
 
     setTimeout(() => {
