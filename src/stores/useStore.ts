@@ -14,6 +14,7 @@ interface AppState {
   // Feed state
   currentFeedIndex: number;
   setCurrentFeedIndex: (index: number) => void;
+  resetFeed: () => void;
   totalSwipes: number;
 
   // Liked / passed looks
@@ -70,6 +71,8 @@ export const useStore = create<AppState>()(
     (set) => ({
       currentFeedIndex: 0,
       setCurrentFeedIndex: (index) => set({ currentFeedIndex: index }),
+      resetFeed: () =>
+        set({ currentFeedIndex: 0, lastSwipedLook: null, lastSwipeAction: null }),
       totalSwipes: 0,
 
       likedLooks: [],

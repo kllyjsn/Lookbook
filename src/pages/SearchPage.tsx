@@ -37,6 +37,9 @@ export function SearchPage() {
   };
 
   const resetSearch = () => {
+    if (uploadedImage && uploadedImage.startsWith("blob:")) {
+      URL.revokeObjectURL(uploadedImage);
+    }
     setUploadedImage(null);
     setShowResults(false);
     setIsAnalyzing(false);

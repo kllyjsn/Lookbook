@@ -143,7 +143,7 @@ export function FeedPage() {
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
   const hasSeenSwipeTutorial = useStore((s) => s.hasSeenSwipeTutorial);
   const dismissSwipeTutorial = useStore((s) => s.dismissSwipeTutorial);
-  const setCurrentFeedIndex = useStore((s) => s.setCurrentFeedIndex);
+  const resetFeed = useStore((s) => s.resetFeed);
 
   const [showDoubleTapHeart, setShowDoubleTapHeart] = useState(false);
 
@@ -207,8 +207,8 @@ export function FeedPage() {
   }, [currentLook, addToCollection, setActiveTab]);
 
   const handleRefresh = useCallback(() => {
-    setCurrentFeedIndex(0);
-  }, [setCurrentFeedIndex]);
+    resetFeed();
+  }, [resetFeed]);
 
   return (
     <div className="h-full flex flex-col bg-cream">
