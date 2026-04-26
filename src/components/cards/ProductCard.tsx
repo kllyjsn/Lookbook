@@ -19,6 +19,7 @@ export function ProductCard({ item, index }: ProductCardProps) {
       className="group cursor-pointer"
     >
       <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-ivory mb-3">
+        {!imgLoaded && <div className="absolute inset-0 shimmer bg-ivory" />}
         <img
           src={item.image}
           alt={item.name}

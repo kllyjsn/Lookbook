@@ -25,6 +25,7 @@ export interface Look {
   items: LookItem[];
   season: string;
   description: string;
+  badge?: "trending" | "editors-pick" | "new";
 }
 
 export interface EventType {
@@ -67,6 +68,7 @@ export const feedLooks: Look[] = [
     title: "Effortless Elegance",
     subtitle: "The new power dressing",
     photographer: "Tamara Bellis",
+    badge: "editors-pick",
     tags: [
       { label: "Minimalist", color: "#1A1A1A" },
       { label: "Office", color: "#4A4A4A" },
@@ -111,6 +113,7 @@ export const feedLooks: Look[] = [
     title: "Street Luxe",
     subtitle: "Where comfort meets couture",
     photographer: "Dom Hill",
+    badge: "trending",
     tags: [
       { label: "Streetwear", color: "#2D2D2D" },
       { label: "Casual", color: "#8A8A8A" },
@@ -155,6 +158,7 @@ export const feedLooks: Look[] = [
     title: "Urban Safari",
     subtitle: "City exploring, redefined",
     photographer: "Heidi Fin",
+    badge: "new",
     tags: [
       { label: "Adventure", color: "#A8B5A0" },
       { label: "Utility", color: "#8A8A8A" },
@@ -199,6 +203,7 @@ export const feedLooks: Look[] = [
     title: "Garden Party",
     subtitle: "Florals but make it modern",
     photographer: "Tamara Bellis",
+    badge: "editors-pick",
     tags: [
       { label: "Feminine", color: "#E8D5D0" },
       { label: "Social", color: "#C4797A" },

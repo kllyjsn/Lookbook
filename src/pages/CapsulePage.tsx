@@ -336,17 +336,16 @@ export function CapsulePage() {
             className="px-6"
           >
             {/* Summary bar */}
-            <div className="flex items-center gap-4 p-4 rounded-2xl bg-ivory mb-6">
-              <div className="flex-1">
+            <div className="grid grid-cols-4 gap-3 p-4 rounded-2xl bg-ivory mb-6">
+              <div>
                 <p className="text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted">
-                  Selected
+                  Pieces
                 </p>
                 <p className="font-editorial text-xl text-ink">
-                  {selectedItems.length} pieces
+                  {selectedItems.length}
                 </p>
               </div>
-              <div className="w-px h-10 bg-ink/10" />
-              <div className="flex-1">
+              <div>
                 <p className="text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted">
                   Outfits
                 </p>
@@ -354,13 +353,20 @@ export function CapsulePage() {
                   {outfitCombinations}+
                 </p>
               </div>
-              <div className="w-px h-10 bg-ink/10" />
-              <div className="flex-1">
+              <div>
                 <p className="text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted">
                   Total
                 </p>
                 <p className="font-editorial text-xl text-ink">
                   ${totalPrice.toLocaleString()}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted">
+                  Cost/Wear
+                </p>
+                <p className="font-editorial text-xl text-gold">
+                  ${outfitCombinations > 0 ? (totalPrice / outfitCombinations).toFixed(0) : "—"}
                 </p>
               </div>
             </div>
