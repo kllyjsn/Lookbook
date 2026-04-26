@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Heart } from "lucide-react";
 
 interface HeartBurstProps {
-  show: boolean;
+  burstKey: number;
   onComplete: () => void;
 }
 
@@ -19,18 +19,20 @@ const particles = Array.from({ length: 8 }, (_, i) => {
   };
 });
 
-export function HeartBurst({ show, onComplete }: HeartBurstProps) {
+export function HeartBurst({ burstKey, onComplete }: HeartBurstProps) {
+  const show = burstKey > 0;
+
   useEffect(() => {
-    if (!show) return;
+    if (!burstKey) return;
     const timer = setTimeout(onComplete, 900);
     return () => clearTimeout(timer);
-  }, [show, onComplete]);
+  }, [burstKey, onComplete]);
 
   return (
     <AnimatePresence>
       {show && (
         <motion.div
-          key="heart-burst"
+          key={`heart-burst-${burstKey}`}
           className="absolute inset-0 z-50 pointer-events-none flex items-center justify-center"
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}

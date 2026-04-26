@@ -18,8 +18,9 @@ export function FeedPage() {
   const setActiveTab = useStore((s) => s.setActiveTab);
   const dailyStreak = useStore((s) => s.dailyStreak);
   const totalSwipes = useStore((s) => s.totalSwipes);
-  const showHeartBurst = useStore((s) => s.showHeartBurst);
-  const setShowHeartBurst = useStore((s) => s.setShowHeartBurst);
+  const heartBurstKey = useStore((s) => s.heartBurstKey);
+  const triggerHeartBurst = useStore((s) => s.triggerHeartBurst);
+  const clearHeartBurst = useStore((s) => s.clearHeartBurst);
   const checkStreak = useStore((s) => s.checkStreak);
 
   useEffect(() => {
@@ -38,8 +39,8 @@ export function FeedPage() {
   const handleSwipeRight = useCallback(() => {
     likeLook(currentLook);
     advanceFeed();
-    setShowHeartBurst(true);
-  }, [currentLook, likeLook, advanceFeed, setShowHeartBurst]);
+    triggerHeartBurst();
+  }, [currentLook, likeLook, advanceFeed, triggerHeartBurst]);
 
   const handleSwipeLeft = useCallback(() => {
     passLook(currentLook);
@@ -58,8 +59,8 @@ export function FeedPage() {
   const handleButtonLike = useCallback(() => {
     likeLook(currentLook);
     advanceFeed();
-    setShowHeartBurst(true);
-  }, [currentLook, likeLook, advanceFeed, setShowHeartBurst]);
+    triggerHeartBurst();
+  }, [currentLook, likeLook, advanceFeed, triggerHeartBurst]);
 
   const handleButtonPass = useCallback(() => {
     passLook(currentLook);
@@ -128,8 +129,8 @@ export function FeedPage() {
 
           {/* Heart burst overlay */}
           <HeartBurst
-            show={showHeartBurst}
-            onComplete={() => setShowHeartBurst(false)}
+            burstKey={heartBurstKey}
+            onComplete={clearHeartBurst}
           />
         </div>
       </div>

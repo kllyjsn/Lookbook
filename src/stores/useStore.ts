@@ -26,8 +26,9 @@ interface AppState {
   lastActiveDate: string;
   totalSwipes: number;
   totalLoves: number;
-  showHeartBurst: boolean;
-  setShowHeartBurst: (v: boolean) => void;
+  heartBurstKey: number;
+  triggerHeartBurst: () => void;
+  clearHeartBurst: () => void;
   advanceFeed: () => void;
   checkStreak: () => void;
 
@@ -85,8 +86,9 @@ export const useStore = create<AppState>()(
       lastActiveDate: new Date().toDateString(),
       totalSwipes: 0,
       totalLoves: 0,
-      showHeartBurst: false,
-      setShowHeartBurst: (v) => set({ showHeartBurst: v }),
+      heartBurstKey: 0,
+      triggerHeartBurst: () => set((state) => ({ heartBurstKey: state.heartBurstKey + 1 })),
+      clearHeartBurst: () => set({ heartBurstKey: 0 }),
       advanceFeed: () =>
         set((state) => ({
           currentFeedIndex: state.currentFeedIndex + 1,
