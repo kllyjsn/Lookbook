@@ -22,6 +22,7 @@ interface AppState {
   passedLooks: Look[];
   likeLook: (look: Look) => void;
   passLook: (look: Look) => void;
+  saveLook: (look: Look) => void;
 
   // Undo
   lastSwipedLook: Look | null;
@@ -46,6 +47,10 @@ interface AppState {
   // Event stylist
   selectedEvent: string | null;
   setSelectedEvent: (eventId: string | null) => void;
+
+  // Budget preference (from onboarding)
+  budgetPreference: string | null;
+  setBudgetPreference: (pref: string | null) => void;
 
   // Capsule
   capsuleBudget: number;
@@ -102,6 +107,12 @@ export const useStore = create<AppState>()(
             lastSwipeWasNew: isNew,
           };
         }),
+      saveLook: (look) =>
+        set((state) => ({
+          likedLooks: state.likedLooks.some((l) => l.id === look.id)
+            ? state.likedLooks
+            : [...state.likedLooks, look],
+        })),
 
       lastSwipedLook: null,
       lastSwipeAction: null,
@@ -170,6 +181,9 @@ export const useStore = create<AppState>()(
       selectedEvent: null,
       setSelectedEvent: (eventId) => set({ selectedEvent: eventId }),
 
+      budgetPreference: null,
+      setBudgetPreference: (pref) => set({ budgetPreference: pref }),
+
       capsuleBudget: 3000,
       setCapsuleBudget: (budget) => set({ capsuleBudget: budget }),
       capsuleSelectedItems: [],
@@ -206,6 +220,7 @@ export const useStore = create<AppState>()(
         passedLooks: state.passedLooks,
         collections: state.collections,
         styleDNA: state.styleDNA,
+        budgetPreference: state.budgetPreference,
         capsuleBudget: state.capsuleBudget,
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,

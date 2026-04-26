@@ -1,7 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, useMotionValue, useTransform, animate, type PanInfo } from "framer-motion";
-import { Heart, X, ShoppingBag, Bookmark, TrendingUp } from "lucide-react";
+import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap } from "lucide-react";
 import type { Look } from "../../data/mockData";
+
+const badgeConfig = {
+  "trending": { label: "TRENDING", icon: TrendingUp, bg: "bg-rose/90", text: "text-white" },
+  "editors-pick": { label: "EDITOR'S PICK", icon: Award, bg: "bg-gold/90", text: "text-white" },
+  "new": { label: "NEW", icon: Zap, bg: "bg-ink/80", text: "text-cream" },
+} as const;
 
 
 interface SwipeCardProps {
@@ -16,7 +22,6 @@ interface SwipeCardProps {
   totalCards?: number;
 }
 
-const trendingTags = ["Trending", "New", "Party"];
 
 export function SwipeCard({
   look,
@@ -49,8 +54,6 @@ export function SwipeCard({
   const nopeOpacity = useTransform(x, [-80, 0], [1, 0]);
   const shopOpacity = useTransform(y, [-80, 0], [1, 0]);
   const scale = useTransform(x, [-300, 0, 300], [0.95, 1, 0.95]);
-
-  const hasTrendingTag = look.tags.some((t) => trendingTags.includes(t.label));
 
   const handleDragEnd = (_: unknown, info: PanInfo) => {
     const threshold = 100;
@@ -111,10 +114,8 @@ export function SwipeCard({
       onClick={handleClick}
     >
       <div className="relative w-full h-full rounded-2xl overflow-hidden card-shadow bg-charcoal">
-        {/* Shimmer loading placeholder */}
-        {!imgLoaded && (
-          <div className="absolute inset-0 shimmer-loading" />
-        )}
+        {/* Shimmer skeleton */}
+        {!imgLoaded && <div className="absolute inset-0 shimmer-loading" />}
 
         {/* Image */}
         <img
@@ -128,20 +129,31 @@ export function SwipeCard({
         {/* Top gradient + magazine masthead */}
         <div className="absolute inset-x-0 top-0 gradient-top p-6 pt-8">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-white/60 text-[10px] font-inter tracking-[0.3em] uppercase">
-                {look.season}
-              </span>
-              {hasTrendingTag && (
-                <span className="flex items-center gap-1 bg-gold/90 text-white text-[9px] font-inter font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full">
-                  <TrendingUp size={9} />
-                  HOT
-                </span>
-              )}
-            </div>
             <span className="text-white/60 text-[10px] font-inter tracking-[0.3em] uppercase">
-              {look.occasion}
+              {look.season}
             </span>
+            {look.badge && (() => {
+              const badge = badgeConfig[look.badge];
+              const BadgeIcon = badge.icon;
+              return (
+                <motion.div
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.3, type: "spring", stiffness: 400 }}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full ${badge.bg} backdrop-blur-sm`}
+                >
+                  <BadgeIcon size={10} className={badge.text} />
+                  <span className={`text-[9px] font-inter font-semibold tracking-wider ${badge.text}`}>
+                    {badge.label}
+                  </span>
+                </motion.div>
+              );
+            })()}
+            {!look.badge && (
+              <span className="text-white/60 text-[10px] font-inter tracking-[0.3em] uppercase">
+                {look.occasion}
+              </span>
+            )}
           </div>
         </div>
 
