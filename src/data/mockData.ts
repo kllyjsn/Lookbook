@@ -566,3 +566,156 @@ export const styleQuizImages = [
   { id: "q4", image: UNSPLASH("photo-1469334031218-e382a71b716b", 600, 800), style: "Glamour" },
   { id: "q5", image: UNSPLASH("photo-1483985988355-763728e1935b", 600, 800), style: "Classic" },
 ];
+
+// ─── Trending Stories / Trend Reports ───────────────────────────────
+export interface TrendStory {
+  id: string;
+  title: string;
+  coverImage: string;
+  accentColor: string;
+  category: "trend" | "drop" | "editorial" | "challenge";
+  lookIds: string[];
+  subtitle: string;
+}
+
+export const trendStories: TrendStory[] = [
+  {
+    id: "story-1",
+    title: "Quiet Luxury",
+    coverImage: UNSPLASH("photo-1558618666-fcd25c85f82e", 200, 200),
+    accentColor: "#C5A572",
+    category: "trend",
+    lookIds: ["look-9", "look-8", "look-10"],
+    subtitle: "The Row, Totême, Khaite",
+  },
+  {
+    id: "story-2",
+    title: "Office Siren",
+    coverImage: UNSPLASH("photo-1550614000-4895a10e1bfd", 200, 200),
+    accentColor: "#C4797A",
+    category: "trend",
+    lookIds: ["look-15", "look-1", "look-8"],
+    subtitle: "Power dressing is back",
+  },
+  {
+    id: "story-3",
+    title: "Daily Drop",
+    coverImage: UNSPLASH("photo-1529139574466-a303027c1d8b", 200, 200),
+    accentColor: "#1A1A1A",
+    category: "drop",
+    lookIds: ["look-7", "look-2", "look-11"],
+    subtitle: "Today's curated picks",
+  },
+  {
+    id: "story-4",
+    title: "Scandi Files",
+    coverImage: UNSPLASH("photo-1519764622345-23439dd774f7", 200, 200),
+    accentColor: "#8A8A8A",
+    category: "editorial",
+    lookIds: ["look-10", "look-6", "look-1"],
+    subtitle: "Copenhagen essentials",
+  },
+  {
+    id: "story-5",
+    title: "Date Night",
+    coverImage: UNSPLASH("photo-1469334031218-e382a71b716b", 200, 200),
+    accentColor: "#B8A9C9",
+    category: "trend",
+    lookIds: ["look-4", "look-2", "look-13"],
+    subtitle: "After-dark allure",
+  },
+  {
+    id: "story-6",
+    title: "Style Dare",
+    coverImage: UNSPLASH("photo-1552374196-1ab2a1c593e8", 200, 200),
+    accentColor: "#A8B5A0",
+    category: "challenge",
+    lookIds: ["look-12", "look-3", "look-16"],
+    subtitle: "Today's outfit challenge",
+  },
+];
+
+// ─── "Get the Look for Less" dupes ──────────────────────────────────
+export interface DupeItem {
+  id: string;
+  originalItemId: string;
+  name: string;
+  brand: string;
+  price: number;
+  image: string;
+  category: string;
+  savings: number;
+}
+
+export const dupeMap: Record<string, DupeItem[]> = {
+  "i1": [
+    { id: "d1", originalItemId: "i1", name: "Structured Blazer", brand: "H&M", price: 69, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", savings: 206 },
+    { id: "d2", originalItemId: "i1", name: "Wool-Blend Blazer", brand: "Zara", price: 99, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", savings: 176 },
+  ],
+  "i3": [
+    { id: "d3", originalItemId: "i3", name: "Wide-Leg Pants", brand: "Uniqlo", price: 49, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", savings: 276 },
+  ],
+  "i5": [
+    { id: "d4", originalItemId: "i5", name: "Midi Wrap Dress", brand: "& Other Stories", price: 89, image: UNSPLASH("photo-1595777457583-95e059d581b8", 400, 500), category: "Dresses", savings: 159 },
+    { id: "d5", originalItemId: "i5", name: "Floral Midi Dress", brand: "Mango", price: 69, image: UNSPLASH("photo-1595777457583-95e059d581b8", 400, 500), category: "Dresses", savings: 179 },
+  ],
+  "i10": [
+    { id: "d6", originalItemId: "i10", name: "Faux Leather Jacket", brand: "Zara", price: 89, image: UNSPLASH("photo-1551028719-00167b16eac5", 400, 500), category: "Outerwear", savings: 410 },
+  ],
+  "i22": [
+    { id: "d7", originalItemId: "i22", name: "Wool-Blend Coat", brand: "& Other Stories", price: 249, image: UNSPLASH("photo-1539533018447-63fcce2678e3", 400, 500), category: "Outerwear", savings: 646 },
+    { id: "d8", originalItemId: "i22", name: "Tailored Overcoat", brand: "Mango", price: 179, image: UNSPLASH("photo-1539533018447-63fcce2678e3", 400, 500), category: "Outerwear", savings: 716 },
+  ],
+  "i29": [
+    { id: "d9", originalItemId: "i29", name: "Double-Breasted Blazer", brand: "Massimo Dutti", price: 179, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", savings: 511 },
+  ],
+  "i33": [
+    { id: "d10", originalItemId: "i33", name: "Cashmere Crew", brand: "Everlane", price: 148, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", savings: 742 },
+    { id: "d11", originalItemId: "i33", name: "Merino Sweater", brand: "Uniqlo", price: 49, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", savings: 841 },
+  ],
+};
+
+// ─── Daily Style Challenges ─────────────────────────────────────────
+export interface StyleChallenge {
+  id: string;
+  title: string;
+  description: string;
+  hashtag: string;
+  coverImage: string;
+  participants: number;
+  expiresIn: string;
+  relatedLookIds: string[];
+}
+
+export const dailyChallenges: StyleChallenge[] = [
+  {
+    id: "challenge-1",
+    title: "One Color, Head to Toe",
+    description: "Style a monochromatic outfit — bonus points for unexpected textures",
+    hashtag: "#LKBKMonochrome",
+    coverImage: UNSPLASH("photo-1485968579580-b6d095142e6e", 800, 400),
+    participants: 2847,
+    expiresIn: "6h",
+    relatedLookIds: ["look-6"],
+  },
+  {
+    id: "challenge-2",
+    title: "Under $100 Fit Check",
+    description: "Prove that great style doesn't need a big budget",
+    hashtag: "#LKBKBudgetSlay",
+    coverImage: UNSPLASH("photo-1515886657613-9f3515b0c78f", 800, 400),
+    participants: 5132,
+    expiresIn: "12h",
+    relatedLookIds: ["look-3"],
+  },
+  {
+    id: "challenge-3",
+    title: "Desk to Dinner",
+    description: "Show us your best transition outfit — one look, two occasions",
+    hashtag: "#LKBKDeskToDinner",
+    coverImage: UNSPLASH("photo-1550614000-4895a10e1bfd", 800, 400),
+    participants: 1923,
+    expiresIn: "18h",
+    relatedLookIds: ["look-15", "look-1"],
+  },
+];

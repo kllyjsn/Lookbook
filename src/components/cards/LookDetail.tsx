@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
 import type { Look } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
+import { DupeSection } from "./DupeSection";
+import { RelatedLooks } from "./RelatedLooks";
 import { Tag } from "../ui/Tag";
 import { useStore } from "../../stores/useStore";
 
@@ -21,8 +23,13 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
+  const setShowLookDetail = useStore((s) => s.setShowLookDetail);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  const handleRelatedLookTap = (relatedLook: Look) => {
+    setShowLookDetail(relatedLook);
+  };
 
   return (
     <AnimatePresence>
@@ -187,6 +194,15 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 ))}
               </div>
             </div>
+
+            {/* Get the Look for Less */}
+            <DupeSection look={look} />
+
+            {/* You Might Also Love */}
+            <RelatedLooks
+              currentLook={look}
+              onLookTap={handleRelatedLookTap}
+            />
 
             {/* Photographer credit */}
             {look.photographer && (

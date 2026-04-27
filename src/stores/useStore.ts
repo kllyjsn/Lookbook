@@ -59,6 +59,15 @@ interface AppState {
   followCreator: (id: string) => void;
   unfollowCreator: (id: string) => void;
 
+  // Style Streak
+  styleStreak: number;
+  lastSwipeDate: string | null;
+  recordSwipeDay: () => void;
+
+  // Viewed stories
+  viewedStories: string[];
+  markStoryViewed: (storyId: string) => void;
+
   // UI state
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -261,6 +270,28 @@ export const useStore = create<AppState>()(
           followedCreators: state.followedCreators.filter((cid) => cid !== id),
         })),
 
+      styleStreak: 0,
+      lastSwipeDate: null,
+      recordSwipeDay: () =>
+        set((state) => {
+          const today = new Date().toDateString();
+          if (state.lastSwipeDate === today) return state;
+          const yesterday = new Date(Date.now() - 86400000).toDateString();
+          const isConsecutive = state.lastSwipeDate === yesterday;
+          return {
+            styleStreak: isConsecutive ? state.styleStreak + 1 : 1,
+            lastSwipeDate: today,
+          };
+        }),
+
+      viewedStories: [],
+      markStoryViewed: (storyId) =>
+        set((state) => ({
+          viewedStories: state.viewedStories.includes(storyId)
+            ? state.viewedStories
+            : [...state.viewedStories, storyId],
+        })),
+
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
       showLookDetail: null,
@@ -279,6 +310,9 @@ export const useStore = create<AppState>()(
         capsuleBudget: state.capsuleBudget,
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
+        styleStreak: state.styleStreak,
+        lastSwipeDate: state.lastSwipeDate,
+        viewedStories: state.viewedStories,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
       }),
     }

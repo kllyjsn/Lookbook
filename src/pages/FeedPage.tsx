@@ -3,10 +3,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
 import { SearchPage } from "./SearchPage";
+import { TrendStories } from "../components/feed/TrendStories";
+import { StyleStreak } from "../components/feed/StyleStreak";
+import { DailyDrop } from "../components/feed/DailyDrop";
 import { Logo } from "../components/ui/Logo";
 import { RefreshCw, Sparkles, Camera } from "lucide-react";
 import { feedLooks, moodFilters } from "../data/mockData";
-import type { MoodFilter } from "../data/mockData";
+import type { MoodFilter, Look } from "../data/mockData";
 import { useStore } from "../stores/useStore";
 
 export function FeedPage() {
@@ -23,15 +26,38 @@ export function FeedPage() {
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
   const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
+  const styleDNA = useStore((s) => s.styleDNA);
+  const recordSwipeDay = useStore((s) => s.recordSwipeDay);
   const [showSearch, setShowSearch] = useState(false);
 
-  const filteredLooks = useMemo(
-    () =>
+  const filteredLooks = useMemo(() => {
+    const base =
       activeMoodFilter === "all"
         ? feedLooks
-        : feedLooks.filter((l) => l.mood === activeMoodFilter),
-    [activeMoodFilter]
-  );
+        : feedLooks.filter((l) => l.mood === activeMoodFilter);
+
+    if (activeMoodFilter !== "all" || styleDNA.length === 0) return base;
+
+    const styleRank = new Map(styleDNA.map((d, i) => [d.style, styleDNA.length - i]));
+    const tagToStyle: Record<string, string> = {
+      Minimalist: "Minimalist", Office: "Classic", Romantic: "Romantic",
+      Evening: "Romantic", Streetwear: "Streetwear", Casual: "Streetwear",
+      Glamour: "Avant-Garde", Adventure: "Classic", Utility: "Classic",
+      Chic: "Minimalist", Feminine: "Romantic", Social: "Romantic",
+      Tailored: "Classic", Power: "Classic", Clean: "Minimalist",
+      Scandi: "Minimalist", "Quiet Luxury": "Classic", Investment: "Classic",
+      Tokyo: "Avant-Garde", Creative: "Avant-Garde", Statement: "Avant-Garde",
+      Corporate: "Classic", Siren: "Avant-Garde", Coastal: "Classic",
+      Festival: "Avant-Garde", Boho: "Romantic", Vintage: "Romantic",
+      Sustainable: "Minimalist",
+    };
+
+    return [...base].sort((a, b) => {
+      const scoreA = a.tags.reduce((s, t) => s + (styleRank.get(tagToStyle[t.label] ?? "") ?? 0), 0);
+      const scoreB = b.tags.reduce((s, t) => s + (styleRank.get(tagToStyle[t.label] ?? "") ?? 0), 0);
+      return scoreB - scoreA;
+    });
+  }, [activeMoodFilter, styleDNA]);
 
   const hasSeenAll = currentFeedIndex >= filteredLooks.length;
 
@@ -46,11 +72,13 @@ export function FeedPage() {
 
   const handleSwipeRight = useCallback(() => {
     likeLook(currentLook);
-  }, [currentLook, likeLook]);
+    recordSwipeDay();
+  }, [currentLook, likeLook, recordSwipeDay]);
 
   const handleSwipeLeft = useCallback(() => {
     passLook(currentLook);
-  }, [currentLook, passLook]);
+    recordSwipeDay();
+  }, [currentLook, passLook, recordSwipeDay]);
 
   const handleSwipeUp = useCallback(() => {
     setShowLookDetail(currentLook);
@@ -62,15 +90,18 @@ export function FeedPage() {
 
   const handleDoubleTap = useCallback(() => {
     likeLook(currentLook);
-  }, [currentLook, likeLook]);
+    recordSwipeDay();
+  }, [currentLook, likeLook, recordSwipeDay]);
 
   const handleButtonLike = useCallback(() => {
     likeLook(currentLook);
-  }, [currentLook, likeLook]);
+    recordSwipeDay();
+  }, [currentLook, likeLook, recordSwipeDay]);
 
   const handleButtonPass = useCallback(() => {
     passLook(currentLook);
-  }, [currentLook, passLook]);
+    recordSwipeDay();
+  }, [currentLook, passLook, recordSwipeDay]);
 
   const handleButtonShop = useCallback(() => {
     setShowLookDetail(currentLook);
@@ -86,6 +117,13 @@ export function FeedPage() {
       setActiveMoodFilter(mood);
     },
     [setActiveMoodFilter]
+  );
+
+  const handleStoryLookTap = useCallback(
+    (look: Look) => {
+      setShowLookDetail(look);
+    },
+    [setShowLookDetail]
   );
 
   return (
@@ -116,6 +154,15 @@ export function FeedPage() {
           )}
         </div>
       </div>
+
+      {/* Trend Stories carousel */}
+      <TrendStories onLookTap={handleStoryLookTap} />
+
+      {/* Style Streak banner */}
+      <StyleStreak />
+
+      {/* Daily Drop banner */}
+      <DailyDrop />
 
       {/* Mood filter pills */}
       <div className="px-4 pb-2">
