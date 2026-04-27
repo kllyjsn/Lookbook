@@ -1,7 +1,24 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion";
-import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2 } from "lucide-react";
-import type { Look } from "../../data/mockData";
+import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2, Users, Sparkles } from "lucide-react";
+import type { Look, StyleDNAEntry } from "../../data/mockData";
+import { tagToStyle } from "../../stores/useStore";
+
+function computeStyleMatch(look: Look, styleDNA: StyleDNAEntry[]): number {
+  if (styleDNA.length === 0) return 0;
+  const dnaMap = new Map(styleDNA.map((d) => [d.style, d.percentage]));
+  let matchScore = 0;
+  let tagCount = 0;
+  for (const tag of look.tags) {
+    const style = tagToStyle[tag.label];
+    if (style) {
+      matchScore += dnaMap.get(style) ?? 0;
+      tagCount++;
+    }
+  }
+  if (tagCount === 0) return 50;
+  return Math.min(99, Math.round(matchScore / tagCount * 2.5));
+}
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -23,6 +40,7 @@ interface SwipeCardProps {
   onTap: () => void;
   onDoubleTap: () => void;
   isTop: boolean;
+  styleDNA?: StyleDNAEntry[];
 }
 
 export function SwipeCard({
@@ -33,7 +51,9 @@ export function SwipeCard({
   onTap,
   onDoubleTap,
   isTop,
+  styleDNA = [],
 }: SwipeCardProps) {
+  const styleMatch = computeStyleMatch(look, styleDNA);
   const [exitDirection, setExitDirection] = useState<"left" | "right" | "up" | null>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [showHeartBurst, setShowHeartBurst] = useState(false);
@@ -206,6 +226,23 @@ export function SwipeCard({
           </div>
         </div>
 
+        {/* Style match badge */}
+        {isTop && styleMatch > 0 && (
+          <motion.div
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.4, type: "spring", stiffness: 300 }}
+            className="absolute top-4 left-4 z-20"
+          >
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-sm shadow-sm">
+              <Sparkles size={10} className="text-gold" />
+              <span className="text-[10px] font-inter font-bold text-ink tracking-wide">
+                {styleMatch}% match
+              </span>
+            </div>
+          </motion.div>
+        )}
+
         {/* Bottom gradient + content */}
         <div className="absolute inset-x-0 bottom-0 gradient-bottom p-6 pb-8">
           <div className="space-y-3">
@@ -234,10 +271,15 @@ export function SwipeCard({
               <span className="text-xs font-inter text-white/50">
                 {look.priceRange}
               </span>
-              <span className="text-white/30">·</span>
-              <span className="text-xs font-inter text-white/50">
-                {look.items.length} pieces
-              </span>
+              {look.recentLovers && look.recentLovers > 0 && (
+                <>
+                  <span className="text-white/30">·</span>
+                  <span className="flex items-center gap-1 text-xs font-inter text-white/50">
+                    <Users size={10} />
+                    {look.recentLovers} today
+                  </span>
+                </>
+              )}
             </div>
           </div>
         </div>

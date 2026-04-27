@@ -23,6 +23,7 @@ export function FeedPage() {
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
   const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
+  const styleDNA = useStore((s) => s.styleDNA);
   const [showSearch, setShowSearch] = useState(false);
 
   const filteredLooks = useMemo(
@@ -125,12 +126,18 @@ export function FeedPage() {
               key={filter.id}
               whileTap={{ scale: 0.95 }}
               onClick={() => handleMoodFilter(filter.id)}
-              className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-inter font-medium transition-all ${
+              className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-inter font-medium transition-all flex items-center gap-1.5 ${
                 activeMoodFilter === filter.id
                   ? "bg-ink text-cream"
                   : "bg-ivory text-ink-muted border border-ink/5 hover:border-ink/15"
               }`}
             >
+              {filter.id !== "all" && (
+                <span
+                  className="w-2 h-2 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: activeMoodFilter === filter.id ? "#FAF9F6" : filter.color }}
+                />
+              )}
               {filter.label}
             </motion.button>
           ))}
@@ -192,6 +199,7 @@ export function FeedPage() {
                 onTap={() => {}}
                 onDoubleTap={() => {}}
                 isTop={false}
+                styleDNA={styleDNA}
               />
               {/* Top card (current) */}
               <SwipeCard
@@ -203,6 +211,7 @@ export function FeedPage() {
                 onTap={handleTap}
                 onDoubleTap={handleDoubleTap}
                 isTop={true}
+                styleDNA={styleDNA}
               />
             </AnimatePresence>
           </div>
