@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2 } from "lucide-react";
+import { Settings, Heart, Bookmark, Clock, ChevronRight, Plus, Trash2, Flame, Zap, Shuffle, X } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
 import { LookDetail } from "../components/cards/LookDetail";
-import type { Look } from "../data/mockData";
+import type { Look, LookItem } from "../data/mockData";
+import { getStyleLevel } from "../data/feedAlgorithm";
 
-type ProfileSection = "dna" | "liked" | "collections";
+type ProfileSection = "dna" | "liked" | "collections" | "remix";
 
 export function ProfilePage() {
   const styleDNA = useStore((s) => s.styleDNA);
@@ -15,12 +16,53 @@ export function ProfilePage() {
   const collections = useStore((s) => s.collections);
   const createCollection = useStore((s) => s.createCollection);
   const removeFromCollection = useStore((s) => s.removeFromCollection);
+  const streak = useStore((s) => s.streak);
+  const totalSwipes = useStore((s) => s.totalSwipes);
+  const remixOutfits = useStore((s) => s.remixOutfits);
+  const createRemixOutfit = useStore((s) => s.createRemixOutfit);
+  const deleteRemixOutfit = useStore((s) => s.deleteRemixOutfit);
   const [activeSection, setActiveSection] = useState<ProfileSection>("dna");
   const [selectedLook, setSelectedLook] = useState<Look | null>(null);
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
-  const [isGridView, setIsGridView] = useState(true);
   const [showNewCollection, setShowNewCollection] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState("");
+
+  const [remixItems, setRemixItems] = useState<LookItem[]>([]);
+  const [remixName, setRemixName] = useState("");
+  const [showRemixBuilder, setShowRemixBuilder] = useState(false);
+
+  const styleLevel = getStyleLevel(totalSwipes);
+
+  const availableRemixItems = useMemo(() => {
+    const seen = new Set<string>();
+    const items: (LookItem & { lookTitle: string })[] = [];
+    for (const look of likedLooks) {
+      for (const item of look.items) {
+        if (!seen.has(item.id)) {
+          seen.add(item.id);
+          items.push({ ...item, lookTitle: look.title });
+        }
+      }
+    }
+    return items;
+  }, [likedLooks]);
+
+  const toggleRemixItem = (item: LookItem) => {
+    setRemixItems((prev) =>
+      prev.some((i) => i.id === item.id)
+        ? prev.filter((i) => i.id !== item.id)
+        : [...prev, item]
+    );
+  };
+
+  const handleSaveRemix = () => {
+    if (remixItems.length > 0 && remixName.trim()) {
+      createRemixOutfit(remixName.trim(), remixItems);
+      setRemixItems([]);
+      setRemixName("");
+      setShowRemixBuilder(false);
+    }
+  };
 
   const handleCreateCollection = () => {
     if (newCollectionName.trim()) {
@@ -47,15 +89,42 @@ export function ProfilePage() {
         </div>
 
         {/* Profile avatar & name */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-4 mb-4">
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold to-blush flex items-center justify-center">
             <span className="font-editorial text-xl text-white">Y</span>
           </div>
-          <div>
+          <div className="flex-1">
             <h2 className="font-editorial text-xl text-ink">Your Profile</h2>
             <p className="text-xs font-inter text-ink-muted">
               {likedLooks.length} looks loved · {collections.reduce((sum, c) => sum + c.looks.length, 0)} saved
             </p>
+          </div>
+        </div>
+
+        {/* Streak + Style Level bar */}
+        <div className="flex gap-3 mb-5">
+          <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-r from-gold/8 to-gold/3 border border-gold/10">
+            <Flame size={14} className="text-gold flex-shrink-0" />
+            <div className="min-w-0">
+              <p className="text-[10px] font-inter font-bold tracking-[0.1em] uppercase text-gold">
+                {streak > 0 ? `${streak}-day streak` : "Start your streak"}
+              </p>
+            </div>
+          </div>
+          <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-r from-lavender/10 to-lavender/3 border border-lavender/15">
+            <Zap size={14} className="text-lavender flex-shrink-0" />
+            <div className="min-w-0">
+              <p className="text-[10px] font-inter font-bold tracking-[0.1em] uppercase text-lavender">
+                {styleLevel.title}
+              </p>
+              <div className="w-full h-1 bg-lavender/10 rounded-full mt-0.5 overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min((totalSwipes / styleLevel.next) * 100, 100)}%` }}
+                  className="h-full bg-lavender rounded-full"
+                />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -65,6 +134,7 @@ export function ProfilePage() {
             { id: "dna" as const, label: "Style DNA" },
             { id: "liked" as const, label: "Loved" },
             { id: "collections" as const, label: "Collections" },
+            { id: "remix" as const, label: "Remix" },
           ]).map((tab) => (
             <motion.button
               key={tab.id}
@@ -233,44 +303,31 @@ export function ProfilePage() {
               <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setShowNewCollection(!showNewCollection)}
-                className="w-full flex items-center gap-3 p-4 rounded-xl border border-dashed border-ink/10 mb-4 hover:border-ink/20 transition-colors"
+                className="w-full flex items-center justify-center gap-2 py-4 rounded-xl border-2 border-dashed border-ink/10 text-ink-muted text-sm font-inter mb-4 hover:border-ink/20 transition-colors"
               >
-                <Plus size={18} className="text-ink-muted" />
-                <span className="text-sm font-inter text-ink-muted">
-                  New Collection
-                </span>
+                <Plus size={16} />
+                New Collection
               </motion.button>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {collections.map((collection, i) => (
                   <motion.div
                     key={collection.id}
-                    initial={{ opacity: 0, x: -15 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.05 }}
                     onClick={() => setSelectedCollection(collection.id)}
-                    className="flex items-center gap-4 p-4 rounded-xl bg-ivory cursor-pointer hover:bg-blush/20 transition-colors"
+                    className="flex items-center gap-4 p-4 rounded-xl bg-ivory cursor-pointer hover:bg-ivory/80 transition-colors"
                   >
-                    {/* Preview thumbnails */}
-                    <div className="w-14 h-14 rounded-lg overflow-hidden bg-ink/5 flex-shrink-0">
-                      {collection.looks[0] ? (
-                        <img
-                          src={collection.looks[0].image}
-                          alt=""
-                          className="img-editorial"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Bookmark size={18} className="text-ink/20" />
-                        </div>
-                      )}
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-gold/10 to-blush/10 flex items-center justify-center">
+                      <Bookmark size={18} className="text-gold" />
                     </div>
-                    <div className="flex-1">
-                      <p className="font-inter text-sm font-medium text-ink">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-inter font-medium text-ink">
                         {collection.name}
                       </p>
                       <p className="text-xs font-inter text-ink-muted">
-                        {collection.looks.length} looks
+                        {collection.looks.length} {collection.looks.length === 1 ? "look" : "looks"}
                       </p>
                     </div>
                     <ChevronRight size={16} className="text-ink-muted" />
@@ -282,123 +339,232 @@ export function ProfilePage() {
 
           {activeSection === "collections" && selectedCollection && currentCollection && (
             <motion.div
-              key="collection-detail"
+              key={`collection-${selectedCollection}`}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3 mb-4">
                 <motion.button
                   whileTap={{ scale: 0.9 }}
                   onClick={() => setSelectedCollection(null)}
-                  className="flex items-center gap-2 text-sm font-inter text-ink-muted"
+                  className="text-sm font-inter text-ink-muted"
                 >
                   ← Back
                 </motion.button>
-                <div className="flex gap-2">
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => setIsGridView(!isGridView)}
-                    className="w-8 h-8 rounded-full flex items-center justify-center border border-ink/10"
-                  >
-                    {isGridView ? (
-                      <List size={14} />
-                    ) : (
-                      <Grid3X3 size={14} />
-                    )}
-                  </motion.button>
-                </div>
+                <h3 className="font-editorial text-lg text-ink">
+                  {currentCollection.name}
+                </h3>
               </div>
-
-              <h3 className="font-editorial text-xl text-ink mb-1">
-                {currentCollection.name}
-              </h3>
-              <p className="text-xs font-inter text-ink-muted mb-4">
-                {currentCollection.looks.length} looks saved
-              </p>
-
               {currentCollection.looks.length === 0 ? (
                 <div className="flex flex-col items-center py-16">
                   <Bookmark size={32} className="text-ink/10 mb-3" />
                   <p className="font-subhead text-base text-ink-muted italic">
-                    This collection is empty
-                  </p>
-                  <p className="text-xs font-inter text-ink-muted mt-1">
-                    Save looks from your feed to fill it up
+                    No looks saved yet
                   </p>
                 </div>
               ) : (
-                <div
-                  className={
-                    isGridView
-                      ? "grid grid-cols-2 gap-3"
-                      : "space-y-3"
-                  }
-                >
+                <div className="grid grid-cols-2 gap-3">
                   {currentCollection.looks.map((look, i) => (
                     <motion.div
-                      key={look.id}
+                      key={look.id + "-" + i}
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: i * 0.05 }}
-                      className="group relative cursor-pointer"
+                      className="group cursor-pointer relative"
                     >
-                      {isGridView ? (
-                        <div
-                          onClick={() => setSelectedLook(look)}
-                          className="relative aspect-[3/4] rounded-xl overflow-hidden"
-                        >
-                          <img
-                            src={look.image}
-                            alt={look.title}
-                            className="img-editorial group-hover:scale-105 transition-transform duration-500"
-                          />
-                          <div className="absolute inset-x-0 bottom-0 gradient-bottom p-3">
-                            <p className="text-white text-xs font-inter font-medium">
-                              {look.title}
-                            </p>
-                          </div>
-                          <motion.button
-                            whileTap={{ scale: 0.9 }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeFromCollection(
-                                currentCollection.id,
-                                look.id
-                              );
-                            }}
-                            className="absolute top-2 right-2 w-7 h-7 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <Trash2 size={12} className="text-ink" />
-                          </motion.button>
+                      <div
+                        onClick={() => setSelectedLook(look)}
+                        className="relative aspect-[3/4] rounded-xl overflow-hidden"
+                      >
+                        <img
+                          src={look.image}
+                          alt={look.title}
+                          className="img-editorial group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-x-0 bottom-0 gradient-bottom p-3">
+                          <p className="text-white text-xs font-inter font-medium">
+                            {look.title}
+                          </p>
                         </div>
-                      ) : (
-                        <div
-                          onClick={() => setSelectedLook(look)}
-                          className="flex gap-4 p-3 rounded-xl bg-ivory hover:bg-blush/20 transition-colors"
-                        >
-                          <div className="w-20 h-28 rounded-lg overflow-hidden flex-shrink-0">
-                            <img
-                              src={look.image}
-                              alt={look.title}
-                              className="img-editorial"
-                            />
-                          </div>
-                          <div className="flex-1 flex flex-col justify-center">
-                            <p className="font-inter text-sm font-medium text-ink">
-                              {look.title}
-                            </p>
-                            <p className="font-subhead text-xs text-ink-muted italic mt-0.5">
-                              {look.subtitle}
-                            </p>
-                            <p className="text-[10px] font-inter text-ink-muted mt-2">
-                              {look.items.length} pieces · {look.priceRange}
-                            </p>
-                          </div>
-                        </div>
-                      )}
+                      </div>
+                      <motion.button
+                        whileTap={{ scale: 0.85 }}
+                        onClick={() =>
+                          removeFromCollection(selectedCollection, look.id)
+                        }
+                        className="absolute top-2 right-2 w-7 h-7 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <Trash2 size={12} className="text-ink-muted" />
+                      </motion.button>
                     </motion.div>
                   ))}
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {activeSection === "remix" && (
+            <motion.div
+              key="remix"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              {/* Remix intro + builder toggle */}
+              {!showRemixBuilder ? (
+                <>
+                  <motion.button
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setShowRemixBuilder(true)}
+                    className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-r from-lavender/10 to-blush/10 border border-lavender/15 text-ink text-sm font-inter font-medium mb-6"
+                  >
+                    <Shuffle size={16} className="text-lavender" />
+                    Create New Remix
+                  </motion.button>
+
+                  {remixOutfits.length === 0 ? (
+                    <div className="flex flex-col items-center py-12">
+                      <Shuffle size={32} className="text-ink/10 mb-3" />
+                      <p className="font-subhead text-base text-ink-muted italic">
+                        No remixes yet
+                      </p>
+                      <p className="text-xs font-inter text-ink-muted mt-1 text-center">
+                        Mix & match items from your loved looks<br />to create custom outfits
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {remixOutfits.map((outfit) => (
+                        <motion.div
+                          key={outfit.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="p-4 rounded-xl bg-ivory"
+                        >
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="text-sm font-inter font-medium text-ink">
+                              {outfit.name}
+                            </h4>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-inter text-ink-muted">
+                                {outfit.items.length} pieces · ${outfit.items.reduce((s, i) => s + i.price, 0).toLocaleString()}
+                              </span>
+                              <motion.button
+                                whileTap={{ scale: 0.85 }}
+                                onClick={() => deleteRemixOutfit(outfit.id)}
+                              >
+                                <Trash2 size={12} className="text-ink-muted" />
+                              </motion.button>
+                            </div>
+                          </div>
+                          <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+                            {outfit.items.map((item) => (
+                              <div key={item.id} className="flex-shrink-0 w-16">
+                                <div className="aspect-square rounded-lg overflow-hidden bg-ivory mb-1">
+                                  <img src={item.image} alt={item.name} className="img-editorial" />
+                                </div>
+                                <p className="text-[9px] font-inter text-ink-muted truncate">{item.brand}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                /* Remix builder */
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-editorial text-lg text-ink">Build Your Remix</h3>
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => { setShowRemixBuilder(false); setRemixItems([]); setRemixName(""); }}
+                    >
+                      <X size={18} className="text-ink-muted" />
+                    </motion.button>
+                  </div>
+
+                  <input
+                    type="text"
+                    value={remixName}
+                    onChange={(e) => setRemixName(e.target.value)}
+                    placeholder="Name your outfit (e.g., Sunday Brunch)"
+                    className="w-full bg-ivory rounded-xl px-4 py-3 text-sm font-inter text-ink outline-none border border-ink/5 focus:border-ink/20 mb-4"
+                  />
+
+                  {/* Selected items preview */}
+                  {remixItems.length > 0 && (
+                    <div className="mb-4 p-3 rounded-xl bg-gradient-to-r from-lavender/5 to-blush/5 border border-lavender/10">
+                      <p className="text-[10px] font-inter font-bold tracking-[0.1em] uppercase text-lavender mb-2">
+                        Your Remix ({remixItems.length} pieces · ${remixItems.reduce((s, i) => s + i.price, 0).toLocaleString()})
+                      </p>
+                      <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+                        {remixItems.map((item) => (
+                          <motion.div
+                            key={item.id}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => toggleRemixItem(item)}
+                            className="flex-shrink-0 w-14 relative"
+                          >
+                            <div className="aspect-square rounded-lg overflow-hidden ring-2 ring-lavender/30">
+                              <img src={item.image} alt={item.name} className="img-editorial" />
+                            </div>
+                            <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose flex items-center justify-center">
+                              <X size={8} className="text-white" />
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {availableRemixItems.length === 0 ? (
+                    <div className="flex flex-col items-center py-8">
+                      <Heart size={24} className="text-ink/10 mb-2" />
+                      <p className="text-xs font-inter text-ink-muted text-center">
+                        Love some looks first to unlock items for remixing
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-2 mb-4">
+                      {availableRemixItems.map((item) => {
+                        const isSelected = remixItems.some((i) => i.id === item.id);
+                        return (
+                          <motion.div
+                            key={item.id}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => toggleRemixItem(item)}
+                            className={`cursor-pointer rounded-xl overflow-hidden border-2 transition-colors ${
+                              isSelected ? "border-lavender" : "border-transparent"
+                            }`}
+                          >
+                            <div className="aspect-square bg-ivory">
+                              <img src={item.image} alt={item.name} className="img-editorial" />
+                            </div>
+                            <div className="p-2 bg-white">
+                              <p className="text-[9px] font-inter text-ink-muted truncate">{item.brand}</p>
+                              <p className="text-[10px] font-inter text-ink truncate">{item.name}</p>
+                              <p className="text-[10px] font-inter font-medium text-ink">${item.price}</p>
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {remixItems.length > 0 && remixName.trim() && (
+                    <motion.button
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleSaveRemix}
+                      className="w-full py-3.5 rounded-full bg-ink text-cream font-inter text-sm font-medium"
+                    >
+                      Save Remix
+                    </motion.button>
+                  )}
                 </div>
               )}
             </motion.div>
@@ -410,8 +576,10 @@ export function ProfilePage() {
       <AnimatePresence>
         {selectedLook && (
           <LookDetail
+            key={selectedLook.id}
             look={selectedLook}
             onClose={() => setSelectedLook(null)}
+            onNavigate={(rec) => setSelectedLook(rec)}
           />
         )}
       </AnimatePresence>

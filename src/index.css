@@ -205,6 +205,14 @@ img {
   display: none;
 }
 
+/* Line clamp utility */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
 /* Trending badge pulse */
 .trending-badge {
   animation: trendingPulse 2s ease-in-out infinite;

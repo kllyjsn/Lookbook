@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
+import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp, Sparkles } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { feedLooks } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
 import { useStore } from "../../stores/useStore";
+import { similarLooks, avgCostPerWear } from "../../data/feedAlgorithm";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -15,14 +17,22 @@ function formatCount(n: number): string {
 interface LookDetailProps {
   look: Look;
   onClose: () => void;
+  onNavigate?: (look: Look) => void;
 }
 
-export function LookDetail({ look, onClose }: LookDetailProps) {
+export function LookDetail({ look, onClose, onNavigate }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  const recommendations = useMemo(
+    () => similarLooks(look, feedLooks, 4),
+    [look]
+  );
+
+  const avgCPW = avgCostPerWear(look.items);
 
   return (
     <AnimatePresence>
@@ -111,6 +121,10 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               <span className="text-sm font-inter text-ink-muted">
                 {look.priceRange}
               </span>
+              <span className="text-ink-muted/40">·</span>
+              <span className="text-sm font-inter text-sage font-medium">
+                ~{avgCPW}
+              </span>
             </div>
 
             {/* Description */}
@@ -183,10 +197,55 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 {look.items.map((item, i) => (
-                  <ProductCard key={item.id} item={item} index={i} />
+                  <ProductCard key={item.id} item={item} index={i} showCPW />
                 ))}
               </div>
             </div>
+
+            {/* You May Also Love — similar looks */}
+            {recommendations.length > 0 && (
+              <div className="mb-10">
+                <div className="flex items-center gap-3 mb-5">
+                  <Sparkles size={18} className="text-gold" />
+                  <h3 className="font-editorial text-xl text-ink">You May Also Love</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {recommendations.map((rec, i) => (
+                    <motion.div
+                      key={rec.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.08 }}
+                      onClick={() => onNavigate?.(rec)}
+                      className="group cursor-pointer"
+                    >
+                      <div className="relative aspect-[3/4] rounded-xl overflow-hidden mb-2">
+                        <img
+                          src={rec.image}
+                          alt={rec.title}
+                          className="img-editorial group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-x-0 bottom-0 gradient-bottom p-3">
+                          <p className="text-white text-xs font-inter font-medium leading-tight">
+                            {rec.title}
+                          </p>
+                          <p className="text-white/50 text-[10px] font-inter">
+                            {rec.priceRange}
+                          </p>
+                        </div>
+                        {rec.trending && (
+                          <div className="absolute top-2 right-2">
+                            <span className="flex items-center gap-0.5 text-[8px] font-inter font-bold text-white bg-rose/80 rounded-full px-1.5 py-0.5">
+                              <TrendingUp size={8} /> Trending
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Photographer credit */}
             {look.photographer && (
