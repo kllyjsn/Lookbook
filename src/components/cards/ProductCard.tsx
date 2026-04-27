@@ -2,14 +2,17 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
 import type { LookItem } from "../../data/mockData";
+import { costPerWear } from "../../data/feedAlgorithm";
 
 interface ProductCardProps {
   item: LookItem;
   index: number;
+  showCPW?: boolean;
 }
 
-export function ProductCard({ item, index }: ProductCardProps) {
+export function ProductCard({ item, index, showCPW }: ProductCardProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
+  const cpw = costPerWear(item.price, item.category);
 
   return (
     <motion.div
@@ -48,7 +51,14 @@ export function ProductCard({ item, index }: ProductCardProps) {
           {item.brand}
         </p>
         <p className="text-sm font-inter text-ink leading-snug">{item.name}</p>
-        <p className="text-sm font-inter font-medium text-ink">${item.price}</p>
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-inter font-medium text-ink">${item.price}</p>
+          {showCPW && (
+            <span className="text-[10px] font-inter text-sage font-medium">
+              {cpw}
+            </span>
+          )}
+        </div>
       </div>
     </motion.div>
   );

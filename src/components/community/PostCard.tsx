@@ -1,8 +1,10 @@
-import { useState, useRef, useCallback } from "react";
+import { useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, MessageCircle, Bookmark, ShoppingBag, BadgeCheck, TrendingUp, Flame } from "lucide-react";
 import type { CommunityPost } from "../../data/communityData";
 import { FollowButton } from "./FollowButton";
+import { useStore } from "../../stores/useStore";
+import { useState } from "react";
 
 interface PostCardProps {
   post: CommunityPost;
@@ -18,8 +20,10 @@ function formatCount(n: number): string {
 }
 
 export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps) {
-  const [liked, setLiked] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const liked = useStore((s) => s.likedPostIds.includes(post.id));
+  const saved = useStore((s) => s.savedPostIds.includes(post.id));
+  const togglePostLike = useStore((s) => s.togglePostLike);
+  const togglePostSave = useStore((s) => s.togglePostSave);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [showHeartBurst, setShowHeartBurst] = useState(false);
   const lastTapRef = useRef(0);
@@ -31,13 +35,13 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
     const now = Date.now();
     if (now - lastTapRef.current < 300) {
       if (!liked) {
-        setLiked(true);
+        togglePostLike(post.id);
         setShowHeartBurst(true);
         setTimeout(() => setShowHeartBurst(false), 800);
       }
     }
     lastTapRef.current = now;
-  }, [liked]);
+  }, [liked, post.id, togglePostLike]);
 
   return (
     <motion.article
@@ -144,7 +148,7 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
       <div className="flex items-center gap-5 px-1 mb-2">
         <motion.button
           whileTap={{ scale: 0.85 }}
-          onClick={() => setLiked(!liked)}
+          onClick={() => togglePostLike(post.id)}
           className="flex items-center gap-1.5"
         >
           <motion.div
@@ -170,7 +174,7 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
 
         <motion.button
           whileTap={{ scale: 0.85 }}
-          onClick={() => setSaved(!saved)}
+          onClick={() => togglePostSave(post.id)}
           className="flex items-center gap-1.5"
         >
           <motion.div

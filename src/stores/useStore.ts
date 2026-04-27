@@ -1,12 +1,19 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Look, StyleDNAEntry, MoodFilter } from "../data/mockData";
+import type { Look, StyleDNAEntry, MoodFilter, LookItem } from "../data/mockData";
 import { defaultStyleDNA } from "../data/mockData";
 
 interface SavedCollection {
   id: string;
   name: string;
   looks: Look[];
+  createdAt: number;
+}
+
+export interface RemixOutfit {
+  id: string;
+  name: string;
+  items: LookItem[];
   createdAt: number;
 }
 
@@ -58,6 +65,21 @@ interface AppState {
   followedCreators: string[];
   followCreator: (id: string) => void;
   unfollowCreator: (id: string) => void;
+  likedPostIds: string[];
+  togglePostLike: (postId: string) => void;
+  savedPostIds: string[];
+  togglePostSave: (postId: string) => void;
+
+  // Engagement streak & gamification
+  streak: number;
+  lastActiveDate: string | null;
+  totalSwipes: number;
+  recordActivity: () => void;
+
+  // Outfit remix
+  remixOutfits: RemixOutfit[];
+  createRemixOutfit: (name: string, items: LookItem[]) => string;
+  deleteRemixOutfit: (id: string) => void;
 
   // UI state
   activeTab: string;
@@ -155,23 +177,41 @@ export const useStore = create<AppState>()(
           const newLiked = state.likedLooks.some((l) => l.id === look.id)
             ? state.likedLooks
             : [...state.likedLooks, look];
+          const today = new Date().toISOString().slice(0, 10);
+          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+          const newStreak = state.lastActiveDate === today
+            ? state.streak
+            : state.lastActiveDate === yesterday ? state.streak + 1 : 1;
           return {
             likedLooks: newLiked,
             currentFeedIndex: state.currentFeedIndex + 1,
             lastSwipedLook: look,
             lastSwipeAction: "like" as const,
             styleDNA: computeDNA(newLiked),
+            totalSwipes: state.totalSwipes + 1,
+            streak: newStreak,
+            lastActiveDate: today,
           };
         }),
       passLook: (look) =>
-        set((state) => ({
-          passedLooks: state.passedLooks.some((l) => l.id === look.id)
-            ? state.passedLooks
-            : [...state.passedLooks, look],
-          currentFeedIndex: state.currentFeedIndex + 1,
-          lastSwipedLook: look,
-          lastSwipeAction: "pass" as const,
-        })),
+        set((state) => {
+          const today = new Date().toISOString().slice(0, 10);
+          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+          const newStreak = state.lastActiveDate === today
+            ? state.streak
+            : state.lastActiveDate === yesterday ? state.streak + 1 : 1;
+          return {
+            passedLooks: state.passedLooks.some((l) => l.id === look.id)
+              ? state.passedLooks
+              : [...state.passedLooks, look],
+            currentFeedIndex: state.currentFeedIndex + 1,
+            lastSwipedLook: look,
+            lastSwipeAction: "pass" as const,
+            totalSwipes: state.totalSwipes + 1,
+            streak: newStreak,
+            lastActiveDate: today,
+          };
+        }),
       saveLook: (look) =>
         set((state) => ({
           likedLooks: state.likedLooks.some((l) => l.id === look.id)
@@ -261,6 +301,52 @@ export const useStore = create<AppState>()(
           followedCreators: state.followedCreators.filter((cid) => cid !== id),
         })),
 
+      likedPostIds: [],
+      togglePostLike: (postId) =>
+        set((state) => ({
+          likedPostIds: state.likedPostIds.includes(postId)
+            ? state.likedPostIds.filter((id) => id !== postId)
+            : [...state.likedPostIds, postId],
+        })),
+      savedPostIds: [],
+      togglePostSave: (postId) =>
+        set((state) => ({
+          savedPostIds: state.savedPostIds.includes(postId)
+            ? state.savedPostIds.filter((id) => id !== postId)
+            : [...state.savedPostIds, postId],
+        })),
+
+      streak: 0,
+      lastActiveDate: null,
+      totalSwipes: 0,
+      recordActivity: () =>
+        set((state) => {
+          const today = new Date().toISOString().slice(0, 10);
+          if (state.lastActiveDate === today) {
+            return { totalSwipes: state.totalSwipes + 1 };
+          }
+          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+          const newStreak = state.lastActiveDate === yesterday ? state.streak + 1 : 1;
+          return {
+            streak: newStreak,
+            lastActiveDate: today,
+            totalSwipes: state.totalSwipes + 1,
+          };
+        }),
+
+      remixOutfits: [],
+      createRemixOutfit: (name, items) => {
+        const id = `remix-${Date.now()}`;
+        set((state) => ({
+          remixOutfits: [...state.remixOutfits, { id, name, items, createdAt: Date.now() }],
+        }));
+        return id;
+      },
+      deleteRemixOutfit: (id) =>
+        set((state) => ({
+          remixOutfits: state.remixOutfits.filter((o) => o.id !== id),
+        })),
+
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
       showLookDetail: null,
@@ -280,6 +366,12 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        likedPostIds: state.likedPostIds,
+        savedPostIds: state.savedPostIds,
+        streak: state.streak,
+        lastActiveDate: state.lastActiveDate,
+        totalSwipes: state.totalSwipes,
+        remixOutfits: state.remixOutfits,
       }),
     }
   )
