@@ -6,9 +6,13 @@ import type { CreatorStory } from "../../data/trendData";
 
 function StoryViewer({
   story,
+  onPrev,
+  onNext,
   onClose,
 }: {
   story: CreatorStory;
+  onPrev: (() => void) | null;
+  onNext: (() => void) | null;
   onClose: () => void;
 }) {
   return (
@@ -23,11 +27,12 @@ function StoryViewer({
         <div className="absolute top-0 inset-x-0 z-10 px-4 pt-3">
           <div className="h-0.5 bg-white/20 rounded-full overflow-hidden">
             <motion.div
+              key={story.id}
               className="h-full bg-white rounded-full"
               initial={{ width: "0%" }}
               animate={{ width: "100%" }}
               transition={{ duration: 5, ease: "linear" }}
-              onAnimationComplete={onClose}
+              onAnimationComplete={() => (onNext ? onNext() : onClose())}
             />
           </div>
         </div>
@@ -84,14 +89,14 @@ function StoryViewer({
           <div className="flex gap-2">
             <motion.button
               whileTap={{ scale: 0.9 }}
-              onClick={onClose}
+              onClick={() => (onPrev ? onPrev() : onClose())}
               className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center"
             >
               <ChevronLeft size={16} className="text-white" />
             </motion.button>
             <motion.button
               whileTap={{ scale: 0.9 }}
-              onClick={onClose}
+              onClick={() => (onNext ? onNext() : onClose())}
               className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center"
             >
               <ChevronRight size={16} className="text-white" />
@@ -104,7 +109,17 @@ function StoryViewer({
 }
 
 export function CreatorStories() {
-  const [activeStory, setActiveStory] = useState<CreatorStory | null>(null);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  const activeStory = activeIndex !== null ? creatorStories[activeIndex] : null;
+
+  const handlePrev = activeIndex !== null && activeIndex > 0
+    ? () => setActiveIndex(activeIndex - 1)
+    : null;
+
+  const handleNext = activeIndex !== null && activeIndex < creatorStories.length - 1
+    ? () => setActiveIndex(activeIndex + 1)
+    : null;
 
   return (
     <>
@@ -116,7 +131,7 @@ export function CreatorStories() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: i * 0.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => setActiveStory(story)}
+            onClick={() => setActiveIndex(i)}
             className="flex flex-col items-center gap-1 cursor-pointer flex-shrink-0"
           >
             <div
@@ -143,7 +158,9 @@ export function CreatorStories() {
         {activeStory && (
           <StoryViewer
             story={activeStory}
-            onClose={() => setActiveStory(null)}
+            onPrev={handlePrev}
+            onNext={handleNext}
+            onClose={() => setActiveIndex(null)}
           />
         )}
       </AnimatePresence>

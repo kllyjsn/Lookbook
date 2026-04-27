@@ -176,7 +176,7 @@ export function TrendingPage() {
               <div className="flex items-center gap-2 mb-1">
                 <Hash size={10} style={{ color: hashtag.color }} />
                 <span className="text-xs font-inter font-semibold text-ink whitespace-nowrap">
-                  {hashtag.tag}
+                  {hashtag.tag.replace(/^#/, "")}
                 </span>
               </div>
               <div className="flex items-center gap-2">
