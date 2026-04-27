@@ -290,9 +290,9 @@ export const useStore = create<AppState>()(
       lastSessionDate: null,
       recordSession: () =>
         set((state) => {
-          const today = new Date().toISOString().slice(0, 10);
+          const today = new Date().toLocaleDateString('en-CA');
           if (state.lastSessionDate === today) return state;
-          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+          const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-CA');
           const isConsecutive = state.lastSessionDate === yesterday;
           return {
             currentStreak: isConsecutive ? state.currentStreak + 1 : 1,
