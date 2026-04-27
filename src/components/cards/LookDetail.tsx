@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
+import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp, Shuffle } from "lucide-react";
 import type { Look } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
 import { useStore } from "../../stores/useStore";
+import { EditorNotes } from "./EditorNotes";
+import { editorNotes, outfitRemixes } from "../../data/trendData";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -172,6 +174,16 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </motion.button>
             </div>
 
+            {/* Editor's Notes */}
+            {(() => {
+              const note = editorNotes.find((n) => n.lookId === look.id);
+              return note ? (
+                <div className="mb-10">
+                  <EditorNotes note={note} />
+                </div>
+              ) : null;
+            })()}
+
             {/* Shop the Look section */}
             <div className="mb-10">
               <div className="flex items-center gap-3 mb-6">
@@ -185,6 +197,50 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 {look.items.map((item, i) => (
                   <ProductCard key={item.id} item={item} index={i} />
                 ))}
+              </div>
+            </div>
+
+            {/* Outfit Remix */}
+            {(() => {
+              const remixes = outfitRemixes.filter((r) =>
+                look.items.some((item) => item.id === r.originalItemId)
+              );
+              if (remixes.length === 0) return null;
+              const remix = remixes[0];
+              return (
+                <div className="mb-10">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Shuffle size={16} className="text-ink" />
+                    <h3 className="font-editorial text-lg text-ink">Remix This Look</h3>
+                  </div>
+                  <p className="text-xs font-inter text-ink-muted mb-4">
+                    Swap pieces for a fresh take on the same vibe.
+                  </p>
+                  <div className="grid grid-cols-2 gap-4">
+                    {remix.alternatives.map((item, i) => (
+                      <ProductCard key={item.id} item={item} index={i} />
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Cost Per Wear */}
+            <div className="mb-10 p-4 rounded-xl bg-ivory">
+              <h3 className="text-[10px] font-inter tracking-[0.3em] uppercase text-ink-muted mb-2">
+                COST PER WEAR ANALYSIS
+              </h3>
+              <div className="flex items-baseline gap-2">
+                <span className="font-editorial text-2xl text-ink">
+                  ${Math.round(look.items.reduce((s, i) => s + i.price, 0) / 30)}
+                </span>
+                <span className="text-xs font-inter text-ink-muted">/wear over 30 uses</span>
+              </div>
+              <div className="flex items-center gap-2 mt-2">
+                <span className="text-xs font-inter text-ink-muted">Total look:</span>
+                <span className="text-sm font-inter font-medium text-ink">
+                  ${look.items.reduce((s, i) => s + i.price, 0).toLocaleString()}
+                </span>
               </div>
             </div>
 

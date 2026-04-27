@@ -4,10 +4,11 @@ import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
 import { SearchPage } from "./SearchPage";
 import { Logo } from "../components/ui/Logo";
-import { RefreshCw, Sparkles, Camera } from "lucide-react";
+import { RefreshCw, Sparkles, Camera, Crown } from "lucide-react";
 import { feedLooks, moodFilters } from "../data/mockData";
 import type { MoodFilter } from "../data/mockData";
 import { useStore } from "../stores/useStore";
+import { CreatorStories } from "../components/feed/CreatorStories";
 
 export function FeedPage() {
   const currentFeedIndex = useStore((s) => s.currentFeedIndex);
@@ -116,6 +117,31 @@ export function FeedPage() {
           )}
         </div>
       </div>
+
+      {/* Creator Stories */}
+      <CreatorStories />
+
+      {/* OOTD Banner */}
+      {currentFeedIndex === 0 && activeMoodFilter === "all" && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mx-4 mb-2 p-3 rounded-xl bg-ink flex items-center gap-3 cursor-pointer"
+          onClick={() => setShowLookDetail(feedLooks.find((l) => l.editorsChoice) ?? feedLooks[0])}
+        >
+          <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center">
+            <Crown size={14} className="text-gold" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <span className="text-[9px] font-inter tracking-[0.2em] uppercase text-gold block">
+              OUTFIT OF THE DAY
+            </span>
+            <p className="text-xs font-inter text-cream/80 truncate">
+              {feedLooks.find((l) => l.editorsChoice)?.title ?? "Today's Pick"} — tap to view
+            </p>
+          </div>
+        </motion.div>
+      )}
 
       {/* Mood filter pills */}
       <div className="px-4 pb-2">

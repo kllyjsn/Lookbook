@@ -7,9 +7,11 @@ import { StylistPage } from "./pages/StylistPage";
 import { CapsulePage } from "./pages/CapsulePage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { OnboardingPage } from "./pages/OnboardingPage";
+import { TrendingPage } from "./pages/TrendingPage";
 
 const pages: Record<string, React.FC> = {
   feed: FeedPage,
+  trending: TrendingPage,
   community: CommunityPage,
   stylist: StylistPage,
   capsule: CapsulePage,

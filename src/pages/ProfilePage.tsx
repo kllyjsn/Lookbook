@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2 } from "lucide-react";
+import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
+import { feedLooks } from "../data/mockData";
+import { ProductCard } from "../components/cards/ProductCard";
 import { StyleDNA } from "../components/ui/StyleDNA";
 import { LookDetail } from "../components/cards/LookDetail";
 import type { Look } from "../data/mockData";
@@ -137,6 +139,54 @@ export function ProfilePage() {
                       </div>
                     </motion.div>
                   ))}
+                </div>
+              </div>
+
+              {/* Shop Your DNA */}
+              <div className="mt-8">
+                <div className="flex items-center gap-2 mb-4">
+                  <ShoppingBag size={16} className="text-ink" />
+                  <h3 className="font-editorial text-lg text-ink">Shop Your DNA</h3>
+                </div>
+                <p className="text-xs font-inter text-ink-muted mb-4">
+                  Pieces picked for your style profile.
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  {(() => {
+                    const recs = feedLooks
+                      .flatMap((l) => l.items)
+                      .slice(0, 4);
+                    return recs.map((item, i) => (
+                      <ProductCard key={item.id} item={item} index={i} />
+                    ));
+                  })()}
+                </div>
+              </div>
+
+              {/* Style Stats Card */}
+              <div className="mt-8 p-5 rounded-2xl bg-ink">
+                <span className="text-[9px] font-inter tracking-[0.3em] uppercase text-gold block mb-3">
+                  YOUR STYLE STATS
+                </span>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="text-center">
+                    <p className="font-editorial text-2xl text-cream">
+                      {likedLooks.length}
+                    </p>
+                    <p className="text-[10px] font-inter text-cream/50 mt-1">Looks Loved</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="font-editorial text-2xl text-cream">
+                      {collections.reduce((sum, c) => sum + c.looks.length, 0)}
+                    </p>
+                    <p className="text-[10px] font-inter text-cream/50 mt-1">Saved</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="font-editorial text-2xl text-cream">
+                      {styleDNA.length}
+                    </p>
+                    <p className="text-[10px] font-inter text-cream/50 mt-1">Style Types</p>
+                  </div>
                 </div>
               </div>
             </motion.div>
