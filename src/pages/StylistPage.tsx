@@ -346,8 +346,10 @@ export function StylistPage() {
       <AnimatePresence>
         {selectedLook && (
           <LookDetail
+            key={selectedLook.id}
             look={selectedLook}
             onClose={() => setSelectedLook(null)}
+            onNavigate={(rec) => setSelectedLook(rec)}
           />
         )}
       </AnimatePresence>
