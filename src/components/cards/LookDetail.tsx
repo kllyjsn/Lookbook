@@ -6,7 +6,7 @@ import { feedLooks } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
 import { useStore } from "../../stores/useStore";
-import { similarLooks, costPerWear } from "../../data/feedAlgorithm";
+import { similarLooks, avgCostPerWear } from "../../data/feedAlgorithm";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -32,11 +32,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
     [look]
   );
 
-  const totalLookPrice = look.items.reduce((sum, item) => sum + item.price, 0);
-  const avgCPW = costPerWear(
-    totalLookPrice / look.items.length,
-    "Tops"
-  );
+  const avgCPW = avgCostPerWear(look.items);
 
   return (
     <AnimatePresence>

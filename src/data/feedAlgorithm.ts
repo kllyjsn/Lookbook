@@ -1,4 +1,4 @@
-import type { Look, StyleDNAEntry } from "./mockData";
+import type { Look, StyleDNAEntry, LookItem } from "./mockData";
 
 const tagToStyle: Record<string, string> = {
   Minimalist: "Minimalist",
@@ -100,6 +100,17 @@ export function costPerWear(price: number, category: string): string {
   return `$${cpw.toFixed(2)}/wear`;
 }
 
+export function avgCostPerWear(items: LookItem[]): string {
+  if (items.length === 0) return "";
+  const totalCPW = items.reduce((sum, item) => {
+    const wears = WEARS_PER_YEAR[item.category] ?? 50;
+    return sum + item.price / wears;
+  }, 0);
+  const avg = totalCPW / items.length;
+  if (avg < 1) return "<$1/wear";
+  return `$${avg.toFixed(2)}/wear`;
+}
+
 const DAILY_CHALLENGES = [
   { title: "Monochrome Monday", prompt: "Can you build a full outfit in one colour family?", tag: "Minimalist" },
   { title: "Texture Tuesday", prompt: "Mix at least 3 different textures in one look.", tag: "Creative" },
@@ -112,7 +123,7 @@ const DAILY_CHALLENGES = [
 
 export function getDailyChallenge() {
   const day = new Date().getDay();
-  return DAILY_CHALLENGES[day];
+  return DAILY_CHALLENGES[(day + 6) % 7];
 }
 
 export function getStyleLevel(totalSwipes: number): { level: number; title: string; next: number } {

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
@@ -29,21 +29,22 @@ export function FeedPage() {
   const streak = useStore((s) => s.streak);
   const [showSearch, setShowSearch] = useState(false);
   const [showChallenge, setShowChallenge] = useState(true);
+  const [feedVersion, setFeedVersion] = useState(0);
 
   const challenge = getDailyChallenge();
 
-  const passedIds = useMemo(
-    () => new Set(passedLooks.map((l) => l.id)),
-    [passedLooks]
-  );
+  const snapshotRef = useRef({ mood: activeMoodFilter, version: feedVersion });
 
   const filteredLooks = useMemo(() => {
+    snapshotRef.current = { mood: activeMoodFilter, version: feedVersion };
+    const passedIds = new Set(passedLooks.map((l) => l.id));
     const base =
       activeMoodFilter === "all"
         ? feedLooks
         : feedLooks.filter((l) => l.mood === activeMoodFilter);
     return personalizedFeed(base, styleDNA, passedIds);
-  }, [activeMoodFilter, styleDNA, passedIds]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeMoodFilter, feedVersion]);
 
   const hasSeenAll = currentFeedIndex >= filteredLooks.length;
 
@@ -268,7 +269,7 @@ export function FeedPage() {
             <div className="flex flex-col gap-3 w-full mt-2">
               <motion.button
                 whileTap={{ scale: 0.98 }}
-                onClick={() => setCurrentFeedIndex(0)}
+                onClick={() => { setCurrentFeedIndex(0); setFeedVersion((v) => v + 1); }}
                 className="w-full py-3.5 rounded-full bg-ink text-cream font-inter text-sm font-medium flex items-center justify-center gap-2"
               >
                 <RefreshCw size={14} />
