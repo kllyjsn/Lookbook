@@ -1,13 +1,18 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
 import { SearchPage } from "./SearchPage";
 import { Logo } from "../components/ui/Logo";
-import { RefreshCw, Sparkles, Camera } from "lucide-react";
-import { feedLooks, moodFilters } from "../data/mockData";
+import { RefreshCw, Sparkles, Camera, Flame, Users } from "lucide-react";
+import { feedLooks, moodFilters, dailyChallenges } from "../data/mockData";
 import type { MoodFilter } from "../data/mockData";
 import { useStore } from "../stores/useStore";
+
+function formatCount(n: number): string {
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
+  return String(n);
+}
 
 export function FeedPage() {
   const currentFeedIndex = useStore((s) => s.currentFeedIndex);
@@ -23,7 +28,19 @@ export function FeedPage() {
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
   const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
+  const currentStreak = useStore((s) => s.currentStreak);
+  const recordSession = useStore((s) => s.recordSession);
   const [showSearch, setShowSearch] = useState(false);
+  const [showChallenge, setShowChallenge] = useState(true);
+
+  useEffect(() => {
+    recordSession();
+  }, [recordSession]);
+
+  const todaysChallenge = useMemo(
+    () => dailyChallenges[new Date().getDay() % dailyChallenges.length],
+    []
+  );
 
   const filteredLooks = useMemo(
     () =>
@@ -92,7 +109,19 @@ export function FeedPage() {
     <div className="h-full flex flex-col bg-cream">
       {/* Header */}
       <div className="flex items-center justify-between py-3 px-6">
-        <Logo variant="mark" size="sm" />
+        <div className="flex items-center gap-2">
+          <Logo variant="mark" size="sm" />
+          {currentStreak > 0 && (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="flex items-center gap-1 bg-gradient-to-r from-orange-500/10 to-rose/10 rounded-full px-2.5 py-1 border border-orange-500/20"
+            >
+              <Flame size={12} className="text-orange-500" />
+              <span className="text-[10px] font-inter font-bold text-orange-600">{currentStreak}</span>
+            </motion.div>
+          )}
+        </div>
         <div className="flex items-center gap-3">
           <span className="text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted">
             {Math.min(currentFeedIndex + 1, feedLooks.length)} / {feedLooks.length}
@@ -116,6 +145,43 @@ export function FeedPage() {
           )}
         </div>
       </div>
+
+      {/* Daily Challenge Banner */}
+      <AnimatePresence>
+        {showChallenge && !hasSeenAll && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="px-4 pb-2"
+          >
+            <div className="relative bg-gradient-to-r from-ink to-charcoal rounded-xl p-3.5 flex items-center gap-3 overflow-hidden">
+              <div className="absolute inset-0 shimmer" />
+              <div className="w-9 h-9 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
+                <Sparkles size={16} className="text-gold" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[9px] font-inter tracking-[0.2em] uppercase text-white/50 mb-0.5">Today's Challenge</p>
+                <p className="text-xs font-inter font-medium text-white truncate">{todaysChallenge.prompt}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-[9px] font-inter text-gold">{todaysChallenge.hashtag}</span>
+                  <span className="flex items-center gap-0.5 text-[9px] font-inter text-white/40">
+                    <Users size={8} />
+                    {formatCount(todaysChallenge.participants)}
+                  </span>
+                </div>
+              </div>
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setShowChallenge(false)}
+                className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0"
+              >
+                <span className="text-white/60 text-[10px]">&times;</span>
+              </motion.button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Mood filter pills */}
       <div className="px-4 pb-2">

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
+import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp, BadgePercent } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { dupeMap } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
 import { useStore } from "../../stores/useStore";
@@ -187,6 +188,58 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 ))}
               </div>
             </div>
+
+            {/* Get The Look For Less — dupes section */}
+            {look.items.some((item) => dupeMap[item.id]) && (
+              <div className="mb-10">
+                <div className="flex items-center gap-3 mb-2">
+                  <BadgePercent size={18} className="text-rose" />
+                  <h3 className="font-editorial text-xl text-ink">Get It For Less</h3>
+                </div>
+                <p className="text-xs font-inter text-ink-muted mb-5 italic">
+                  TikTok-approved dupes for this look
+                </p>
+                <div className="space-y-3">
+                  {look.items.map((item) => {
+                    const dupes = dupeMap[item.id];
+                    if (!dupes) return null;
+                    return dupes.map((dupe) => (
+                      <motion.div
+                        key={`${item.id}-${dupe.brand}`}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="flex items-center gap-3 p-3 rounded-xl bg-ivory border border-ink/5"
+                      >
+                        <img
+                          src={dupe.image}
+                          alt={dupe.name}
+                          className="w-14 h-14 rounded-lg object-cover"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-inter font-medium text-ink truncate">
+                            {dupe.name}
+                          </p>
+                          <p className="text-[10px] font-inter text-ink-muted">
+                            {dupe.brand}
+                          </p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-xs font-inter font-bold text-ink">
+                              ${dupe.price}
+                            </span>
+                            <span className="text-[9px] font-inter text-ink-muted line-through">
+                              ${item.price}
+                            </span>
+                            <span className="text-[9px] font-inter font-bold text-green-600 bg-green-50 rounded-full px-1.5 py-0.5">
+                              -{dupe.savingsPercent}%
+                            </span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ));
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Photographer credit */}
             {look.photographer && (

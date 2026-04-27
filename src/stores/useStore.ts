@@ -59,6 +59,19 @@ interface AppState {
   followCreator: (id: string) => void;
   unfollowCreator: (id: string) => void;
 
+  // Outfit Battles
+  battleVotes: Record<string, "A" | "B">;
+  voteBattle: (battleId: string, choice: "A" | "B") => void;
+
+  // Hot Takes
+  hotTakeVotes: Record<string, "agree" | "disagree">;
+  voteHotTake: (takeId: string, vote: "agree" | "disagree") => void;
+
+  // Style Streak
+  currentStreak: number;
+  lastSessionDate: string | null;
+  recordSession: () => void;
+
   // UI state
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -261,6 +274,32 @@ export const useStore = create<AppState>()(
           followedCreators: state.followedCreators.filter((cid) => cid !== id),
         })),
 
+      battleVotes: {},
+      voteBattle: (battleId, choice) =>
+        set((state) => ({
+          battleVotes: { ...state.battleVotes, [battleId]: choice },
+        })),
+
+      hotTakeVotes: {},
+      voteHotTake: (takeId, vote) =>
+        set((state) => ({
+          hotTakeVotes: { ...state.hotTakeVotes, [takeId]: vote },
+        })),
+
+      currentStreak: 0,
+      lastSessionDate: null,
+      recordSession: () =>
+        set((state) => {
+          const today = new Date().toLocaleDateString('en-CA');
+          if (state.lastSessionDate === today) return state;
+          const d = new Date(); d.setDate(d.getDate() - 1); const yesterday = d.toLocaleDateString('en-CA');
+          const isConsecutive = state.lastSessionDate === yesterday;
+          return {
+            currentStreak: isConsecutive ? state.currentStreak + 1 : 1,
+            lastSessionDate: today,
+          };
+        }),
+
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
       showLookDetail: null,
@@ -279,6 +318,10 @@ export const useStore = create<AppState>()(
         capsuleBudget: state.capsuleBudget,
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
+        battleVotes: state.battleVotes,
+        hotTakeVotes: state.hotTakeVotes,
+        currentStreak: state.currentStreak,
+        lastSessionDate: state.lastSessionDate,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
       }),
     }

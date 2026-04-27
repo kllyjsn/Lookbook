@@ -471,13 +471,125 @@ export const feedLooks: Look[] = [
 
 export const moodFilters: { id: MoodFilter; label: string; emoji: string }[] = [
   { id: "all", label: "All", emoji: "" },
-  { id: "minimal", label: "Minimal", emoji: "" },
-  { id: "romantic", label: "Romantic", emoji: "" },
-  { id: "street", label: "Street", emoji: "" },
-  { id: "evening", label: "Evening", emoji: "" },
-  { id: "classic", label: "Classic", emoji: "" },
-  { id: "adventure", label: "Adventure", emoji: "" },
+  { id: "minimal", label: "Clean Girl", emoji: "" },
+  { id: "classic", label: "Old Money", emoji: "" },
+  { id: "romantic", label: "Coquette", emoji: "" },
+  { id: "street", label: "Streetcore", emoji: "" },
+  { id: "evening", label: "Mob Wife", emoji: "" },
+  { id: "adventure", label: "Coastal", emoji: "" },
 ];
+
+export interface OutfitBattle {
+  id: string;
+  title: string;
+  lookA: Look;
+  lookB: Look;
+  votesA: number;
+  votesB: number;
+}
+
+export const outfitBattles: OutfitBattle[] = [
+  {
+    id: "battle-1",
+    title: "Date Night: Mini vs Midi?",
+    lookA: feedLooks[1],
+    lookB: feedLooks[6],
+    votesA: 3420,
+    votesB: 2890,
+  },
+  {
+    id: "battle-2",
+    title: "Office Power Move",
+    lookA: feedLooks[0],
+    lookB: feedLooks[7],
+    votesA: 4100,
+    votesB: 3780,
+  },
+  {
+    id: "battle-3",
+    title: "Weekend Vibes",
+    lookA: feedLooks[2],
+    lookB: feedLooks[4],
+    votesA: 5200,
+    votesB: 4900,
+  },
+];
+
+export interface HotTake {
+  id: string;
+  statement: string;
+  agreeCount: number;
+  disagreeCount: number;
+  category: string;
+}
+
+export const hotTakes: HotTake[] = [
+  { id: "ht-1", statement: "Quiet luxury is just boring with a PR team", agreeCount: 8420, disagreeCount: 12100, category: "Trends" },
+  { id: "ht-2", statement: "Sneakers with a suit is always a yes", agreeCount: 15600, disagreeCount: 4300, category: "Rules" },
+  { id: "ht-3", statement: "The best outfit you own costs under $100", agreeCount: 11200, disagreeCount: 6800, category: "Budget" },
+  { id: "ht-4", statement: "Vintage is more sustainable than 'sustainable' brands", agreeCount: 18900, disagreeCount: 3200, category: "Ethics" },
+  { id: "ht-5", statement: "Matching sets are a fashion crutch", agreeCount: 4100, disagreeCount: 14700, category: "Trends" },
+  { id: "ht-6", statement: "You only need 5 pairs of shoes. Max.", agreeCount: 7300, disagreeCount: 19800, category: "Capsule" },
+];
+
+export interface DailyChallenge {
+  id: string;
+  prompt: string;
+  mood: MoodFilter;
+  hashtag: string;
+  participants: number;
+}
+
+export const dailyChallenges: DailyChallenge[] = [
+  { id: "dc-1", prompt: "Style a look using only neutrals", mood: "minimal", hashtag: "#NeutralNation", participants: 12400 },
+  { id: "dc-2", prompt: "Date night outfit under $300", mood: "romantic", hashtag: "#DateNightEdit", participants: 8900 },
+  { id: "dc-3", prompt: "One bag, three outfits", mood: "classic", hashtag: "#CapsuleChallenge", participants: 15200 },
+  { id: "dc-4", prompt: "Turn a day look into evening", mood: "evening", hashtag: "#DayToNight", participants: 6700 },
+  { id: "dc-5", prompt: "All black, but make it interesting", mood: "minimal", hashtag: "#BlackOnBlack", participants: 22100 },
+  { id: "dc-6", prompt: "Thrift flip: style a vintage find", mood: "adventure", hashtag: "#ThriftFlip", participants: 9400 },
+  { id: "dc-7", prompt: "Office siren: power dressing 2.0", mood: "classic", hashtag: "#OfficeSiren", participants: 11800 },
+];
+
+export interface DupeItem {
+  originalId: string;
+  name: string;
+  brand: string;
+  price: number;
+  image: string;
+  savingsPercent: number;
+}
+
+export const dupeMap: Record<string, DupeItem[]> = {
+  "i1": [
+    { originalId: "i1", name: "Structured Blazer", brand: "Zara", price: 89, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), savingsPercent: 68 },
+    { originalId: "i1", name: "Tailored Blazer", brand: "H&M", price: 59, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), savingsPercent: 79 },
+  ],
+  "i2": [
+    { originalId: "i2", name: "Satin Camisole", brand: "& Other Stories", price: 49, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), savingsPercent: 75 },
+  ],
+  "i5": [
+    { originalId: "i5", name: "Floral Midi Dress", brand: "Zara", price: 69, image: UNSPLASH("photo-1595777457583-95e059d581b8", 400, 500), savingsPercent: 72 },
+    { originalId: "i5", name: "Wrap Midi Dress", brand: "ASOS", price: 45, image: UNSPLASH("photo-1595777457583-95e059d581b8", 400, 500), savingsPercent: 82 },
+  ],
+  "i9": [
+    { originalId: "i9", name: "Oversized Tee", brand: "Uniqlo", price: 19, image: UNSPLASH("photo-1521572163474-6864f9cf17ab", 400, 500), savingsPercent: 67 },
+  ],
+  "i10": [
+    { originalId: "i10", name: "Faux Leather Jacket", brand: "Mango", price: 129, image: UNSPLASH("photo-1551028719-00167b16eac5", 400, 500), savingsPercent: 74 },
+  ],
+  "i13": [
+    { originalId: "i13", name: "Sequin Midi Dress", brand: "& Other Stories", price: 149, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), savingsPercent: 75 },
+  ],
+  "i21": [
+    { originalId: "i21", name: "Cashmere Blend Turtleneck", brand: "Uniqlo", price: 49, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), savingsPercent: 90 },
+  ],
+  "i33": [
+    { originalId: "i33", name: "Cashmere Crew", brand: "Quince", price: 79, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), savingsPercent: 91 },
+  ],
+  "i29": [
+    { originalId: "i29", name: "Double-Breasted Blazer", brand: "Mango", price: 119, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), savingsPercent: 83 },
+  ],
+};
 
 export const eventTypes: EventType[] = [
   { id: "date-night", name: "Date Night", icon: "heart", image: UNSPLASH("photo-1469334031218-e382a71b716b", 600, 400), description: "Romantic and alluring" },

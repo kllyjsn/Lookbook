@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, BadgeCheck, Sparkles, Clock } from "lucide-react";
+import { Search, BadgeCheck, Sparkles, Clock, Zap, Heart, ThumbsUp, ThumbsDown, MessageCircle } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { PostCard } from "../components/community/PostCard";
 import { CreatorProfile } from "../components/community/CreatorProfile";
@@ -11,9 +11,146 @@ import { ProductCard } from "../components/cards/ProductCard";
 import { useStore } from "../stores/useStore";
 import { creators, communityPosts, mustHaveLists } from "../data/communityData";
 import type { Creator, CommunityPost, MustHaveList } from "../data/communityData";
+import { outfitBattles, hotTakes } from "../data/mockData";
 
+function formatCount(n: number): string {
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
+  return String(n);
+}
 
-type CommunityTab = "forYou" | "following" | "mustHaves";
+type CommunityTab = "forYou" | "following" | "battles" | "mustHaves";
+
+function BattleCard({ battle }: { battle: typeof outfitBattles[0] }) {
+  const battleVotes = useStore((s) => s.battleVotes);
+  const voteBattle = useStore((s) => s.voteBattle);
+  const userVote = battleVotes[battle.id];
+  const totalVotes = battle.votesA + battle.votesB;
+  const pctA = Math.round((battle.votesA / totalVotes) * 100);
+  const pctB = 100 - pctA;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mb-5"
+    >
+      <p className="font-editorial text-base text-ink mb-3 text-center">{battle.title}</p>
+      <div className="flex gap-2">
+        {([
+          { look: battle.lookA, side: "A" as const, pct: pctA },
+          { look: battle.lookB, side: "B" as const, pct: pctB },
+        ]).map(({ look, side, pct }) => (
+          <motion.button
+            key={side}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => !userVote && voteBattle(battle.id, side)}
+            className={`flex-1 relative aspect-[3/4] rounded-xl overflow-hidden ${
+              userVote === side ? "ring-2 ring-gold ring-offset-2 ring-offset-cream" : ""
+            }`}
+          >
+            <img src={look.image} alt={look.title} className="img-editorial" />
+            <div className="absolute inset-0 bg-black/30" />
+            <div className="absolute inset-x-0 bottom-0 p-3">
+              <p className="text-white text-xs font-inter font-medium mb-1">{look.title}</p>
+              {userVote && (
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: "100%" }}
+                  className="h-1.5 bg-white/20 rounded-full overflow-hidden"
+                >
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${pct}%` }}
+                    transition={{ delay: 0.2, duration: 0.6 }}
+                    className={`h-full rounded-full ${userVote === side ? "bg-gold" : "bg-white/50"}`}
+                  />
+                </motion.div>
+              )}
+              {userVote && (
+                <p className="text-white/70 text-[10px] font-inter mt-1">{pct}%</p>
+              )}
+            </div>
+            {!userVote && (
+              <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <Heart size={12} className="text-white" />
+              </div>
+            )}
+          </motion.button>
+        ))}
+      </div>
+      {userVote && (
+        <p className="text-center text-[10px] font-inter text-ink-muted mt-2">
+          {formatCount(totalVotes)} votes
+        </p>
+      )}
+    </motion.div>
+  );
+}
+
+function HotTakeCard({ take }: { take: typeof hotTakes[0] }) {
+  const hotTakeVotes = useStore((s) => s.hotTakeVotes);
+  const voteHotTake = useStore((s) => s.voteHotTake);
+  const userVote = hotTakeVotes[take.id];
+  const totalVotes = take.agreeCount + take.disagreeCount;
+  const agreePct = Math.round((take.agreeCount / totalVotes) * 100);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0 }}
+      className="p-4 rounded-xl bg-ivory border border-ink/5"
+    >
+      <div className="flex items-start gap-3 mb-3">
+        <span className="text-[9px] font-inter tracking-[0.1em] uppercase text-ink-muted bg-cream rounded-full px-2 py-0.5 flex-shrink-0">
+          {take.category}
+        </span>
+        <p className="font-editorial text-sm text-ink leading-snug flex-1">
+          "{take.statement}"
+        </p>
+      </div>
+
+      {userVote ? (
+        <div>
+          <div className="h-2 bg-ink/5 rounded-full overflow-hidden mb-2">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${agreePct}%` }}
+              transition={{ duration: 0.5 }}
+              className="h-full bg-gradient-to-r from-green-400 to-green-500 rounded-full"
+            />
+          </div>
+          <div className="flex justify-between text-[10px] font-inter text-ink-muted">
+            <span className={userVote === "agree" ? "font-bold text-green-600" : ""}>
+              {agreePct}% agree
+            </span>
+            <span className={userVote === "disagree" ? "font-bold text-rose" : ""}>
+              {100 - agreePct}% disagree
+            </span>
+          </div>
+        </div>
+      ) : (
+        <div className="flex gap-2">
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => voteHotTake(take.id, "agree")}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-green-50 text-green-700 text-xs font-inter font-medium border border-green-100"
+          >
+            <ThumbsUp size={12} />
+            Agree
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => voteHotTake(take.id, "disagree")}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-rose/5 text-rose text-xs font-inter font-medium border border-rose/10"
+          >
+            <ThumbsDown size={12} />
+            Disagree
+          </motion.button>
+        </div>
+      )}
+    </motion.div>
+  );
+}
 
 function PostShopOverlay({
   post,
@@ -119,6 +256,7 @@ export function CommunityPage() {
           {([
             { id: "forYou" as const, label: "For You" },
             { id: "following" as const, label: "Following" },
+            { id: "battles" as const, label: "VS" },
             { id: "mustHaves" as const, label: "Must Haves" },
           ]).map((tab) => (
             <motion.button
@@ -323,6 +461,42 @@ export function CommunityPage() {
                 </div>
               </div>
             )}
+          </motion.div>
+        )}
+
+        {/* Battles + Hot Takes tab */}
+        {activeTab === "battles" && (
+          <motion.div
+            key="battles"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="px-6 space-y-6"
+          >
+            {/* This or That */}
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <Zap size={16} className="text-gold" />
+                <h2 className="font-editorial text-lg text-ink">This or That</h2>
+              </div>
+              {outfitBattles.map((battle) => (
+                <BattleCard key={battle.id} battle={battle} />
+              ))}
+            </div>
+
+            {/* Hot Takes */}
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <MessageCircle size={16} className="text-rose" />
+                <h2 className="font-editorial text-lg text-ink">Hot Takes</h2>
+              </div>
+              <p className="text-xs font-inter text-ink-muted italic mb-4">Fashion opinions. No wrong answers.</p>
+              <div className="space-y-3">
+                {hotTakes.map((take) => (
+                  <HotTakeCard key={take.id} take={take} />
+                ))}
+              </div>
+            </div>
           </motion.div>
         )}
 
