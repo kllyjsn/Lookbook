@@ -11,9 +11,10 @@ import { ProductCard } from "../components/cards/ProductCard";
 import { useStore } from "../stores/useStore";
 import { creators, communityPosts, mustHaveLists } from "../data/communityData";
 import type { Creator, CommunityPost, MustHaveList } from "../data/communityData";
+import { ChallengeCard } from "../components/community/ChallengeCard";
+import { styleChallenges } from "../data/trendData";
 
-
-type CommunityTab = "forYou" | "following" | "mustHaves";
+type CommunityTab = "forYou" | "following" | "mustHaves" | "challenges";
 
 function PostShopOverlay({
   post,
@@ -119,7 +120,8 @@ export function CommunityPage() {
           {([
             { id: "forYou" as const, label: "For You" },
             { id: "following" as const, label: "Following" },
-            { id: "mustHaves" as const, label: "Must Haves" },
+            { id: "challenges" as const, label: "Challenges" },
+            { id: "mustHaves" as const, label: "Picks" },
           ]).map((tab) => (
             <motion.button
               key={tab.id}
@@ -323,6 +325,30 @@ export function CommunityPage() {
                 </div>
               </div>
             )}
+          </motion.div>
+        )}
+
+        {/* Challenges tab */}
+        {activeTab === "challenges" && (
+          <motion.div
+            key="challenges"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="px-6 space-y-4"
+          >
+            <div className="flex items-center justify-between">
+              <p className="font-subhead text-sm text-ink-light italic">
+                Weekly style challenges. Show us what you've got.
+              </p>
+            </div>
+            {styleChallenges.map((challenge, i) => (
+              <ChallengeCard
+                key={challenge.id}
+                challenge={challenge}
+                index={i}
+              />
+            ))}
           </motion.div>
         )}
 
