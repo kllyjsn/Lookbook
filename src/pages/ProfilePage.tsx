@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2 } from "lucide-react";
+import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2, Flame } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
@@ -13,6 +13,7 @@ export function ProfilePage() {
   const styleDNA = useStore((s) => s.styleDNA);
   const likedLooks = useStore((s) => s.likedLooks);
   const collections = useStore((s) => s.collections);
+  const styleStreak = useStore((s) => s.styleStreak);
   const createCollection = useStore((s) => s.createCollection);
   const removeFromCollection = useStore((s) => s.removeFromCollection);
   const [activeSection, setActiveSection] = useState<ProfileSection>("dna");
@@ -55,6 +56,11 @@ export function ProfilePage() {
             <h2 className="font-editorial text-xl text-ink">Your Profile</h2>
             <p className="text-xs font-inter text-ink-muted">
               {likedLooks.length} looks loved · {collections.reduce((sum, c) => sum + c.looks.length, 0)} saved
+              {styleStreak >= 2 && (
+                <span className="inline-flex items-center gap-1 ml-2 text-gold">
+                  <Flame size={11} /> {styleStreak}-day streak
+                </span>
+              )}
             </p>
           </div>
         </div>
@@ -410,8 +416,10 @@ export function ProfilePage() {
       <AnimatePresence>
         {selectedLook && (
           <LookDetail
+            key={selectedLook.id}
             look={selectedLook}
             onClose={() => setSelectedLook(null)}
+            onLookTap={setSelectedLook}
           />
         )}
       </AnimatePresence>
