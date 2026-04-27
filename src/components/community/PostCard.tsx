@@ -163,7 +163,7 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
             />
           </motion.div>
           <span className={`text-xs font-inter ${liked ? "text-rose" : "text-ink-muted"}`}>
-            {formatCount(post.likes + (liked ? 1 : 0))}
+            {formatCount(post.likes)}
           </span>
         </motion.button>
 
@@ -189,7 +189,7 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
             />
           </motion.div>
           <span className={`text-xs font-inter ${saved ? "text-gold" : "text-ink-muted"}`}>
-            {formatCount(post.saves + (saved ? 1 : 0))}
+            {formatCount(post.saves)}
           </span>
         </motion.button>
 
