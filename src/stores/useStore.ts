@@ -68,7 +68,7 @@ interface AppState {
   completeOnboarding: () => void;
 }
 
-const tagToStyle: Record<string, string> = {
+export const tagToStyle: Record<string, string> = {
   "Minimalist": "Minimalist",
   "Office": "Classic",
   "Romantic": "Romantic",

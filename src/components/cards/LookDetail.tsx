@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
-import type { Look } from "../../data/mockData";
+import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp, Palette, Sparkles, Users, ArrowRight, ExternalLink } from "lucide-react";
+import type { Look, LookItem } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
 import { useStore } from "../../stores/useStore";
@@ -10,6 +10,85 @@ function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
   if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
   return String(n);
+}
+
+interface QuickShopProps {
+  item: LookItem;
+  onClose: () => void;
+}
+
+function QuickShopSheet({ item, onClose }: QuickShopProps) {
+  const [imgLoaded, setImgLoaded] = useState(false);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[60] flex items-end justify-center"
+      onClick={onClose}
+    >
+      <div className="absolute inset-0 bg-black/40" />
+      <motion.div
+        initial={{ y: "100%" }}
+        animate={{ y: 0 }}
+        exit={{ y: "100%" }}
+        transition={{ type: "spring", damping: 25, stiffness: 200 }}
+        className="relative w-full max-w-lg bg-cream rounded-t-3xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="w-12 h-1 bg-ink/15 rounded-full mx-auto mt-3" />
+        <div className="p-6">
+          <div className="flex gap-5">
+            <div className="relative w-32 aspect-[3/4] rounded-xl overflow-hidden bg-ivory flex-shrink-0">
+              {!imgLoaded && <div className="absolute inset-0 shimmer bg-ivory" />}
+              <img
+                src={item.image}
+                alt={item.name}
+                className={`img-editorial transition-opacity duration-500 ${imgLoaded ? "opacity-100" : "opacity-0"}`}
+                onLoad={() => setImgLoaded(true)}
+              />
+            </div>
+            <div className="flex-1 flex flex-col justify-between py-1">
+              <div>
+                <span className="text-[9px] font-inter tracking-[0.2em] uppercase text-ink-muted block mb-1">
+                  {item.category}
+                </span>
+                <h3 className="font-editorial text-xl text-ink leading-snug mb-1">
+                  {item.name}
+                </h3>
+                <p className="text-sm font-inter text-ink-muted mb-3">{item.brand}</p>
+              </div>
+              <p className="font-editorial text-2xl text-ink">${item.price}</p>
+            </div>
+          </div>
+          <div className="mt-6 flex gap-3">
+            <motion.a
+              href={item.shopUrl}
+              whileTap={{ scale: 0.98 }}
+              className="flex-1 py-3.5 rounded-full bg-ink text-cream font-inter text-sm font-medium flex items-center justify-center gap-2"
+            >
+              <ShoppingBag size={16} />
+              Shop Now
+            </motion.a>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              className="w-12 h-12 rounded-full flex items-center justify-center border border-ink/10"
+            >
+              <Bookmark size={18} className="text-ink-muted" />
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              className="w-12 h-12 rounded-full flex items-center justify-center border border-ink/10"
+            >
+              <ExternalLink size={18} className="text-ink-muted" />
+            </motion.button>
+          </div>
+        </div>
+        <div className="h-safe-bottom" />
+      </motion.div>
+    </motion.div>
+  );
 }
 
 interface LookDetailProps {
@@ -23,6 +102,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
   const addToCollection = useStore((s) => s.addToCollection);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [quickShopItem, setQuickShopItem] = useState<LookItem | null>(null);
 
   return (
     <AnimatePresence>
@@ -111,12 +191,75 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               <span className="text-sm font-inter text-ink-muted">
                 {look.priceRange}
               </span>
+              {look.recentLovers && look.recentLovers > 0 && (
+                <>
+                  <span className="text-ink-muted/40">·</span>
+                  <span className="flex items-center gap-1 text-sm font-inter text-ink-muted">
+                    <Users size={12} />
+                    {look.recentLovers} today
+                  </span>
+                </>
+              )}
             </div>
 
             {/* Description */}
             <p className="font-subhead text-xl text-ink-light leading-relaxed mb-8 italic">
               {look.description}
             </p>
+
+            {/* Editor's Note — fashion editor commentary */}
+            {look.editorNote && (
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mb-8 p-5 rounded-2xl bg-ivory border border-ink/5"
+              >
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles size={14} className="text-gold" />
+                  <span className="text-[10px] font-inter font-semibold tracking-[0.2em] uppercase text-gold">
+                    Editor's Note
+                  </span>
+                </div>
+                <p className="font-subhead text-base text-ink-light leading-relaxed italic">
+                  "{look.editorNote}"
+                </p>
+              </motion.div>
+            )}
+
+            {/* Color Story palette */}
+            {look.colorStory && look.colorStory.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="mb-8"
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <Palette size={16} className="text-ink" />
+                  <h3 className="font-editorial text-lg text-ink">Color Story</h3>
+                </div>
+                <div className="flex gap-3">
+                  {look.colorStory.map((swatch, i) => (
+                    <motion.div
+                      key={swatch.name}
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 0.4 + i * 0.08, type: "spring", stiffness: 300 }}
+                      className="flex-1 flex flex-col items-center gap-2"
+                    >
+                      <div
+                        className="w-full aspect-square rounded-xl border border-ink/5 shadow-sm"
+                        style={{ backgroundColor: swatch.hex }}
+                      />
+                      <span className="text-[9px] font-inter tracking-[0.1em] uppercase text-ink-muted">
+                        {swatch.name}
+                      </span>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
 
             {/* Action bar */}
             <div className="flex items-center gap-3 mb-10">
@@ -172,6 +315,44 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </motion.button>
             </div>
 
+            {/* Style It 3 Ways — occasion variations */}
+            {look.styleVariations && look.styleVariations.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="mb-10"
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <Sparkles size={16} className="text-ink" />
+                  <h3 className="font-editorial text-lg text-ink">Style It 3 Ways</h3>
+                </div>
+                <div className="space-y-3">
+                  {look.styleVariations.map((variation, i) => (
+                    <motion.div
+                      key={variation.occasion}
+                      initial={{ opacity: 0, x: -15 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.5 + i * 0.1 }}
+                      className="flex items-start gap-4 p-4 rounded-xl bg-ivory border border-ink/5"
+                    >
+                      <div className="w-10 h-10 rounded-full bg-ink/5 flex items-center justify-center flex-shrink-0">
+                        <ArrowRight size={14} className="text-ink-muted" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs font-inter font-semibold tracking-[0.1em] uppercase text-ink mb-1">
+                          {variation.occasion}
+                        </p>
+                        <p className="text-sm font-inter text-ink-light leading-relaxed">
+                          {variation.tip}
+                        </p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
             {/* Shop the Look section */}
             <div className="mb-10">
               <div className="flex items-center gap-3 mb-6">
@@ -183,7 +364,9 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 {look.items.map((item, i) => (
-                  <ProductCard key={item.id} item={item} index={i} />
+                  <div key={item.id} onClick={() => setQuickShopItem(item)}>
+                    <ProductCard item={item} index={i} />
+                  </div>
                 ))}
               </div>
             </div>
@@ -197,6 +380,16 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
           </div>
         </div>
       </motion.div>
+
+      {/* Quick-shop bottom sheet */}
+      <AnimatePresence>
+        {quickShopItem && (
+          <QuickShopSheet
+            item={quickShopItem}
+            onClose={() => setQuickShopItem(null)}
+          />
+        )}
+      </AnimatePresence>
     </AnimatePresence>
   );
 }

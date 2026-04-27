@@ -15,6 +15,16 @@ export interface LookItem {
 
 export type MoodFilter = "all" | "minimal" | "romantic" | "street" | "evening" | "classic" | "adventure";
 
+export interface ColorSwatch {
+  name: string;
+  hex: string;
+}
+
+export interface StyleVariation {
+  occasion: string;
+  tip: string;
+}
+
 export interface Look {
   id: string;
   image: string;
@@ -32,6 +42,10 @@ export interface Look {
   editorsChoice?: boolean;
   mood: MoodFilter;
   badge?: "trending" | "editors-pick" | "new";
+  editorNote?: string;
+  colorStory?: ColorSwatch[];
+  styleVariations?: StyleVariation[];
+  recentLovers?: number;
 }
 
 export interface EventType {
@@ -88,6 +102,19 @@ export const feedLooks: Look[] = [
     trending: true,
     editorsChoice: true,
     mood: "minimal",
+    editorNote: "The oversized blazer balances the slim camisole — a masterclass in proportion play. Notice how the neutral palette lets the silhouette do the talking.",
+    colorStory: [
+      { name: "Ivory", hex: "#FAF9F6" },
+      { name: "Camel", hex: "#C5A572" },
+      { name: "Slate", hex: "#4A4A4A" },
+      { name: "Ecru", hex: "#E8D5D0" },
+    ],
+    styleVariations: [
+      { occasion: "Casual", tip: "Swap the mules for white sneakers and leave the blazer unbuttoned" },
+      { occasion: "Evening", tip: "Add gold jewelry and switch to strappy heels" },
+      { occasion: "Weekend", tip: "Layer over a cotton tee with wide-leg jeans" },
+    ],
+    recentLovers: 423,
     items: [
       { id: "i1", name: "Structured Wool Blazer", brand: "COS", price: 275, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#" },
       { id: "i2", name: "Silk Camisole", brand: "Vince", price: 195, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
@@ -113,6 +140,19 @@ export const feedLooks: Look[] = [
     likes: 9800,
     trending: true,
     mood: "romantic",
+    editorNote: "Diaphanous movement is the secret weapon here. The midi length and delicate accessories create a cohesive romantic narrative without becoming costume-y.",
+    colorStory: [
+      { name: "Blush", hex: "#E8D5D0" },
+      { name: "Rose Gold", hex: "#C5A572" },
+      { name: "Powder", hex: "#F5F0EB" },
+      { name: "Wine", hex: "#C4797A" },
+    ],
+    styleVariations: [
+      { occasion: "Daytime", tip: "Pair with flat sandals and a raffia bag for a garden brunch" },
+      { occasion: "Formal", tip: "Add a structured clutch and statement earrings" },
+      { occasion: "Travel", tip: "Layer with a denim jacket for airport-to-dinner ease" },
+    ],
+    recentLovers: 187,
     items: [
       { id: "i5", name: "Flowing Midi Dress", brand: "Reformation", price: 248, image: UNSPLASH("photo-1595777457583-95e059d581b8", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i6", name: "Strappy Heeled Sandals", brand: "By Far", price: 420, image: UNSPLASH("photo-1603487742131-4160ec999306", 400, 500), category: "Shoes", shopUrl: "#" },
@@ -139,6 +179,19 @@ export const feedLooks: Look[] = [
     likes: 18400,
     trending: true,
     mood: "street",
+    editorNote: "The tension between the oversized tee and structured moto jacket creates that effortless-but-intentional energy. The sneakers keep it grounded — literally.",
+    colorStory: [
+      { name: "Jet", hex: "#1A1A1A" },
+      { name: "Storm", hex: "#4A4A4A" },
+      { name: "Cloud", hex: "#FAF9F6" },
+      { name: "Indigo", hex: "#4A6A8A" },
+    ],
+    styleVariations: [
+      { occasion: "Night Out", tip: "Swap sneakers for pointed boots and add a chain necklace" },
+      { occasion: "Work", tip: "Trade the tee for a crisp white shirt, keep the jacket" },
+      { occasion: "Festival", tip: "Add layered accessories and a crossbody bag" },
+    ],
+    recentLovers: 612,
     items: [
       { id: "i9", name: "Oversized Cotton Tee", brand: "Aritzia", price: 58, image: UNSPLASH("photo-1521572163474-6864f9cf17ab", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i10", name: "Leather Moto Jacket", brand: "AllSaints", price: 499, image: UNSPLASH("photo-1551028719-00167b16eac5", 400, 500), category: "Outerwear", shopUrl: "#" },
@@ -163,6 +216,19 @@ export const feedLooks: Look[] = [
       "When the invitation says black tie, answer with conviction. Statement pieces that command every room.",
     likes: 7600,
     mood: "evening",
+    editorNote: "The column silhouette elongates while sequins catch every light. Pro tip: keep accessories minimal — let the dress be the entire conversation.",
+    colorStory: [
+      { name: "Onyx", hex: "#1A1A1A" },
+      { name: "Gold", hex: "#C5A572" },
+      { name: "Crystal", hex: "#E8E0D0" },
+      { name: "Midnight", hex: "#2D2D2D" },
+    ],
+    styleVariations: [
+      { occasion: "Cocktail", tip: "Shorten with a wrap-around belt and switch to kitten heels" },
+      { occasion: "After Party", tip: "Add a leather jacket over shoulders for rock-meets-glam" },
+      { occasion: "Gallery", tip: "Swap sequins for a velvet column — same silhouette, different mood" },
+    ],
+    recentLovers: 98,
     items: [
       { id: "i13", name: "Sequin Column Dress", brand: "Rotate", price: 595, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i14", name: "Crystal Drop Earrings", brand: "Swarovski", price: 189, image: UNSPLASH("photo-1535632066927-ab7c9ab60908", 400, 500), category: "Accessories", shopUrl: "#" },
@@ -188,6 +254,19 @@ export const feedLooks: Look[] = [
       "Pack less, look more. Versatile silhouettes in earth tones that take you from gallery to rooftop bar.",
     likes: 6200,
     mood: "adventure",
+    editorNote: "Utility dressing done right: every piece earns its place. Earth tones create a cohesive palette that transitions seamlessly from gallery to rooftop bar.",
+    colorStory: [
+      { name: "Sand", hex: "#D4BC91" },
+      { name: "Olive", hex: "#A8B5A0" },
+      { name: "Terra", hex: "#C5A572" },
+      { name: "Khaki", hex: "#8A8A6A" },
+    ],
+    styleVariations: [
+      { occasion: "City Walk", tip: "Tuck the shirt and add a structured belt" },
+      { occasion: "Beach", tip: "Unbutton over a swimsuit with the flat sandals" },
+      { occasion: "Dinner", tip: "Trade culottes for a linen midi skirt" },
+    ],
+    recentLovers: 245,
     items: [
       { id: "i17", name: "Linen Utility Shirt", brand: "Apiece Apart", price: 265, image: UNSPLASH("photo-1596755094514-f87e34085b2c", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i18", name: "Cargo Culottes", brand: "COS", price: 135, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -213,6 +292,19 @@ export const feedLooks: Look[] = [
     likes: 11300,
     trending: true,
     mood: "minimal",
+    editorNote: "Head-to-toe black requires textural variation to avoid flatness. The cashmere against structured wool creates a rich interplay of matte and sheen.",
+    colorStory: [
+      { name: "Noir", hex: "#1A1A1A" },
+      { name: "Charcoal", hex: "#2D2D2D" },
+      { name: "Graphite", hex: "#4A4A4A" },
+      { name: "Smoke", hex: "#8A8A8A" },
+    ],
+    styleVariations: [
+      { occasion: "Art Opening", tip: "Add a bold red lip and sculptural earrings" },
+      { occasion: "Office", tip: "Layer with a camel overcoat for contrast" },
+      { occasion: "Date Night", tip: "Swap boots for strappy heels, add a clutch" },
+    ],
+    recentLovers: 534,
     items: [
       { id: "i21", name: "Cashmere Turtleneck", brand: "Nili Lotan", price: 495, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i22", name: "Tailored Wool Coat", brand: "Max Mara", price: 895, image: UNSPLASH("photo-1539533018447-63fcce2678e3", 400, 500), category: "Outerwear", shopUrl: "#" },
@@ -238,6 +330,14 @@ export const feedLooks: Look[] = [
       "Prints that feel fresh, not fussy. The kind of outfit that makes everyone ask where you got it.",
     likes: 5400,
     mood: "romantic",
+    editorNote: "The wrap dress is fashion's great equalizer — flattering on everyone. The print keeps it modern while the basket bag grounds it in reality.",
+    colorStory: [
+      { name: "Poppy", hex: "#C4797A" },
+      { name: "Cream", hex: "#FAF9F6" },
+      { name: "Honey", hex: "#D4BC91" },
+      { name: "Fern", hex: "#A8B5A0" },
+    ],
+    recentLovers: 156,
     items: [
       { id: "i25", name: "Printed Wrap Dress", brand: "Diane von Furstenberg", price: 398, image: UNSPLASH("photo-1572804013309-59a88b7e92f1", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i26", name: "Raffia Basket Bag", brand: "Loewe", price: 450, image: UNSPLASH("photo-1590874103328-eac38a683ce7", 400, 500), category: "Bags", shopUrl: "#" },
@@ -262,6 +362,19 @@ export const feedLooks: Look[] = [
       "The modern suit is your armor. Structured enough to command respect, relaxed enough to feel like you.",
     likes: 8900,
     mood: "classic",
+    editorNote: "A power suit in 2025 isn't about conformity — it's about authority worn with ease. The double-breasted closure adds presence; the relaxed trouser keeps it modern.",
+    colorStory: [
+      { name: "Navy", hex: "#1A1A3A" },
+      { name: "Ivory", hex: "#FAF9F6" },
+      { name: "Tan", hex: "#C5A572" },
+      { name: "Ink", hex: "#1A1A1A" },
+    ],
+    styleVariations: [
+      { occasion: "Boardroom", tip: "Button the blazer, tuck a silk blouse underneath" },
+      { occasion: "After Work", tip: "Open the blazer, add gold hoops and a going-out top" },
+      { occasion: "Weekend", tip: "Wear just the trousers with a graphic tee" },
+    ],
+    recentLovers: 312,
     items: [
       { id: "i29", name: "Double-Breasted Blazer", brand: "Toteme", price: 690, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#" },
       { id: "i30", name: "High-Waist Trousers", brand: "Toteme", price: 390, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -287,6 +400,19 @@ export const feedLooks: Look[] = [
     likes: 22100,
     trending: true,
     mood: "classic",
+    editorNote: "The cost-per-wear math here is extraordinary. These are the pieces you'll reach for 200 times before they even begin to show wear. That's stealth wealth.",
+    colorStory: [
+      { name: "Oat", hex: "#E8D5D0" },
+      { name: "Bone", hex: "#FAF9F6" },
+      { name: "Caramel", hex: "#C5A572" },
+      { name: "Espresso", hex: "#4A2A1A" },
+    ],
+    styleVariations: [
+      { occasion: "Travel", tip: "These pieces layer beautifully — add a cashmere scarf for the plane" },
+      { occasion: "Meeting", tip: "The cashmere crew alone with the palazzo pants owns the room" },
+      { occasion: "Museum", tip: "Add a trench draped over shoulders" },
+    ],
+    recentLovers: 789,
     items: [
       { id: "i33", name: "Cashmere Crew", brand: "The Row", price: 890, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i34", name: "Wool Palazzo Pants", brand: "Toteme", price: 450, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -312,6 +438,14 @@ export const feedLooks: Look[] = [
     likes: 15700,
     trending: true,
     mood: "minimal",
+    editorNote: "Copenhagen style decoded: it's about proportion and restraint. The oversized shirt-jacket over fluid trousers is Scandi dressing at its most democratic.",
+    colorStory: [
+      { name: "Oatmeal", hex: "#E8D5D0" },
+      { name: "Pewter", hex: "#8A8A8A" },
+      { name: "Chalk", hex: "#FAF9F6" },
+      { name: "Iron", hex: "#4A4A4A" },
+    ],
+    recentLovers: 467,
     items: [
       { id: "i37", name: "Oversized Wool Shirt", brand: "COS", price: 175, image: UNSPLASH("photo-1596755094514-f87e34085b2c", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i38", name: "Wide-Leg Wool Pants", brand: "Arket", price: 149, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -336,6 +470,14 @@ export const feedLooks: Look[] = [
       "Organza, tulle, and a touch of Victorian drama. For the woman who treats getting dressed like poetry.",
     likes: 8400,
     mood: "romantic",
+    editorNote: "Organza and tulle aren't costumey when styled with precision. The key is mixing textures while staying in the same tonal family — romantic, not costume.",
+    colorStory: [
+      { name: "Petal", hex: "#E8D5D0" },
+      { name: "Peony", hex: "#C4797A" },
+      { name: "Pearl", hex: "#FAF9F6" },
+      { name: "Mauve", hex: "#B8A9C9" },
+    ],
+    recentLovers: 203,
     items: [
       { id: "i41", name: "Organza Blouse", brand: "Zimmermann", price: 595, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i42", name: "Tulle Midi Skirt", brand: "Simone Rocha", price: 680, image: UNSPLASH("photo-1583496661160-fb5886a0aabd", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -361,6 +503,14 @@ export const feedLooks: Look[] = [
     likes: 19200,
     trending: true,
     mood: "street",
+    editorNote: "The beauty of Tokyo street style is in the unexpected pairings: a Sacai hoodie with Needles cargo creates a conversation between luxury and utility.",
+    colorStory: [
+      { name: "Ink", hex: "#1A1A1A" },
+      { name: "Cement", hex: "#8A8A8A" },
+      { name: "Lilac", hex: "#B8A9C9" },
+      { name: "White", hex: "#FAF9F6" },
+    ],
+    recentLovers: 891,
     items: [
       { id: "i45", name: "Graphic Hoodie", brand: "Sacai", price: 580, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i46", name: "Cargo Pants", brand: "Needles", price: 340, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -386,6 +536,14 @@ export const feedLooks: Look[] = [
     likes: 12600,
     editorsChoice: true,
     mood: "evening",
+    editorNote: "Red carpet dressing is about engineering a moment. The draped gown creates drama; the statement cuff provides the punctuation mark. Less is never more here.",
+    colorStory: [
+      { name: "Champagne", hex: "#D4BC91" },
+      { name: "Obsidian", hex: "#1A1A1A" },
+      { name: "Ruby", hex: "#C4797A" },
+      { name: "Gold", hex: "#C5A572" },
+    ],
+    recentLovers: 345,
     items: [
       { id: "i49", name: "Draped Gown", brand: "Saint Laurent", price: 2890, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i50", name: "Statement Cuff", brand: "Alexander McQueen", price: 790, image: UNSPLASH("photo-1535632066927-ab7c9ab60908", 400, 500), category: "Accessories", shopUrl: "#" },
@@ -411,6 +569,14 @@ export const feedLooks: Look[] = [
     likes: 16500,
     trending: true,
     mood: "classic",
+    editorNote: "Nancy Meyers had it right all along: linen, cashmere, and a sense of ease. This is wardrobe alchemy — simple pieces that project an entire lifestyle.",
+    colorStory: [
+      { name: "Linen", hex: "#FAF9F6" },
+      { name: "Sand", hex: "#D4BC91" },
+      { name: "Sage", hex: "#A8B5A0" },
+      { name: "Driftwood", hex: "#C5A572" },
+    ],
+    recentLovers: 578,
     items: [
       { id: "i53", name: "Oversized Linen Shirt", brand: "Frank & Eileen", price: 248, image: UNSPLASH("photo-1596755094514-f87e34085b2c", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i54", name: "Wide-Leg Linen Pants", brand: "Jenni Kayne", price: 295, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -435,6 +601,14 @@ export const feedLooks: Look[] = [
       "The girlboss blazer is dead. Long live the office siren — fitted, intentional, and unforgettable.",
     likes: 13800,
     mood: "classic",
+    editorNote: "The office siren trend is about reclaiming intentionality in work dressing. A fitted blazer dress isn't provocative — it's powerful.",
+    colorStory: [
+      { name: "Noir", hex: "#1A1A1A" },
+      { name: "Scarlet", hex: "#C4797A" },
+      { name: "Nude", hex: "#E8D5D0" },
+      { name: "Jet", hex: "#2D2D2D" },
+    ],
+    recentLovers: 402,
     items: [
       { id: "i57", name: "Fitted Blazer Dress", brand: "Mugler", price: 790, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i58", name: "Sheer Turtleneck", brand: "Wolford", price: 250, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
@@ -460,6 +634,14 @@ export const feedLooks: Look[] = [
     likes: 21300,
     trending: true,
     mood: "adventure",
+    editorNote: "Modern festival dressing ditched the flower crowns. It's about vintage-informed textures and layered accessories that survive the mosh pit with style.",
+    colorStory: [
+      { name: "Violet", hex: "#B8A9C9" },
+      { name: "Sage", hex: "#A8B5A0" },
+      { name: "Denim", hex: "#4A6A8A" },
+      { name: "Cream", hex: "#FAF9F6" },
+    ],
+    recentLovers: 1203,
     items: [
       { id: "i61", name: "Crochet Top", brand: "Cult Gaia", price: 198, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i62", name: "Denim Cutoffs", brand: "RE/DONE", price: 225, image: UNSPLASH("photo-1541099649105-f69ad21f3246", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -469,14 +651,14 @@ export const feedLooks: Look[] = [
   },
 ];
 
-export const moodFilters: { id: MoodFilter; label: string; emoji: string }[] = [
-  { id: "all", label: "All", emoji: "" },
-  { id: "minimal", label: "Minimal", emoji: "" },
-  { id: "romantic", label: "Romantic", emoji: "" },
-  { id: "street", label: "Street", emoji: "" },
-  { id: "evening", label: "Evening", emoji: "" },
-  { id: "classic", label: "Classic", emoji: "" },
-  { id: "adventure", label: "Adventure", emoji: "" },
+export const moodFilters: { id: MoodFilter; label: string; emoji: string; color: string }[] = [
+  { id: "all", label: "All", emoji: "", color: "#1A1A1A" },
+  { id: "minimal", label: "Minimal", emoji: "", color: "#8A8A8A" },
+  { id: "romantic", label: "Romantic", emoji: "", color: "#C4797A" },
+  { id: "street", label: "Street", emoji: "", color: "#2D2D2D" },
+  { id: "evening", label: "Evening", emoji: "", color: "#B8A9C9" },
+  { id: "classic", label: "Classic", emoji: "", color: "#C5A572" },
+  { id: "adventure", label: "Adventure", emoji: "", color: "#A8B5A0" },
 ];
 
 export const eventTypes: EventType[] = [
