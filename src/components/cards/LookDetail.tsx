@@ -17,9 +17,10 @@ function formatCount(n: number): string {
 interface LookDetailProps {
   look: Look;
   onClose: () => void;
+  onLookTap?: (look: Look) => void;
 }
 
-export function LookDetail({ look, onClose }: LookDetailProps) {
+export function LookDetail({ look, onClose, onLookTap }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
@@ -28,7 +29,11 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
   const [saved, setSaved] = useState(false);
 
   const handleRelatedLookTap = (relatedLook: Look) => {
-    setShowLookDetail(relatedLook);
+    if (onLookTap) {
+      onLookTap(relatedLook);
+    } else {
+      setShowLookDetail(relatedLook);
+    }
   };
 
   return (

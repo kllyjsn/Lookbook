@@ -358,8 +358,10 @@ export function CommunityPage() {
       <AnimatePresence>
         {challengeLook && (
           <LookDetail
+            key={challengeLook.id}
             look={challengeLook}
             onClose={() => setChallengeLook(null)}
+            onLookTap={setChallengeLook}
           />
         )}
       </AnimatePresence>
