@@ -30,15 +30,18 @@ export function FeedPage() {
   const recordSwipeDay = useStore((s) => s.recordSwipeDay);
   const [showSearch, setShowSearch] = useState(false);
 
+  const [sortKey, setSortKey] = useState(() => JSON.stringify(styleDNA) + activeMoodFilter);
+
   const filteredLooks = useMemo(() => {
+    const dna = useStore.getState().styleDNA;
     const base =
       activeMoodFilter === "all"
         ? feedLooks
         : feedLooks.filter((l) => l.mood === activeMoodFilter);
 
-    if (activeMoodFilter !== "all" || styleDNA.length === 0) return base;
+    if (activeMoodFilter !== "all" || dna.length === 0) return base;
 
-    const styleRank = new Map(styleDNA.map((d, i) => [d.style, styleDNA.length - i]));
+    const styleRank = new Map(dna.map((d, i) => [d.style, dna.length - i]));
     const tagToStyle: Record<string, string> = {
       Minimalist: "Minimalist", Office: "Classic", Romantic: "Romantic",
       Evening: "Romantic", Streetwear: "Streetwear", Casual: "Streetwear",
@@ -57,7 +60,8 @@ export function FeedPage() {
       const scoreB = b.tags.reduce((s, t) => s + (styleRank.get(tagToStyle[t.label] ?? "") ?? 0), 0);
       return scoreB - scoreA;
     });
-  }, [activeMoodFilter, styleDNA]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortKey]);
 
   const hasSeenAll = currentFeedIndex >= filteredLooks.length;
 
@@ -115,6 +119,8 @@ export function FeedPage() {
   const handleMoodFilter = useCallback(
     (mood: MoodFilter) => {
       setActiveMoodFilter(mood);
+      const dna = useStore.getState().styleDNA;
+      setSortKey(JSON.stringify(dna) + mood);
     },
     [setActiveMoodFilter]
   );
