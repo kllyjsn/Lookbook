@@ -142,13 +142,13 @@ export function ProfilePage() {
                 </div>
               </div>
 
-              {/* Weekly Style Recap */}
+              {/* Style Stats Recap */}
               <div className="mt-8">
-                <h3 className="font-editorial text-lg text-ink mb-4">Your Week in Style</h3>
+                <h3 className="font-editorial text-lg text-ink mb-4">Your Style Stats</h3>
                 <div className="bg-gradient-to-br from-ink to-charcoal rounded-2xl p-5 text-white">
                   <div className="flex items-center gap-2 mb-4">
                     <BarChart3 size={14} className="text-gold" />
-                    <span className="text-[9px] font-inter tracking-[0.2em] uppercase text-white/50">Weekly Recap</span>
+                    <span className="text-[9px] font-inter tracking-[0.2em] uppercase text-white/50">All-Time Recap</span>
                   </div>
                   <div className="grid grid-cols-3 gap-3 mb-4">
                     <div className="text-center">
