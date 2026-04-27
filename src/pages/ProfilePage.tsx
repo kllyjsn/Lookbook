@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2 } from "lucide-react";
+import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2, Flame, BarChart3, TrendingUp } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
@@ -12,7 +12,9 @@ type ProfileSection = "dna" | "liked" | "collections";
 export function ProfilePage() {
   const styleDNA = useStore((s) => s.styleDNA);
   const likedLooks = useStore((s) => s.likedLooks);
+  const passedLooks = useStore((s) => s.passedLooks);
   const collections = useStore((s) => s.collections);
+  const currentStreak = useStore((s) => s.currentStreak);
   const createCollection = useStore((s) => s.createCollection);
   const removeFromCollection = useStore((s) => s.removeFromCollection);
   const [activeSection, setActiveSection] = useState<ProfileSection>("dna");
@@ -137,6 +139,45 @@ export function ProfilePage() {
                       </div>
                     </motion.div>
                   ))}
+                </div>
+              </div>
+
+              {/* Weekly Style Recap */}
+              <div className="mt-8">
+                <h3 className="font-editorial text-lg text-ink mb-4">Your Week in Style</h3>
+                <div className="bg-gradient-to-br from-ink to-charcoal rounded-2xl p-5 text-white">
+                  <div className="flex items-center gap-2 mb-4">
+                    <BarChart3 size={14} className="text-gold" />
+                    <span className="text-[9px] font-inter tracking-[0.2em] uppercase text-white/50">Weekly Recap</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3 mb-4">
+                    <div className="text-center">
+                      <p className="font-editorial text-2xl text-gold">{likedLooks.length + passedLooks.length}</p>
+                      <p className="text-[9px] font-inter text-white/50 mt-0.5">Looks Seen</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="font-editorial text-2xl text-gold">{likedLooks.length}</p>
+                      <p className="text-[9px] font-inter text-white/50 mt-0.5">Loved</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        <Flame size={14} className="text-orange-400" />
+                        <p className="font-editorial text-2xl text-gold">{currentStreak}</p>
+                      </div>
+                      <p className="text-[9px] font-inter text-white/50 mt-0.5">Day Streak</p>
+                    </div>
+                  </div>
+                  {styleDNA.length > 0 && (() => {
+                    const top = styleDNA.reduce((a, b) => a.percentage > b.percentage ? a : b);
+                    return (
+                      <div className="flex items-center gap-2 pt-3 border-t border-white/10">
+                        <TrendingUp size={12} className="text-green-400" />
+                        <p className="text-xs font-inter text-white/70">
+                          <span className="text-white font-medium">{top.style}</span> is your dominant style at {top.percentage}%
+                        </p>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             </motion.div>

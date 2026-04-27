@@ -1,7 +1,9 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion";
-import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2 } from "lucide-react";
+import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2, Dna } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { useStore } from "../../stores/useStore";
+import { creators } from "../../data/communityData";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -14,6 +16,49 @@ const badgeConfig = {
   "editors-pick": { label: "EDITOR'S PICK", icon: Award, bg: "bg-gold/90", text: "text-white" },
   "new": { label: "NEW", icon: Zap, bg: "bg-ink/80", text: "text-cream" },
 } as const;
+
+const socialAvatars = creators.slice(0, 3).map((c) => c.avatar);
+
+const tagToStyleMap: Record<string, string> = {
+  "Minimalist": "Minimalist", "Office": "Classic", "Romantic": "Romantic",
+  "Evening": "Romantic", "Streetwear": "Streetwear", "Casual": "Streetwear",
+  "Glamour": "Avant-Garde", "Chic": "Minimalist", "Feminine": "Romantic",
+  "Tailored": "Classic", "Power": "Classic", "Clean": "Minimalist",
+  "Scandi": "Minimalist", "Quiet Luxury": "Classic", "Tokyo": "Avant-Garde",
+  "Creative": "Avant-Garde", "Statement": "Avant-Garde", "Corporate": "Classic",
+  "Siren": "Avant-Garde", "Coastal": "Classic", "Festival": "Avant-Garde",
+  "Boho": "Romantic", "Social": "Romantic", "Adventure": "Classic",
+  "Utility": "Classic", "Investment": "Classic", "Vintage": "Romantic",
+};
+
+function DNAMatchBadge({ look }: { look: Look }) {
+  const styleDNA = useStore((s) => s.styleDNA);
+  if (!styleDNA.length) return null;
+
+  const lookStyles = look.tags
+    .map((t) => tagToStyleMap[t.label])
+    .filter(Boolean);
+
+  let matchScore = 0;
+  for (const style of lookStyles) {
+    const entry = styleDNA.find((d) => d.style === style);
+    if (entry) matchScore += entry.percentage;
+  }
+  const match = Math.min(99, Math.round(matchScore / Math.max(1, lookStyles.length)));
+  if (match < 20) return null;
+
+  return (
+    <motion.div
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      transition={{ delay: 0.5, type: "spring", stiffness: 300 }}
+      className="flex items-center gap-1 bg-white/15 backdrop-blur-sm rounded-full px-2 py-0.5"
+    >
+      <Dna size={10} className="text-gold" />
+      <span className="text-[9px] font-inter font-bold text-white">{match}%</span>
+    </motion.div>
+  );
+}
 
 interface SwipeCardProps {
   look: Look;
@@ -171,17 +216,6 @@ export function SwipeCard({
               {look.season}
             </span>
             <div className="flex items-center gap-2">
-              {look.trending && (
-                <span className="trending-badge flex items-center gap-1 text-[9px] font-inter font-semibold tracking-[0.1em] uppercase bg-white/20 backdrop-blur-sm text-white rounded-full px-2.5 py-1">
-                  <TrendingUp size={10} />
-                  Trending
-                </span>
-              )}
-              {look.editorsChoice && (
-                <span className="text-[9px] font-inter font-semibold tracking-[0.1em] uppercase bg-gold/90 text-white rounded-full px-2.5 py-1">
-                  Editor's Pick
-                </span>
-              )}
               {look.badge && (() => {
                 const badge = badgeConfig[look.badge];
                 const BadgeIcon = badge.icon;
@@ -190,7 +224,7 @@ export function SwipeCard({
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.3, type: "spring", stiffness: 400 }}
-                    className={`flex items-center gap-1.5 px-3 py-1 rounded-full ${badge.bg} backdrop-blur-sm`}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-full ${badge.bg} backdrop-blur-sm ${look.badge === "trending" ? "trending-badge" : ""}`}
                   >
                     <BadgeIcon size={10} className={badge.text} />
                     <span className={`text-[9px] font-inter font-semibold tracking-wider ${badge.text}`}>
@@ -225,19 +259,29 @@ export function SwipeCard({
             <p className="font-subhead text-base text-white/80 italic">
               {look.subtitle}
             </p>
-            <div className="flex items-center gap-3 pt-1">
-              <span className="flex items-center gap-1 text-xs font-inter text-white/60">
-                <Heart size={12} fill="currentColor" />
-                {formatCount(look.likes)}
-              </span>
-              <span className="text-white/30">·</span>
-              <span className="text-xs font-inter text-white/50">
-                {look.priceRange}
-              </span>
-              <span className="text-white/30">·</span>
-              <span className="text-xs font-inter text-white/50">
-                {look.items.length} pieces
-              </span>
+            <div className="flex items-center justify-between pt-1">
+              <div className="flex items-center gap-3">
+                {/* Social proof avatars */}
+                <div className="flex -space-x-2">
+                  {socialAvatars.map((avatar, i) => (
+                    <img
+                      key={i}
+                      src={avatar}
+                      alt=""
+                      className="w-5 h-5 rounded-full border border-white/30 object-cover"
+                    />
+                  ))}
+                </div>
+                <span className="flex items-center gap-1 text-xs font-inter text-white/60">
+                  <Heart size={12} fill="currentColor" />
+                  {formatCount(look.likes)}
+                </span>
+                <span className="text-white/30">·</span>
+                <span className="text-xs font-inter text-white/50">
+                  {look.priceRange}
+                </span>
+              </div>
+              <DNAMatchBadge look={look} />
             </div>
           </div>
         </div>
