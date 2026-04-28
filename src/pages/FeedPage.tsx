@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
@@ -27,18 +27,28 @@ export function FeedPage() {
   const setQuickSaveLook = useStore((s) => s.setQuickSaveLook);
   const [showSearch, setShowSearch] = useState(false);
 
+  // Capture DNA snapshot per filter change so the sort order stays stable
+  // while the user swipes (liking looks updates DNA, which would reshuffle).
+  const dnaSnapshotRef = useRef(styleDNA);
+  const lastFilterRef = useRef(activeMoodFilter);
+  if (activeMoodFilter !== lastFilterRef.current) {
+    dnaSnapshotRef.current = styleDNA;
+    lastFilterRef.current = activeMoodFilter;
+  }
+
   const filteredLooks = useMemo(() => {
+    const dna = dnaSnapshotRef.current;
     const base =
       activeMoodFilter === "all"
         ? feedLooks
         : feedLooks.filter((l) => l.mood === activeMoodFilter);
-    if (styleDNA.length === 0 || styleDNA.every((d) => d.percentage === 0))
+    if (dna.length === 0 || dna.every((d) => d.percentage === 0))
       return base;
     return [...base].sort(
       (a, b) =>
-        computeStyleMatch(b, styleDNA) - computeStyleMatch(a, styleDNA)
+        computeStyleMatch(b, dna) - computeStyleMatch(a, dna)
     );
-  }, [activeMoodFilter, styleDNA]);
+  }, [activeMoodFilter]);
 
   const hasSeenAll = currentFeedIndex >= filteredLooks.length;
 
@@ -259,6 +269,7 @@ export function FeedPage() {
       <AnimatePresence>
         {showLookDetail && (
           <LookDetail
+            key={showLookDetail.id}
             look={showLookDetail}
             onClose={() => setShowLookDetail(null)}
           />
