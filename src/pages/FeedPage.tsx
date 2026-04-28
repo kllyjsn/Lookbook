@@ -59,11 +59,13 @@ export function FeedPage() {
     addToRecentlyViewed(currentLook);
   }, [currentLook, likeLook, incrementStreak, addToRecentlyViewed]);
 
+  const resetStreak = useStore((s) => s.resetStreak);
+
   const handleSwipeLeft = useCallback(() => {
     passLook(currentLook);
-    incrementStreak();
+    resetStreak();
     addToRecentlyViewed(currentLook);
-  }, [currentLook, passLook, incrementStreak, addToRecentlyViewed]);
+  }, [currentLook, passLook, resetStreak, addToRecentlyViewed]);
 
   const handleSwipeUp = useCallback(() => {
     setShowLookDetail(currentLook);
@@ -87,9 +89,9 @@ export function FeedPage() {
 
   const handleButtonPass = useCallback(() => {
     passLook(currentLook);
-    incrementStreak();
+    resetStreak();
     addToRecentlyViewed(currentLook);
-  }, [currentLook, passLook, incrementStreak, addToRecentlyViewed]);
+  }, [currentLook, passLook, resetStreak, addToRecentlyViewed]);
 
   const handleButtonShop = useCallback(() => {
     setShowLookDetail(currentLook);
