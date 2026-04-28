@@ -244,15 +244,17 @@ export function FeedPage() {
     [setActiveMoodFilter]
   );
 
+  const hasLikedAny = likedLooks.length > 0;
+
   const filteredLooks = useMemo(() => {
     const base =
       activeMoodFilter === "all"
         ? feedLooks
         : feedLooks.filter((l) => l.mood === activeMoodFilter);
-    return sortByStyleMatch(base, styleDNA);
+    return hasLikedAny ? sortByStyleMatch(base, styleDNA) : base;
     // feedVersion triggers re-sort only on filter change, not on every styleDNA mutation
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeMoodFilter, feedVersion]);
+  }, [activeMoodFilter, feedVersion, hasLikedAny]);
 
   const hasSeenAll = currentFeedIndex >= filteredLooks.length;
 
