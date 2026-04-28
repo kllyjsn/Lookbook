@@ -361,7 +361,7 @@ export function FeedPage() {
           {/* Duel mode toggle */}
           <motion.button
             whileTap={{ scale: 0.9 }}
-            onClick={toggleDuelMode}
+            onClick={() => { if (!duelMode) setDuelIndex(0); toggleDuelMode(); }}
             className={`w-8 h-8 rounded-full flex items-center justify-center border transition-colors ${
               duelMode ? "bg-gold/10 border-gold/30" : "bg-ivory border-ink/10"
             }`}
@@ -528,6 +528,7 @@ export function FeedPage() {
             key={showLookDetail.id}
             look={showLookDetail}
             onClose={() => setShowLookDetail(null)}
+            onNavigateToLook={setShowLookDetail}
           />
         )}
       </AnimatePresence>
