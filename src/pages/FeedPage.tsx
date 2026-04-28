@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
@@ -29,6 +29,10 @@ export function FeedPage() {
   const addToRecentlyViewed = useStore((s) => s.addToRecentlyViewed);
   const setLastSeenFeedCount = useStore((s) => s.setLastSeenFeedCount);
   const [showSearch, setShowSearch] = useState(false);
+
+  useEffect(() => {
+    setLastSeenFeedCount(feedLooks.length);
+  }, [setLastSeenFeedCount]);
 
   const filteredLooks = useMemo(
     () =>
@@ -281,8 +285,10 @@ export function FeedPage() {
       <AnimatePresence>
         {showLookDetail && (
           <LookDetail
+            key={showLookDetail.id}
             look={showLookDetail}
             onClose={() => setShowLookDetail(null)}
+            onNavigate={(look) => setShowLookDetail(look)}
           />
         )}
       </AnimatePresence>
