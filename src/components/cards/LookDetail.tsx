@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
 import type { Look } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
+import { DupeFinder } from "./DupeFinder";
 import { Tag } from "../ui/Tag";
 import { useStore } from "../../stores/useStore";
 
@@ -187,6 +188,9 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 ))}
               </div>
             </div>
+
+            {/* Get the Dupe section */}
+            <DupeFinder items={look.items} />
 
             {/* Photographer credit */}
             {look.photographer && (

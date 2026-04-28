@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
 import { SearchPage } from "./SearchPage";
+import { OOTDStories } from "../components/feed/OOTDStories";
+import { TrendRadar } from "../components/feed/TrendRadar";
 import { Logo } from "../components/ui/Logo";
 import { RefreshCw, Sparkles, Camera } from "lucide-react";
 import { feedLooks, moodFilters } from "../data/mockData";
@@ -95,13 +97,13 @@ export function FeedPage() {
         <Logo variant="mark" size="sm" />
         <div className="flex items-center gap-3">
           <span className="text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted">
-            {Math.min(currentFeedIndex + 1, feedLooks.length)} / {feedLooks.length}
+            {Math.min(currentFeedIndex + 1, filteredLooks.length)} / {filteredLooks.length}
           </span>
           <div className="w-16 h-1 bg-ink/10 rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-gold rounded-full"
               initial={{ width: 0 }}
-              animate={{ width: `${Math.min(((currentFeedIndex + 1) / feedLooks.length) * 100, 100)}%` }}
+              animate={{ width: `${Math.min(((currentFeedIndex + 1) / filteredLooks.length) * 100, 100)}%` }}
               transition={{ duration: 0.3 }}
             />
           </div>
@@ -117,6 +119,9 @@ export function FeedPage() {
         </div>
       </div>
 
+      {/* OOTD Stories carousel */}
+      <OOTDStories />
+
       {/* Mood filter pills */}
       <div className="px-4 pb-2">
         <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
@@ -131,6 +136,7 @@ export function FeedPage() {
                   : "bg-ivory text-ink-muted border border-ink/5 hover:border-ink/15"
               }`}
             >
+              {filter.emoji && <span className="mr-1">{filter.emoji}</span>}
               {filter.label}
             </motion.button>
           ))}
@@ -177,6 +183,11 @@ export function FeedPage() {
               >
                 Explore Community
               </motion.button>
+            </div>
+
+            {/* Trend Radar in end-of-feed */}
+            <div className="mt-8 w-full">
+              <TrendRadar />
             </div>
           </motion.div>
         ) : (

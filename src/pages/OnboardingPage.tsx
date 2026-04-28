@@ -54,10 +54,10 @@ const styleOptions: StyleOption[] = [
 ];
 
 const budgetOptions = [
-  { id: "budget", label: "Smart Finds", range: "Under $100", emoji: "" },
-  { id: "mid", label: "Balanced", range: "$100 – $500", emoji: "" },
-  { id: "premium", label: "Investment", range: "$500+", emoji: "" },
-  { id: "luxury", label: "No Limits", range: "Luxury", emoji: "" },
+  { id: "budget", label: "Smart Finds", range: "Under $100", emoji: "\uD83D\uDCB0" },
+  { id: "mid", label: "Balanced", range: "$100 – $500", emoji: "\u2696\uFE0F" },
+  { id: "premium", label: "Investment", range: "$500+", emoji: "\uD83D\uDC8E" },
+  { id: "luxury", label: "No Limits", range: "Luxury", emoji: "\uD83D\uDC51" },
 ];
 
 export function OnboardingPage() {
