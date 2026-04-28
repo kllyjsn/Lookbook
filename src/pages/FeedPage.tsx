@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
@@ -28,7 +28,7 @@ export function FeedPage() {
   const [showSearch, setShowSearch] = useState(false);
 
   // Record activity on mount
-  useState(() => { recordActivity(); });
+  useEffect(() => { recordActivity(); }, [recordActivity]);
 
   const filteredLooks = useMemo(
     () =>
