@@ -1,20 +1,20 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
 import { SearchPage } from "./SearchPage";
 import { Logo } from "../components/ui/Logo";
 import { RefreshCw, Sparkles, Camera } from "lucide-react";
-import { feedLooks, moodFilters } from "../data/mockData";
+import { feedLooks, moodFilters, computeStyleMatch } from "../data/mockData";
 import type { MoodFilter } from "../data/mockData";
 import { useStore } from "../stores/useStore";
+import { QuickSaveSheet } from "../components/cards/QuickSaveSheet";
 
 export function FeedPage() {
   const currentFeedIndex = useStore((s) => s.currentFeedIndex);
   const setCurrentFeedIndex = useStore((s) => s.setCurrentFeedIndex);
   const likeLook = useStore((s) => s.likeLook);
   const passLook = useStore((s) => s.passLook);
-  const addToCollection = useStore((s) => s.addToCollection);
   const showLookDetail = useStore((s) => s.showLookDetail);
   const setShowLookDetail = useStore((s) => s.setShowLookDetail);
   const setActiveTab = useStore((s) => s.setActiveTab);
@@ -23,15 +23,43 @@ export function FeedPage() {
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
   const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
+  const styleDNA = useStore((s) => s.styleDNA);
+  const setQuickSaveLook = useStore((s) => s.setQuickSaveLook);
   const [showSearch, setShowSearch] = useState(false);
 
-  const filteredLooks = useMemo(
-    () =>
+  // DNA snapshot: stable per filter change so liking looks doesn't reshuffle.
+  // Also updates once on zustand persist hydration (DNA changes from default
+  // to persisted value before any user interaction).
+  const [dnaSnapshot, setDnaSnapshot] = useState(styleDNA);
+  const lastFilterRef = useRef(activeMoodFilter);
+  const userHasSwipedRef = useRef(false);
+
+  if (activeMoodFilter !== lastFilterRef.current) {
+    setDnaSnapshot(styleDNA);
+    lastFilterRef.current = activeMoodFilter;
+    userHasSwipedRef.current = false;
+  }
+
+  useEffect(() => {
+    // Allow DNA updates (e.g. hydration) only before the user starts swiping.
+    // Once they swipe, DNA changes come from likes and should not reshuffle.
+    if (!userHasSwipedRef.current) {
+      setDnaSnapshot(styleDNA);
+    }
+  }, [styleDNA]);
+
+  const filteredLooks = useMemo(() => {
+    const base =
       activeMoodFilter === "all"
         ? feedLooks
-        : feedLooks.filter((l) => l.mood === activeMoodFilter),
-    [activeMoodFilter]
-  );
+        : feedLooks.filter((l) => l.mood === activeMoodFilter);
+    if (dnaSnapshot.length === 0 || dnaSnapshot.every((d) => d.percentage === 0))
+      return base;
+    return [...base].sort(
+      (a, b) =>
+        computeStyleMatch(b, dnaSnapshot) - computeStyleMatch(a, dnaSnapshot)
+    );
+  }, [activeMoodFilter, dnaSnapshot]);
 
   const hasSeenAll = currentFeedIndex >= filteredLooks.length;
 
@@ -45,10 +73,12 @@ export function FeedPage() {
   );
 
   const handleSwipeRight = useCallback(() => {
+    userHasSwipedRef.current = true;
     likeLook(currentLook);
   }, [currentLook, likeLook]);
 
   const handleSwipeLeft = useCallback(() => {
+    userHasSwipedRef.current = true;
     passLook(currentLook);
   }, [currentLook, passLook]);
 
@@ -61,14 +91,17 @@ export function FeedPage() {
   }, [currentLook, setShowLookDetail]);
 
   const handleDoubleTap = useCallback(() => {
+    userHasSwipedRef.current = true;
     likeLook(currentLook);
   }, [currentLook, likeLook]);
 
   const handleButtonLike = useCallback(() => {
+    userHasSwipedRef.current = true;
     likeLook(currentLook);
   }, [currentLook, likeLook]);
 
   const handleButtonPass = useCallback(() => {
+    userHasSwipedRef.current = true;
     passLook(currentLook);
   }, [currentLook, passLook]);
 
@@ -77,9 +110,8 @@ export function FeedPage() {
   }, [currentLook, setShowLookDetail]);
 
   const handleButtonSave = useCallback(() => {
-    addToCollection("favorites", currentLook);
-    setActiveTab("profile");
-  }, [currentLook, addToCollection, setActiveTab]);
+    setQuickSaveLook(currentLook);
+  }, [currentLook, setQuickSaveLook]);
 
   const handleMoodFilter = useCallback(
     (mood: MoodFilter) => {
@@ -253,11 +285,16 @@ export function FeedPage() {
       <AnimatePresence>
         {showLookDetail && (
           <LookDetail
+            key={showLookDetail.id}
             look={showLookDetail}
             onClose={() => setShowLookDetail(null)}
+            onNavigate={setShowLookDetail}
           />
         )}
       </AnimatePresence>
+
+      {/* Quick-save bottom sheet */}
+      <QuickSaveSheet />
     </div>
   );
 }

@@ -59,6 +59,10 @@ interface AppState {
   followCreator: (id: string) => void;
   unfollowCreator: (id: string) => void;
 
+  // Quick-save sheet
+  quickSaveLook: Look | null;
+  setQuickSaveLook: (look: Look | null) => void;
+
   // UI state
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -260,6 +264,9 @@ export const useStore = create<AppState>()(
         set((state) => ({
           followedCreators: state.followedCreators.filter((cid) => cid !== id),
         })),
+
+      quickSaveLook: null,
+      setQuickSaveLook: (look) => set({ quickSaveLook: look }),
 
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
