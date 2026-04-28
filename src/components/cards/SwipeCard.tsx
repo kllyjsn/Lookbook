@@ -36,7 +36,8 @@ export function SwipeCard({
   isTop,
 }: SwipeCardProps) {
   const styleDNA = useStore((s) => s.styleDNA);
-  const matchScore = computeStyleMatch(look, styleDNA);
+  const likedLooks = useStore((s) => s.likedLooks);
+  const matchScore = likedLooks.length > 0 ? computeStyleMatch(look, styleDNA) : 0;
 
   const [exitDirection, setExitDirection] = useState<"left" | "right" | "up" | null>(null);
   const [imgLoaded, setImgLoaded] = useState(false);

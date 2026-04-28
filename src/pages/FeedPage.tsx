@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, useEffect } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
@@ -227,13 +227,10 @@ export function FeedPage() {
   const passedLooks = useStore((s) => s.passedLooks);
   const styleDNA = useStore((s) => s.styleDNA);
   const swipeStreak = useStore((s) => s.swipeStreak);
-  const recordSwipeDay = useStore((s) => s.recordSwipeDay);
   const duelMode = useStore((s) => s.duelMode);
   const toggleDuelMode = useStore((s) => s.toggleDuelMode);
   const [showSearch, setShowSearch] = useState(false);
   const [duelIndex, setDuelIndex] = useState(0);
-
-  useEffect(() => { recordSwipeDay(); }, [recordSwipeDay]);
 
   // Sort feed once when the component mounts or mood filter changes.
   // We use a version counter to avoid re-sorting on every styleDNA change (which happens on every like).
@@ -328,10 +325,10 @@ export function FeedPage() {
   );
 
   const topMatch = useMemo(() => {
-    if (styleDNA.length === 0 || filteredLooks.length === 0) return null;
+    if (likedLooks.length === 0 || filteredLooks.length === 0) return null;
     const score = computeStyleMatch(currentLook, styleDNA);
     return score >= 70 ? score : null;
-  }, [currentLook, styleDNA, filteredLooks.length]);
+  }, [currentLook, styleDNA, filteredLooks.length, likedLooks.length]);
 
   return (
     <div className="h-full flex flex-col bg-cream">

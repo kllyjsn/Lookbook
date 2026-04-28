@@ -148,6 +148,14 @@ function computeDNA(likedLooks: Look[]): StyleDNAEntry[] {
   }));
 }
 
+function streakUpdate(state: AppState) {
+  const today = new Date().toISOString().slice(0, 10);
+  if (state.lastSwipeDate === today) return {};
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const streak = state.lastSwipeDate === yesterday ? state.swipeStreak + 1 : 1;
+  return { swipeStreak: streak, lastSwipeDate: today };
+}
+
 export const useStore = create<AppState>()(
   persist(
     (set, get) => ({
@@ -172,6 +180,7 @@ export const useStore = create<AppState>()(
             lastSwipedLook: look,
             lastSwipeAction: "like" as const,
             styleDNA: computeDNA(newLiked),
+            ...streakUpdate(state),
           };
         }),
       passLook: (look) =>
@@ -182,6 +191,7 @@ export const useStore = create<AppState>()(
           currentFeedIndex: state.currentFeedIndex + 1,
           lastSwipedLook: look,
           lastSwipeAction: "pass" as const,
+          ...streakUpdate(state),
         })),
       saveLook: (look) =>
         set((state) => ({
@@ -195,7 +205,7 @@ export const useStore = create<AppState>()(
           const newLiked = state.likedLooks.some((l) => l.id === look.id)
             ? state.likedLooks
             : [...state.likedLooks, look];
-          return { likedLooks: newLiked, styleDNA: computeDNA(newLiked) };
+          return { likedLooks: newLiked, styleDNA: computeDNA(newLiked), ...streakUpdate(state) };
         }),
       duelPassLook: (look) =>
         set((state) => ({

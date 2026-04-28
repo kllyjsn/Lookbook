@@ -25,6 +25,7 @@ export function LookDetail({ look, onClose, onNavigateToLook }: LookDetailProps)
   const addToCollection = useStore((s) => s.addToCollection);
   const collections = useStore((s) => s.collections);
   const styleDNA = useStore((s) => s.styleDNA);
+  const likedLooks = useStore((s) => s.likedLooks);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(() => collections.some((c) => c.looks.some((l) => l.id === look.id)));
   const [showCollectionPicker, setShowCollectionPicker] = useState(false);
@@ -32,7 +33,7 @@ export function LookDetail({ look, onClose, onNavigateToLook }: LookDetailProps)
     () => new Set(collections.filter((c) => c.looks.some((l) => l.id === look.id)).map((c) => c.id))
   );
 
-  const matchScore = computeStyleMatch(look, styleDNA);
+  const matchScore = likedLooks.length > 0 ? computeStyleMatch(look, styleDNA) : 0;
   const similarLooks = useMemo(() => findSimilarLooks(look, feedLooks, 3), [look]);
 
   const handleSaveToCollection = (collectionId: string) => {
