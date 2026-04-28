@@ -1,7 +1,8 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion";
-import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2 } from "lucide-react";
+import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2, Fingerprint } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { useStore, computeStyleMatch } from "../../stores/useStore";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -34,6 +35,10 @@ export function SwipeCard({
   onDoubleTap,
   isTop,
 }: SwipeCardProps) {
+  const styleDNA = useStore((s) => s.styleDNA);
+  const likedLooks = useStore((s) => s.likedLooks);
+  const matchScore = likedLooks.length > 0 ? computeStyleMatch(look, styleDNA) : 0;
+
   const [exitDirection, setExitDirection] = useState<"left" | "right" | "up" | null>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [showHeartBurst, setShowHeartBurst] = useState(false);
@@ -238,6 +243,15 @@ export function SwipeCard({
               <span className="text-xs font-inter text-white/50">
                 {look.items.length} pieces
               </span>
+              {matchScore > 0 && (
+                <>
+                  <span className="text-white/30">·</span>
+                  <span className="flex items-center gap-1 text-xs font-inter text-gold">
+                    <Fingerprint size={10} />
+                    {matchScore}% match
+                  </span>
+                </>
+              )}
             </div>
           </div>
         </div>

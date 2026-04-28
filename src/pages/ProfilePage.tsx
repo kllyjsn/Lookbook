@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2 } from "lucide-react";
+import {
+  Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3,
+  List, Plus, Trash2, Flame, TrendingUp, ShoppingBag, Award,
+} from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
@@ -30,7 +33,33 @@ export function ProfilePage() {
     }
   };
 
+  const swipeStreak = useStore((s) => s.swipeStreak);
+  const passedLooks = useStore((s) => s.passedLooks);
   const currentCollection = collections.find((c) => c.id === selectedCollection);
+
+  const weeklyRecap = useMemo(() => {
+    const totalSwiped = likedLooks.length + passedLooks.length;
+    const likeRate = totalSwiped > 0 ? Math.round((likedLooks.length / totalSwiped) * 100) : 0;
+
+    const brandCounts: Record<string, number> = {};
+    const categoryCounts: Record<string, number> = {};
+    let totalSpend = 0;
+    for (const look of likedLooks) {
+      for (const item of look.items) {
+        brandCounts[item.brand] = (brandCounts[item.brand] ?? 0) + 1;
+        categoryCounts[item.category] = (categoryCounts[item.category] ?? 0) + 1;
+        totalSpend += item.price;
+      }
+    }
+
+    const topBrand = Object.entries(brandCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "—";
+    const topCategory = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "—";
+    const topStyle = styleDNA.length > 0
+      ? [...styleDNA].sort((a, b) => b.percentage - a.percentage)[0]?.style ?? "—"
+      : "—";
+
+    return { totalSwiped, likeRate, topBrand, topCategory, topStyle, totalSpend };
+  }, [likedLooks, passedLooks, styleDNA]);
 
   return (
     <div className="h-full overflow-y-auto bg-cream pb-24">
@@ -139,6 +168,60 @@ export function ProfilePage() {
                   ))}
                 </div>
               </div>
+
+              {/* Weekly Style Recap */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="mt-8"
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <Award size={16} className="text-gold" />
+                  <h3 className="font-editorial text-lg text-ink">
+                    Your Style Recap
+                  </h3>
+                </div>
+                <div className="p-5 rounded-2xl bg-gradient-to-br from-ink to-ink/90 text-cream">
+                  {/* Streak */}
+                  {swipeStreak > 0 && (
+                    <div className="flex items-center gap-2 mb-4">
+                      <Flame size={14} className="text-gold" />
+                      <span className="text-sm font-inter font-semibold text-gold">
+                        {swipeStreak} day streak
+                      </span>
+                    </div>
+                  )}
+                  <div className="grid grid-cols-3 gap-3 mb-4">
+                    <div>
+                      <p className="font-editorial text-2xl text-cream">{weeklyRecap.totalSwiped}</p>
+                      <p className="text-[9px] font-inter tracking-[0.1em] uppercase text-cream/50 mt-0.5">Swiped</p>
+                    </div>
+                    <div>
+                      <p className="font-editorial text-2xl text-cream">{weeklyRecap.likeRate}%</p>
+                      <p className="text-[9px] font-inter tracking-[0.1em] uppercase text-cream/50 mt-0.5">Like Rate</p>
+                    </div>
+                    <div>
+                      <p className="font-editorial text-2xl text-gold">{weeklyRecap.topStyle}</p>
+                      <p className="text-[9px] font-inter tracking-[0.1em] uppercase text-cream/50 mt-0.5">Top Style</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between pt-3 border-t border-cream/10">
+                    <div className="flex items-center gap-1.5">
+                      <TrendingUp size={12} className="text-gold" />
+                      <span className="text-xs font-inter text-cream/60">Top brand:</span>
+                      <span className="text-xs font-inter font-medium text-cream">{weeklyRecap.topBrand}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <ShoppingBag size={12} className="text-gold" />
+                      <span className="text-xs font-inter text-cream/60">Wishlist:</span>
+                      <span className="text-xs font-inter font-medium text-cream">
+                        ${weeklyRecap.totalSpend.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
             </motion.div>
           )}
 
@@ -410,8 +493,10 @@ export function ProfilePage() {
       <AnimatePresence>
         {selectedLook && (
           <LookDetail
+            key={selectedLook.id}
             look={selectedLook}
             onClose={() => setSelectedLook(null)}
+            onNavigateToLook={setSelectedLook}
           />
         )}
       </AnimatePresence>

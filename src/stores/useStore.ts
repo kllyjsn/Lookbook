@@ -59,6 +59,17 @@ interface AppState {
   followCreator: (id: string) => void;
   unfollowCreator: (id: string) => void;
 
+  // Swipe streak
+  swipeStreak: number;
+  lastSwipeDate: string | null;
+  recordSwipeDay: () => void;
+
+  // Duel mode (like/pass without advancing feed index)
+  duelLikeLook: (look: Look) => void;
+  duelPassLook: (look: Look) => void;
+  duelMode: boolean;
+  toggleDuelMode: () => void;
+
   // UI state
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -137,6 +148,14 @@ function computeDNA(likedLooks: Look[]): StyleDNAEntry[] {
   }));
 }
 
+function streakUpdate(state: AppState) {
+  const today = new Date().toLocaleDateString('en-CA');
+  if (state.lastSwipeDate === today) return {};
+  const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-CA');
+  const streak = state.lastSwipeDate === yesterday ? state.swipeStreak + 1 : 1;
+  return { swipeStreak: streak, lastSwipeDate: today };
+}
+
 export const useStore = create<AppState>()(
   persist(
     (set, get) => ({
@@ -161,6 +180,7 @@ export const useStore = create<AppState>()(
             lastSwipedLook: look,
             lastSwipeAction: "like" as const,
             styleDNA: computeDNA(newLiked),
+            ...streakUpdate(state),
           };
         }),
       passLook: (look) =>
@@ -171,12 +191,27 @@ export const useStore = create<AppState>()(
           currentFeedIndex: state.currentFeedIndex + 1,
           lastSwipedLook: look,
           lastSwipeAction: "pass" as const,
+          ...streakUpdate(state),
         })),
       saveLook: (look) =>
         set((state) => ({
           likedLooks: state.likedLooks.some((l) => l.id === look.id)
             ? state.likedLooks
             : [...state.likedLooks, look],
+        })),
+
+      duelLikeLook: (look) =>
+        set((state) => {
+          const newLiked = state.likedLooks.some((l) => l.id === look.id)
+            ? state.likedLooks
+            : [...state.likedLooks, look];
+          return { likedLooks: newLiked, styleDNA: computeDNA(newLiked), ...streakUpdate(state) };
+        }),
+      duelPassLook: (look) =>
+        set((state) => ({
+          passedLooks: state.passedLooks.some((l) => l.id === look.id)
+            ? state.passedLooks
+            : [...state.passedLooks, look],
         })),
 
       undoLastSwipe: () =>
@@ -261,6 +296,20 @@ export const useStore = create<AppState>()(
           followedCreators: state.followedCreators.filter((cid) => cid !== id),
         })),
 
+      swipeStreak: 0,
+      lastSwipeDate: null,
+      recordSwipeDay: () =>
+        set((state) => {
+          const today = new Date().toLocaleDateString('en-CA');
+          if (state.lastSwipeDate === today) return state;
+          const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-CA');
+          const streak = state.lastSwipeDate === yesterday ? state.swipeStreak + 1 : 1;
+          return { swipeStreak: streak, lastSwipeDate: today };
+        }),
+
+      duelMode: false,
+      toggleDuelMode: () => set((state) => ({ duelMode: !state.duelMode })),
+
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
       showLookDetail: null,
@@ -280,7 +329,66 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        swipeStreak: state.swipeStreak,
+        lastSwipeDate: state.lastSwipeDate,
       }),
     }
   )
 );
+
+/** Compute how well a Look matches a user's Style DNA (0–100). */
+export function computeStyleMatch(look: Look, dna: StyleDNAEntry[]): number {
+  if (dna.length === 0) return 0;
+  const matchedStyles = new Set<string>();
+  let score = 0;
+  for (const tag of look.tags) {
+    const style = tagToStyle[tag.label];
+    if (!style || matchedStyles.has(style)) continue;
+    matchedStyles.add(style);
+    const entry = dna.find((d) => d.style === style);
+    if (entry) score += entry.percentage;
+  }
+  return Math.min(100, score);
+}
+
+/** Return looks sorted by Style DNA relevance (highest match first). */
+export function sortByStyleMatch(looks: Look[], dna: StyleDNAEntry[]): Look[] {
+  if (dna.length === 0) return looks;
+  return [...looks].sort((a, b) => computeStyleMatch(b, dna) - computeStyleMatch(a, dna));
+}
+
+/** Find looks similar to a given look (shared tags). */
+export function findSimilarLooks(target: Look, pool: Look[], limit = 3): Look[] {
+  const targetLabels = new Set(target.tags.map((t) => t.label));
+  const scored = pool
+    .filter((l) => l.id !== target.id)
+    .map((l) => ({
+      look: l,
+      overlap: l.tags.filter((t) => targetLabels.has(t.label)).length,
+    }))
+    .filter((s) => s.overlap > 0)
+    .sort((a, b) => b.overlap - a.overlap);
+  return scored.slice(0, limit).map((s) => s.look);
+}
+
+/** Aggregate trending pieces across all looks. */
+export function getTrendingPieces(looks: Look[], likedLooks: Look[]) {
+  const likedIds = new Set(likedLooks.flatMap((l) => l.items.map((i) => i.id)));
+  const brandCounts: Record<string, number> = {};
+  const allItems = looks.flatMap((l) => l.items);
+  for (const item of allItems) {
+    brandCounts[item.brand] = (brandCounts[item.brand] ?? 0) + 1;
+  }
+  const seen = new Set<string>();
+  return allItems
+    .filter((item) => {
+      if (seen.has(item.id)) return false;
+      seen.add(item.id);
+      return true;
+    })
+    .map((item) => ({
+      ...item,
+      popularityScore: (brandCounts[item.brand] ?? 0) + (likedIds.has(item.id) ? 3 : 0),
+    }))
+    .sort((a, b) => b.popularityScore - a.popularityScore);
+}
