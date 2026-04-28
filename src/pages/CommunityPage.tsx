@@ -9,8 +9,9 @@ import { MustHaveDetail } from "../components/community/MustHaveDetail";
 import { FollowButton } from "../components/community/FollowButton";
 import { ProductCard } from "../components/cards/ProductCard";
 import { useStore } from "../stores/useStore";
-import { creators, communityPosts, mustHaveLists } from "../data/communityData";
+import { creators, communityPosts, mustHaveLists, stylePolls } from "../data/communityData";
 import type { Creator, CommunityPost, MustHaveList } from "../data/communityData";
+import { StylePollCard } from "../components/community/StylePollCard";
 
 
 type CommunityTab = "forYou" | "following" | "mustHaves";
@@ -189,6 +190,22 @@ export function CommunityPage() {
                     </div>
                   </div>
                 </motion.div>
+              </div>
+            )}
+
+            {/* Style Polls (For You only) */}
+            {activeTab === "forYou" && (
+              <div className="px-6 mb-6">
+                <h2 className="text-xs font-inter font-semibold tracking-[0.12em] uppercase text-ink-muted mb-3">
+                  Quick Style Polls
+                </h2>
+                <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
+                  {stylePolls.map((poll) => (
+                    <div key={poll.id} className="flex-shrink-0 w-[280px]">
+                      <StylePollCard poll={poll} />
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 

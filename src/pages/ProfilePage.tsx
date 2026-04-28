@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2 } from "lucide-react";
+import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2, Share2, Flame as FlameIcon } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
@@ -19,8 +19,10 @@ export function ProfilePage() {
   const [selectedLook, setSelectedLook] = useState<Look | null>(null);
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
   const [isGridView, setIsGridView] = useState(true);
+  const streakCount = useStore((s) => s.streakCount);
   const [showNewCollection, setShowNewCollection] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState("");
+  const [showShareCard, setShowShareCard] = useState(false);
 
   const handleCreateCollection = () => {
     if (newCollectionName.trim()) {
@@ -53,9 +55,17 @@ export function ProfilePage() {
           </div>
           <div>
             <h2 className="font-editorial text-xl text-ink">Your Profile</h2>
-            <p className="text-xs font-inter text-ink-muted">
-              {likedLooks.length} looks loved · {collections.reduce((sum, c) => sum + c.looks.length, 0)} saved
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-xs font-inter text-ink-muted">
+                {likedLooks.length} looks loved · {collections.reduce((sum, c) => sum + c.looks.length, 0)} saved
+              </p>
+              {streakCount > 0 && (
+                <span className="flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-rose/10 border border-rose/20">
+                  <FlameIcon size={10} className="text-rose" />
+                  <span className="text-[9px] font-inter font-bold text-rose">{streakCount} day streak</span>
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -138,6 +148,65 @@ export function ProfilePage() {
                     </motion.div>
                   ))}
                 </div>
+              </div>
+
+              {/* Share Style DNA Card */}
+              <div className="mt-8">
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowShareCard(!showShareCard)}
+                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-ink to-ink/90 text-cream flex items-center justify-center gap-2"
+                >
+                  <Share2 size={16} />
+                  <span className="text-sm font-inter font-medium">Share Your Style DNA</span>
+                </motion.button>
+                <AnimatePresence>
+                  {showShareCard && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mt-4 overflow-hidden"
+                    >
+                      <div className="p-6 rounded-2xl bg-gradient-to-br from-ink via-ink/95 to-ink/90 text-cream relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-gold/15 to-transparent rounded-bl-full" />
+                        <div className="relative z-10">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-editorial text-lg text-gold">LKBK</span>
+                            <span className="text-[8px] font-inter tracking-[0.3em] uppercase text-cream/40">Style DNA</span>
+                          </div>
+                          <div className="space-y-2 mb-4">
+                            {styleDNA.slice(0, 3).map((entry) => (
+                              <div key={entry.style} className="flex items-center gap-3">
+                                <div className="flex-1">
+                                  <div className="flex items-center justify-between mb-1">
+                                    <span className="text-xs font-inter text-cream/70">{entry.style}</span>
+                                    <span className="text-xs font-inter font-bold text-cream">{entry.percentage}%</span>
+                                  </div>
+                                  <div className="h-1 rounded-full bg-cream/10 overflow-hidden">
+                                    <motion.div
+                                      initial={{ width: 0 }}
+                                      animate={{ width: `${entry.percentage}%` }}
+                                      transition={{ duration: 0.8, ease: "easeOut" }}
+                                      className="h-full rounded-full"
+                                      style={{ backgroundColor: entry.color }}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          <p className="text-[10px] font-inter text-cream/40">
+                            lookbook.style/dna
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-[10px] font-inter text-ink-muted text-center mt-2">
+                        Screenshot to share on stories
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </motion.div>
           )}
