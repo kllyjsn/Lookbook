@@ -31,6 +31,7 @@ interface AppState {
 
   // Swipe streak
   swipeStreak: number;
+  lastSwipeStreak: number | null;
   incrementStreak: () => void;
   resetStreak: () => void;
 
@@ -214,14 +215,16 @@ export const useStore = create<AppState>()(
             lastSwipedLook: null,
             lastSwipeAction: null,
             styleDNA: computeDNA(newLiked),
-            swipeStreak: Math.max(0, state.swipeStreak - 1),
+            swipeStreak: state.lastSwipeStreak ?? Math.max(0, state.swipeStreak - 1),
+            lastSwipeStreak: null,
           };
         }),
 
       // Swipe streak
       swipeStreak: 0,
-      incrementStreak: () => set((state) => ({ swipeStreak: state.swipeStreak + 1 })),
-      resetStreak: () => set({ swipeStreak: 0 }),
+      lastSwipeStreak: null,
+      incrementStreak: () => set((state) => ({ lastSwipeStreak: state.swipeStreak, swipeStreak: state.swipeStreak + 1 })),
+      resetStreak: () => set((state) => ({ lastSwipeStreak: state.swipeStreak, swipeStreak: 0 })),
 
       // Reactions
       reactions: {},
