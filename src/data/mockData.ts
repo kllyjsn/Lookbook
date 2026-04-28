@@ -470,13 +470,13 @@ export const feedLooks: Look[] = [
 ];
 
 export const moodFilters: { id: MoodFilter; label: string; emoji: string }[] = [
-  { id: "all", label: "All", emoji: "" },
-  { id: "minimal", label: "Minimal", emoji: "" },
-  { id: "romantic", label: "Romantic", emoji: "" },
-  { id: "street", label: "Street", emoji: "" },
-  { id: "evening", label: "Evening", emoji: "" },
-  { id: "classic", label: "Classic", emoji: "" },
-  { id: "adventure", label: "Adventure", emoji: "" },
+  { id: "all", label: "All", emoji: "\u2728" },
+  { id: "minimal", label: "Minimal", emoji: "\u25CB" },
+  { id: "romantic", label: "Romantic", emoji: "\uD83C\uDF39" },
+  { id: "street", label: "Street", emoji: "\uD83D\uDD25" },
+  { id: "evening", label: "Evening", emoji: "\uD83C\uDF19" },
+  { id: "classic", label: "Classic", emoji: "\uD83D\uDC8E" },
+  { id: "adventure", label: "Adventure", emoji: "\uD83C\uDF0D" },
 ];
 
 export const eventTypes: EventType[] = [
@@ -565,4 +565,88 @@ export const styleQuizImages = [
   { id: "q3", image: UNSPLASH("photo-1515886657613-9f3515b0c78f", 600, 800), style: "Streetwear" },
   { id: "q4", image: UNSPLASH("photo-1469334031218-e382a71b716b", 600, 800), style: "Glamour" },
   { id: "q5", image: UNSPLASH("photo-1483985988355-763728e1935b", 600, 800), style: "Classic" },
+];
+
+/* ── Style Battles (This or That) ── */
+export interface StyleBattle {
+  id: string;
+  title: string;
+  lookA: Look;
+  lookB: Look;
+  votesA: number;
+  votesB: number;
+  endsAt: string;
+}
+
+export const styleBattles: StyleBattle[] = [
+  { id: "battle-1", title: "Office Power Move", lookA: feedLooks[0], lookB: feedLooks[7], votesA: 2341, votesB: 1897, endsAt: "6h" },
+  { id: "battle-2", title: "Date Night Dilemma", lookA: feedLooks[1], lookB: feedLooks[10], votesA: 3120, votesB: 2876, endsAt: "12h" },
+  { id: "battle-3", title: "Weekend Vibes", lookA: feedLooks[2], lookB: feedLooks[11], votesA: 4510, votesB: 5230, endsAt: "3h" },
+  { id: "battle-4", title: "Quiet Luxury vs Statement", lookA: feedLooks[8], lookB: feedLooks[12], votesA: 1870, votesB: 2140, endsAt: "18h" },
+];
+
+/* ── OOTD Stories ── */
+export interface OOTDStory {
+  id: string;
+  label: string;
+  coverImage: string;
+  looks: Look[];
+  isNew: boolean;
+}
+
+export const ootdStories: OOTDStory[] = [
+  { id: "story-1", label: "Editor's AM", coverImage: UNSPLASH("photo-1509631179647-0177331693ae", 200, 200), looks: [feedLooks[0], feedLooks[5], feedLooks[9]], isNew: true },
+  { id: "story-2", label: "Street Heat", coverImage: UNSPLASH("photo-1515886657613-9f3515b0c78f", 200, 200), looks: [feedLooks[2], feedLooks[11], feedLooks[15]], isNew: true },
+  { id: "story-3", label: "Date Ready", coverImage: UNSPLASH("photo-1496747611176-843222e1e57c", 200, 200), looks: [feedLooks[1], feedLooks[3], feedLooks[10]], isNew: false },
+  { id: "story-4", label: "Quiet Lux", coverImage: UNSPLASH("photo-1558618666-fcd25c85f82e", 200, 200), looks: [feedLooks[8], feedLooks[7], feedLooks[13]], isNew: false },
+  { id: "story-5", label: "Festival", coverImage: UNSPLASH("photo-1506152983158-b4a74a01c721", 200, 200), looks: [feedLooks[15], feedLooks[4], feedLooks[6]], isNew: true },
+];
+
+/* ── Dupe Finder ("Get the Look for Less") ── */
+export interface DupeItem {
+  originalId: string;
+  name: string;
+  brand: string;
+  price: number;
+  image: string;
+  savings: number;
+}
+
+export const dupeMap: Record<string, DupeItem[]> = {
+  "i1": [{ originalId: "i1", name: "Structured Wool Blazer", brand: "H&M Premium", price: 79, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), savings: 196 }],
+  "i2": [{ originalId: "i2", name: "Silk-Feel Camisole", brand: "Zara", price: 35, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), savings: 160 }],
+  "i3": [{ originalId: "i3", name: "Wide-Leg Trousers", brand: "Mango", price: 59, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), savings: 266 }],
+  "i5": [{ originalId: "i5", name: "Flowing Midi Dress", brand: "& Other Stories", price: 89, image: UNSPLASH("photo-1595777457583-95e059d581b8", 400, 500), savings: 159 }],
+  "i9": [{ originalId: "i9", name: "Oversized Cotton Tee", brand: "Uniqlo U", price: 19, image: UNSPLASH("photo-1521572163474-6864f9cf17ab", 400, 500), savings: 39 }],
+  "i10": [{ originalId: "i10", name: "Faux-Leather Biker Jacket", brand: "Zara", price: 89, image: UNSPLASH("photo-1551028719-00167b16eac5", 400, 500), savings: 410 }],
+  "i13": [{ originalId: "i13", name: "Sequin Midi Dress", brand: "ASOS", price: 75, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), savings: 520 }],
+  "i21": [{ originalId: "i21", name: "Cashmere-Blend Turtleneck", brand: "Uniqlo", price: 49, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), savings: 446 }],
+  "i29": [{ originalId: "i29", name: "Double-Breasted Blazer", brand: "Mango", price: 89, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), savings: 601 }],
+  "i33": [{ originalId: "i33", name: "Cashmere-Feel Crew", brand: "COS", price: 99, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), savings: 791 }],
+  "i45": [{ originalId: "i45", name: "Graphic Hoodie", brand: "H&M", price: 34, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), savings: 546 }],
+  "i49": [{ originalId: "i49", name: "Draped Maxi Dress", brand: "ASOS Edition", price: 120, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), savings: 2770 }],
+  "i57": [{ originalId: "i57", name: "Fitted Blazer Dress", brand: "Zara", price: 69, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), savings: 721 }],
+};
+
+/* ── Trend Radar ── */
+export type TrendStatus = "rising" | "peaking" | "fading";
+
+export interface TrendItem {
+  id: string;
+  name: string;
+  status: TrendStatus;
+  change: number;
+  image: string;
+  description: string;
+}
+
+export const trendRadar: TrendItem[] = [
+  { id: "tr-1", name: "Quiet Luxury", status: "peaking", change: 42, image: UNSPLASH("photo-1558618666-fcd25c85f82e", 400, 400), description: "No logos, just quality. The Succession effect lives on." },
+  { id: "tr-2", name: "Office Siren", status: "rising", change: 78, image: UNSPLASH("photo-1550614000-4895a10e1bfd", 400, 400), description: "Fitted blazers, pencil skirts — corporate is back." },
+  { id: "tr-3", name: "Cherry Red", status: "rising", change: 65, image: UNSPLASH("photo-1519235106695-a1bda50aeb4c", 400, 400), description: "The color of the moment. Bold, romantic, unforgettable." },
+  { id: "tr-4", name: "Coastal Grandmother", status: "fading", change: -18, image: UNSPLASH("photo-1544957992-20514f595d6f", 400, 400), description: "Linen and Sancerre era is gently sunsetting." },
+  { id: "tr-5", name: "Coquette Bow", status: "rising", change: 91, image: UNSPLASH("photo-1529139574466-a303027c1d8b", 400, 400), description: "Bows, ribbons, hyper-feminine — the TikTok darling." },
+  { id: "tr-6", name: "Gorpcore", status: "fading", change: -12, image: UNSPLASH("photo-1483985988355-763728e1935b", 400, 400), description: "Trail-to-street is cooling — normcore's reclaiming." },
+  { id: "tr-7", name: "Mob Wife Aesthetic", status: "peaking", change: 55, image: UNSPLASH("photo-1469334031218-e382a71b716b", 400, 400), description: "Fur, gold, leopard print. Maximum glamour." },
+  { id: "tr-8", name: "Scandi Minimal", status: "peaking", change: 30, image: UNSPLASH("photo-1519764622345-23439dd774f7", 400, 400), description: "Copenhagen's clean lines reign supreme." },
 ];

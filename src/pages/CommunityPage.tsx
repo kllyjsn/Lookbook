@@ -7,13 +7,15 @@ import { CreatorProfile } from "../components/community/CreatorProfile";
 import { MustHaveCard } from "../components/community/MustHaveCard";
 import { MustHaveDetail } from "../components/community/MustHaveDetail";
 import { FollowButton } from "../components/community/FollowButton";
+import { StyleBattles } from "../components/community/StyleBattle";
 import { ProductCard } from "../components/cards/ProductCard";
 import { useStore } from "../stores/useStore";
 import { creators, communityPosts, mustHaveLists } from "../data/communityData";
+import { styleBattles } from "../data/mockData";
 import type { Creator, CommunityPost, MustHaveList } from "../data/communityData";
 
 
-type CommunityTab = "forYou" | "following" | "mustHaves";
+type CommunityTab = "forYou" | "following" | "mustHaves" | "battles";
 
 function PostShopOverlay({
   post,
@@ -119,6 +121,7 @@ export function CommunityPage() {
           {([
             { id: "forYou" as const, label: "For You" },
             { id: "following" as const, label: "Following" },
+            { id: "battles" as const, label: "Battles" },
             { id: "mustHaves" as const, label: "Must Haves" },
           ]).map((tab) => (
             <motion.button
@@ -323,6 +326,22 @@ export function CommunityPage() {
                 </div>
               </div>
             )}
+          </motion.div>
+        )}
+
+        {/* Battles tab */}
+        {activeTab === "battles" && (
+          <motion.div
+            key="battles"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="px-6"
+          >
+            <p className="font-subhead text-sm text-ink-light italic mb-5">
+              Pick your favorite. See what the community thinks.
+            </p>
+            <StyleBattles battles={styleBattles} />
           </motion.div>
         )}
 

@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2 } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
+import { WeeklyStyleReport } from "../components/profile/WeeklyStyleReport";
 import { LookDetail } from "../components/cards/LookDetail";
 import type { Look } from "../data/mockData";
 
@@ -31,6 +32,53 @@ export function ProfilePage() {
   };
 
   const currentCollection = collections.find((c) => c.id === selectedCollection);
+
+  const dynamicInsights = useMemo(() => {
+    const topStyle = [...styleDNA].sort((a, b) => b.percentage - a.percentage)[0];
+    const avgPrice = likedLooks.length > 0
+      ? Math.round(likedLooks.flatMap((l) => l.items.map((i) => i.price)).reduce((a, b) => a + b, 0) / likedLooks.flatMap((l) => l.items).length)
+      : 0;
+    const isBudgetConscious = avgPrice < 300;
+    const totalSwiped = likedLooks.length;
+
+    const insights: { icon: typeof Heart; title: string; desc: string }[] = [];
+
+    if (topStyle && topStyle.percentage > 30) {
+      insights.push({
+        icon: Heart,
+        title: `You're ${topStyle.percentage}% ${topStyle.style}`,
+        desc: `${topStyle.style} dominates your taste — lean into it.`,
+      });
+    } else {
+      insights.push({
+        icon: Heart,
+        title: "Your style is eclectic",
+        desc: "No single style dominates — you appreciate variety.",
+      });
+    }
+
+    if (totalSwiped > 5) {
+      insights.push({
+        icon: Clock,
+        title: isBudgetConscious ? "Smart shopper detected" : "You invest in quality",
+        desc: isBudgetConscious
+          ? `Average piece: $${avgPrice}. Great taste doesn't need a big budget.`
+          : `Average piece: $${avgPrice}. You know the value of a great piece.`,
+      });
+    }
+
+    insights.push({
+      icon: Bookmark,
+      title: collections.reduce((s, c) => s + c.looks.length, 0) > 3
+        ? "Active curator"
+        : "Start building collections",
+      desc: collections.reduce((s, c) => s + c.looks.length, 0) > 3
+        ? "Your collections are growing — perfect for capsule planning."
+        : "Save looks to collections to track your wardrobe evolution.",
+    });
+
+    return insights;
+  }, [styleDNA, likedLooks, collections]);
 
   return (
     <div className="h-full overflow-y-auto bg-cream pb-24">
@@ -91,6 +139,9 @@ export function ProfilePage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
             >
+              {/* Weekly Style Report */}
+              <WeeklyStyleReport />
+
               <StyleDNA data={styleDNA} />
 
               {/* Style insights */}
@@ -99,23 +150,7 @@ export function ProfilePage() {
                   Style Insights
                 </h3>
                 <div className="space-y-3">
-                  {[
-                    {
-                      icon: Heart,
-                      title: "You lean toward clean lines",
-                      desc: "Minimalist and classic pieces dominate your preferences",
-                    },
-                    {
-                      icon: Clock,
-                      title: "Seasonal shift detected",
-                      desc: "Your style has been evolving toward warmer tones",
-                    },
-                    {
-                      icon: Bookmark,
-                      title: "Investment pieces",
-                      desc: "You favor quality over quantity — great for capsule building",
-                    },
-                  ].map((insight, i) => (
+                  {dynamicInsights.map((insight, i) => (
                     <motion.div
                       key={insight.title}
                       initial={{ opacity: 0, x: -15 }}
