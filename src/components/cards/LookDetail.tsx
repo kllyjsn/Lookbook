@@ -26,7 +26,7 @@ export function LookDetail({ look, onClose, onNavigateToLook }: LookDetailProps)
   const collections = useStore((s) => s.collections);
   const styleDNA = useStore((s) => s.styleDNA);
   const likedLooks = useStore((s) => s.likedLooks);
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState(() => likedLooks.some((l) => l.id === look.id));
   const [saved, setSaved] = useState(() => collections.some((c) => c.looks.some((l) => l.id === look.id)));
   const [showCollectionPicker, setShowCollectionPicker] = useState(false);
   const [savedToCollections, setSavedToCollections] = useState<Set<string>>(
