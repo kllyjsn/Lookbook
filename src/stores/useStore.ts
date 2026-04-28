@@ -329,10 +329,12 @@ export const useStore = create<AppState>()(
 /** Compute how well a Look matches a user's Style DNA (0–100). */
 export function computeStyleMatch(look: Look, dna: StyleDNAEntry[]): number {
   if (dna.length === 0) return 0;
+  const matchedStyles = new Set<string>();
   let score = 0;
   for (const tag of look.tags) {
     const style = tagToStyle[tag.label];
-    if (!style) continue;
+    if (!style || matchedStyles.has(style)) continue;
+    matchedStyles.add(style);
     const entry = dna.find((d) => d.style === style);
     if (entry) score += entry.percentage;
   }

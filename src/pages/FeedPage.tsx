@@ -242,6 +242,7 @@ export function FeedPage() {
     (mood: MoodFilter) => {
       setActiveMoodFilter(mood);
       setFeedVersion((v) => v + 1);
+      setDuelIndex(0);
     },
     [setActiveMoodFilter]
   );
