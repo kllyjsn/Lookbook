@@ -29,6 +29,25 @@ interface AppState {
   lastSwipeAction: "like" | "pass" | null;
   undoLastSwipe: () => void;
 
+  // Swipe streak
+  swipeStreak: number;
+  incrementStreak: () => void;
+  resetStreak: () => void;
+
+  // Reactions
+  reactions: Record<string, string[]>;
+  addReaction: (lookId: string, reaction: string) => void;
+
+  // Recently viewed
+  recentlyViewed: Look[];
+  addToRecentlyViewed: (look: Look) => void;
+
+  // New content tracking
+  lastSeenFeedCount: number;
+  lastSeenCommunityCount: number;
+  setLastSeenFeedCount: (count: number) => void;
+  setLastSeenCommunityCount: (count: number) => void;
+
   // Collections
   collections: SavedCollection[];
   addToCollection: (collectionId: string, look: Look) => void;
@@ -198,6 +217,35 @@ export const useStore = create<AppState>()(
           };
         }),
 
+      // Swipe streak
+      swipeStreak: 0,
+      incrementStreak: () => set((state) => ({ swipeStreak: state.swipeStreak + 1 })),
+      resetStreak: () => set({ swipeStreak: 0 }),
+
+      // Reactions
+      reactions: {},
+      addReaction: (lookId, reaction) =>
+        set((state) => ({
+          reactions: {
+            ...state.reactions,
+            [lookId]: [...(state.reactions[lookId] ?? []), reaction],
+          },
+        })),
+
+      // Recently viewed
+      recentlyViewed: [],
+      addToRecentlyViewed: (look) =>
+        set((state) => {
+          const filtered = state.recentlyViewed.filter((l) => l.id !== look.id);
+          return { recentlyViewed: [look, ...filtered].slice(0, 20) };
+        }),
+
+      // New content tracking
+      lastSeenFeedCount: 0,
+      lastSeenCommunityCount: 0,
+      setLastSeenFeedCount: (count) => set({ lastSeenFeedCount: count }),
+      setLastSeenCommunityCount: (count) => set({ lastSeenCommunityCount: count }),
+
       collections: [
         { id: "favorites", name: "Favorites", looks: [], createdAt: Date.now() },
         { id: "wishlist", name: "Wishlist", looks: [], createdAt: Date.now() },
@@ -280,6 +328,10 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        reactions: state.reactions,
+        recentlyViewed: state.recentlyViewed,
+        lastSeenFeedCount: state.lastSeenFeedCount,
+        lastSeenCommunityCount: state.lastSeenCommunityCount,
       }),
     }
   )
