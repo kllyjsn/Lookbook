@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bookmark, Plus, Check, X } from "lucide-react";
 import { useStore } from "../../stores/useStore";
@@ -12,17 +12,28 @@ export function QuickSaveSheet() {
   const [savedTo, setSavedTo] = useState<string[]>([]);
   const [showNew, setShowNew] = useState(false);
   const [newName, setNewName] = useState("");
+  const dismissTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleSave = (collectionId: string) => {
-    if (!quickSaveLook) return;
-    addToCollection(collectionId, quickSaveLook);
-    setSavedTo((prev) => [...prev, collectionId]);
-    setTimeout(() => {
+  useEffect(() => () => {
+    if (dismissTimer.current) clearTimeout(dismissTimer.current);
+  }, []);
+
+  const scheduleDismiss = () => {
+    if (dismissTimer.current) clearTimeout(dismissTimer.current);
+    dismissTimer.current = setTimeout(() => {
+      dismissTimer.current = null;
       setQuickSaveLook(null);
       setSavedTo([]);
       setShowNew(false);
       setNewName("");
     }, 600);
+  };
+
+  const handleSave = (collectionId: string) => {
+    if (!quickSaveLook) return;
+    addToCollection(collectionId, quickSaveLook);
+    setSavedTo((prev) => [...prev, collectionId]);
+    scheduleDismiss();
   };
 
   const handleCreate = () => {
@@ -32,15 +43,11 @@ export function QuickSaveSheet() {
     setNewName("");
     setShowNew(false);
     setSavedTo([id]);
-    setTimeout(() => {
-      setQuickSaveLook(null);
-      setSavedTo([]);
-      setShowNew(false);
-      setNewName("");
-    }, 600);
+    scheduleDismiss();
   };
 
   const handleClose = () => {
+    if (dismissTimer.current) { clearTimeout(dismissTimer.current); dismissTimer.current = null; }
     setQuickSaveLook(null);
     setSavedTo([]);
     setShowNew(false);
