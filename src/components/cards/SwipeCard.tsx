@@ -275,7 +275,7 @@ export function SwipeCard({
                 </>
               )}
             </div>
-            {look.stylingNow && (
+            {typeof look.stylingNow === 'number' && look.stylingNow > 0 && (
               <div className="flex items-center gap-1.5 pt-1.5">
                 <Users size={10} className="text-white/40" />
                 <span className="text-[10px] font-inter text-white/40">
