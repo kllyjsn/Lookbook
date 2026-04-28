@@ -244,17 +244,18 @@ export function FeedPage() {
     [setActiveMoodFilter]
   );
 
-  const hasLikedAny = likedLooks.length > 0;
-
   const filteredLooks = useMemo(() => {
     const base =
       activeMoodFilter === "all"
         ? feedLooks
         : feedLooks.filter((l) => l.mood === activeMoodFilter);
-    return hasLikedAny ? sortByStyleMatch(base, styleDNA) : base;
-    // feedVersion triggers re-sort only on filter change, not on every styleDNA mutation
+    // Only sort by style DNA if user has liked something; checked via store snapshot
+    // to avoid re-sorting mid-session (which would misalign currentFeedIndex).
+    const snap = useStore.getState();
+    return snap.likedLooks.length > 0 ? sortByStyleMatch(base, snap.styleDNA) : base;
+    // feedVersion triggers re-sort only on filter change, not on every like
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeMoodFilter, feedVersion, hasLikedAny]);
+  }, [activeMoodFilter, feedVersion]);
 
   const hasSeenAll = currentFeedIndex >= filteredLooks.length;
 
