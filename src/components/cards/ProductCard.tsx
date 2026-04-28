@@ -54,7 +54,7 @@ export function ProductCard({ item, index, showBudgetAlt = false }: ProductCardP
             </span>
           )}
         </div>
-        {item.saves && (
+        {item.saves != null && item.saves > 0 && (
           <div className="absolute bottom-2 right-2">
             <span className="flex items-center gap-1 text-[9px] font-inter text-white/80 bg-black/40 backdrop-blur-sm px-2 py-0.5 rounded-full">
               <Bookmark size={8} />
