@@ -11,6 +11,9 @@ export interface LookItem {
   image: string;
   category: string;
   shopUrl: string;
+  saves?: number;
+  sellingFast?: boolean;
+  budgetAlt?: { name: string; brand: string; price: number };
 }
 
 export type MoodFilter = "all" | "minimal" | "romantic" | "street" | "evening" | "classic" | "adventure";
@@ -32,6 +35,9 @@ export interface Look {
   editorsChoice?: boolean;
   mood: MoodFilter;
   badge?: "trending" | "editors-pick" | "new";
+  aesthetic?: string;
+  editorsNote?: string;
+  styleWeights?: Record<string, number>;
 }
 
 export interface EventType {
@@ -88,11 +94,14 @@ export const feedLooks: Look[] = [
     trending: true,
     editorsChoice: true,
     mood: "minimal",
+    aesthetic: "Clean Girl",
+    editorsNote: "This is the look that launched a thousand Pinterest boards. The blazer-cami ratio is *chef's kiss*.",
+    styleWeights: { "Minimalist": 5, "Classic": 3 },
     items: [
-      { id: "i1", name: "Structured Wool Blazer", brand: "COS", price: 275, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#" },
-      { id: "i2", name: "Silk Camisole", brand: "Vince", price: 195, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
-      { id: "i3", name: "Wide-Leg Trousers", brand: "Theory", price: 325, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
-      { id: "i4", name: "Leather Pointed Mules", brand: "Aeyde", price: 345, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+      { id: "i1", name: "Structured Wool Blazer", brand: "COS", price: 275, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#", saves: 2840, sellingFast: true, budgetAlt: { name: "Oversized Blazer", brand: "H&M", price: 59 } },
+      { id: "i2", name: "Silk Camisole", brand: "Vince", price: 195, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#", saves: 1920, budgetAlt: { name: "Satin Cami", brand: "Zara", price: 29 } },
+      { id: "i3", name: "Wide-Leg Trousers", brand: "Theory", price: 325, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#", saves: 1450, budgetAlt: { name: "Wide-Leg Pant", brand: "Uniqlo", price: 49 } },
+      { id: "i4", name: "Leather Pointed Mules", brand: "Aeyde", price: 345, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#", saves: 890, sellingFast: true },
     ],
   },
   {
@@ -113,11 +122,14 @@ export const feedLooks: Look[] = [
     likes: 9800,
     trending: true,
     mood: "romantic",
+    aesthetic: "Soft Girl",
+    editorsNote: "Date night perfection. The dress does the heavy lifting — you just show up.",
+    styleWeights: { "Romantic": 5, "Classic": 2 },
     items: [
-      { id: "i5", name: "Flowing Midi Dress", brand: "Reformation", price: 248, image: UNSPLASH("photo-1595777457583-95e059d581b8", 400, 500), category: "Dresses", shopUrl: "#" },
-      { id: "i6", name: "Strappy Heeled Sandals", brand: "By Far", price: 420, image: UNSPLASH("photo-1603487742131-4160ec999306", 400, 500), category: "Shoes", shopUrl: "#" },
-      { id: "i7", name: "Gold Chain Necklace", brand: "Mejuri", price: 128, image: UNSPLASH("photo-1599643478518-a784e5dc4c8f", 400, 500), category: "Accessories", shopUrl: "#" },
-      { id: "i8", name: "Embossed Clutch", brand: "Cult Gaia", price: 298, image: UNSPLASH("photo-1584917865442-de89df76afd3", 400, 500), category: "Bags", shopUrl: "#" },
+      { id: "i5", name: "Flowing Midi Dress", brand: "Reformation", price: 248, image: UNSPLASH("photo-1595777457583-95e059d581b8", 400, 500), category: "Dresses", shopUrl: "#", saves: 3210, sellingFast: true, budgetAlt: { name: "Satin Slip Dress", brand: "& Other Stories", price: 79 } },
+      { id: "i6", name: "Strappy Heeled Sandals", brand: "By Far", price: 420, image: UNSPLASH("photo-1603487742131-4160ec999306", 400, 500), category: "Shoes", shopUrl: "#", saves: 1560 },
+      { id: "i7", name: "Gold Chain Necklace", brand: "Mejuri", price: 128, image: UNSPLASH("photo-1599643478518-a784e5dc4c8f", 400, 500), category: "Accessories", shopUrl: "#", saves: 4100 },
+      { id: "i8", name: "Embossed Clutch", brand: "Cult Gaia", price: 298, image: UNSPLASH("photo-1584917865442-de89df76afd3", 400, 500), category: "Bags", shopUrl: "#", saves: 1890, sellingFast: true },
     ],
   },
   {
@@ -139,11 +151,14 @@ export const feedLooks: Look[] = [
     likes: 18400,
     trending: true,
     mood: "street",
+    aesthetic: "Model Off-Duty",
+    editorsNote: "The 'I woke up like this' uniform. Spoiler: nobody wakes up like this.",
+    styleWeights: { "Streetwear": 5, "Minimalist": 2 },
     items: [
-      { id: "i9", name: "Oversized Cotton Tee", brand: "Aritzia", price: 58, image: UNSPLASH("photo-1521572163474-6864f9cf17ab", 400, 500), category: "Tops", shopUrl: "#" },
-      { id: "i10", name: "Leather Moto Jacket", brand: "AllSaints", price: 499, image: UNSPLASH("photo-1551028719-00167b16eac5", 400, 500), category: "Outerwear", shopUrl: "#" },
-      { id: "i11", name: "Straight-Leg Jeans", brand: "AGOLDE", price: 198, image: UNSPLASH("photo-1541099649105-f69ad21f3246", 400, 500), category: "Bottoms", shopUrl: "#" },
-      { id: "i12", name: "White Leather Sneakers", brand: "Common Projects", price: 425, image: UNSPLASH("photo-1549298916-b41d501d3772", 400, 500), category: "Shoes", shopUrl: "#" },
+      { id: "i9", name: "Oversized Cotton Tee", brand: "Aritzia", price: 58, image: UNSPLASH("photo-1521572163474-6864f9cf17ab", 400, 500), category: "Tops", shopUrl: "#", saves: 5620 },
+      { id: "i10", name: "Leather Moto Jacket", brand: "AllSaints", price: 499, image: UNSPLASH("photo-1551028719-00167b16eac5", 400, 500), category: "Outerwear", shopUrl: "#", saves: 3890, sellingFast: true, budgetAlt: { name: "Faux Leather Biker", brand: "Mango", price: 89 } },
+      { id: "i11", name: "Straight-Leg Jeans", brand: "AGOLDE", price: 198, image: UNSPLASH("photo-1541099649105-f69ad21f3246", 400, 500), category: "Bottoms", shopUrl: "#", saves: 2780, budgetAlt: { name: "90s Straight Jean", brand: "Abercrombie", price: 49 } },
+      { id: "i12", name: "White Leather Sneakers", brand: "Common Projects", price: 425, image: UNSPLASH("photo-1549298916-b41d501d3772", 400, 500), category: "Shoes", shopUrl: "#", saves: 6100, sellingFast: true, budgetAlt: { name: "Court Sneaker", brand: "Veja", price: 120 } },
     ],
   },
   {
@@ -163,11 +178,14 @@ export const feedLooks: Look[] = [
       "When the invitation says black tie, answer with conviction. Statement pieces that command every room.",
     likes: 7600,
     mood: "evening",
+    aesthetic: "Night Luxe",
+    editorsNote: "Black tie doesn't mean boring. This look proves sequins can be refined.",
+    styleWeights: { "Avant-Garde": 4, "Romantic": 3 },
     items: [
-      { id: "i13", name: "Sequin Column Dress", brand: "Rotate", price: 595, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), category: "Dresses", shopUrl: "#" },
-      { id: "i14", name: "Crystal Drop Earrings", brand: "Swarovski", price: 189, image: UNSPLASH("photo-1535632066927-ab7c9ab60908", 400, 500), category: "Accessories", shopUrl: "#" },
-      { id: "i15", name: "Satin Stiletto Pumps", brand: "Jimmy Choo", price: 750, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
-      { id: "i16", name: "Box Clutch", brand: "Bottega Veneta", price: 1150, image: UNSPLASH("photo-1548036328-c9fa89d128fa", 400, 500), category: "Bags", shopUrl: "#" },
+      { id: "i13", name: "Sequin Column Dress", brand: "Rotate", price: 595, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), category: "Dresses", shopUrl: "#", saves: 4560, sellingFast: true },
+      { id: "i14", name: "Crystal Drop Earrings", brand: "Swarovski", price: 189, image: UNSPLASH("photo-1535632066927-ab7c9ab60908", 400, 500), category: "Accessories", shopUrl: "#", saves: 2340 },
+      { id: "i15", name: "Satin Stiletto Pumps", brand: "Jimmy Choo", price: 750, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#", saves: 1230, budgetAlt: { name: "Satin Pointed Pump", brand: "Sam Edelman", price: 130 } },
+      { id: "i16", name: "Box Clutch", brand: "Bottega Veneta", price: 1150, image: UNSPLASH("photo-1548036328-c9fa89d128fa", 400, 500), category: "Bags", shopUrl: "#", saves: 890, budgetAlt: { name: "Box Evening Bag", brand: "Aldo", price: 55 } },
     ],
   },
   {
@@ -188,11 +206,14 @@ export const feedLooks: Look[] = [
       "Pack less, look more. Versatile silhouettes in earth tones that take you from gallery to rooftop bar.",
     likes: 6200,
     mood: "adventure",
+    aesthetic: "Quiet Outdoor",
+    editorsNote: "The safari jacket is doing a renaissance. We're here for it.",
+    styleWeights: { "Classic": 4, "Minimalist": 2 },
     items: [
-      { id: "i17", name: "Linen Utility Shirt", brand: "Apiece Apart", price: 265, image: UNSPLASH("photo-1596755094514-f87e34085b2c", 400, 500), category: "Tops", shopUrl: "#" },
-      { id: "i18", name: "Cargo Culottes", brand: "COS", price: 135, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
-      { id: "i19", name: "Woven Tote Bag", brand: "Dragon Diffusion", price: 340, image: UNSPLASH("photo-1590874103328-eac38a683ce7", 400, 500), category: "Bags", shopUrl: "#" },
-      { id: "i20", name: "Suede Flat Sandals", brand: "K. Jacques", price: 280, image: UNSPLASH("photo-1603487742131-4160ec999306", 400, 500), category: "Shoes", shopUrl: "#" },
+      { id: "i17", name: "Linen Utility Shirt", brand: "Apiece Apart", price: 265, image: UNSPLASH("photo-1596755094514-f87e34085b2c", 400, 500), category: "Tops", shopUrl: "#", saves: 1890, budgetAlt: { name: "Linen Camp Shirt", brand: "Gap", price: 44 } },
+      { id: "i18", name: "Cargo Culottes", brand: "COS", price: 135, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#", saves: 1240 },
+      { id: "i19", name: "Woven Tote Bag", brand: "Dragon Diffusion", price: 340, image: UNSPLASH("photo-1590874103328-eac38a683ce7", 400, 500), category: "Bags", shopUrl: "#", saves: 2100, sellingFast: true },
+      { id: "i20", name: "Suede Flat Sandals", brand: "K. Jacques", price: 280, image: UNSPLASH("photo-1603487742131-4160ec999306", 400, 500), category: "Shoes", shopUrl: "#", saves: 970 },
     ],
   },
   {
@@ -213,11 +234,14 @@ export const feedLooks: Look[] = [
     likes: 11300,
     trending: true,
     mood: "minimal",
+    aesthetic: "Dark Minimalist",
+    editorsNote: "All black is not a cop-out. It's a lifestyle. This is the proof.",
+    styleWeights: { "Minimalist": 6, "Classic": 1 },
     items: [
-      { id: "i21", name: "Cashmere Turtleneck", brand: "Nili Lotan", price: 495, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
-      { id: "i22", name: "Tailored Wool Coat", brand: "Max Mara", price: 895, image: UNSPLASH("photo-1539533018447-63fcce2678e3", 400, 500), category: "Outerwear", shopUrl: "#" },
-      { id: "i23", name: "Slim Ankle Trousers", brand: "The Row", price: 590, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
-      { id: "i24", name: "Pointed Ankle Boots", brand: "Acne Studios", price: 620, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+      { id: "i21", name: "Cashmere Turtleneck", brand: "Nili Lotan", price: 495, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#", saves: 3450, sellingFast: true, budgetAlt: { name: "Merino Turtleneck", brand: "Uniqlo", price: 39 } },
+      { id: "i22", name: "Tailored Wool Coat", brand: "Max Mara", price: 895, image: UNSPLASH("photo-1539533018447-63fcce2678e3", 400, 500), category: "Outerwear", shopUrl: "#", saves: 5120 },
+      { id: "i23", name: "Slim Ankle Trousers", brand: "The Row", price: 590, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#", saves: 2340 },
+      { id: "i24", name: "Pointed Ankle Boots", brand: "Acne Studios", price: 620, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#", saves: 4080, sellingFast: true, budgetAlt: { name: "Pointed Chelsea Boot", brand: "Vagabond", price: 170 } },
     ],
   },
   {
@@ -238,11 +262,14 @@ export const feedLooks: Look[] = [
       "Prints that feel fresh, not fussy. The kind of outfit that makes everyone ask where you got it.",
     likes: 5400,
     mood: "romantic",
+    aesthetic: "Garden Party",
+    editorsNote: "Modern florals for people who swore off florals. Trust the wrap dress.",
+    styleWeights: { "Romantic": 5, "Classic": 2 },
     items: [
-      { id: "i25", name: "Printed Wrap Dress", brand: "Diane von Furstenberg", price: 398, image: UNSPLASH("photo-1572804013309-59a88b7e92f1", 400, 500), category: "Dresses", shopUrl: "#" },
-      { id: "i26", name: "Raffia Basket Bag", brand: "Loewe", price: 450, image: UNSPLASH("photo-1590874103328-eac38a683ce7", 400, 500), category: "Bags", shopUrl: "#" },
-      { id: "i27", name: "Block Heel Sandals", brand: "Loeffler Randall", price: 295, image: UNSPLASH("photo-1603487742131-4160ec999306", 400, 500), category: "Shoes", shopUrl: "#" },
-      { id: "i28", name: "Straw Sun Hat", brand: "Lack of Color", price: 89, image: UNSPLASH("photo-1521369909029-2afed882baee", 400, 500), category: "Accessories", shopUrl: "#" },
+      { id: "i25", name: "Printed Wrap Dress", brand: "Diane von Furstenberg", price: 398, image: UNSPLASH("photo-1572804013309-59a88b7e92f1", 400, 500), category: "Dresses", shopUrl: "#", saves: 2670, sellingFast: true },
+      { id: "i26", name: "Raffia Basket Bag", brand: "Loewe", price: 450, image: UNSPLASH("photo-1590874103328-eac38a683ce7", 400, 500), category: "Bags", shopUrl: "#", saves: 3890, budgetAlt: { name: "Raffia Tote", brand: "Mango", price: 49 } },
+      { id: "i27", name: "Block Heel Sandals", brand: "Loeffler Randall", price: 295, image: UNSPLASH("photo-1603487742131-4160ec999306", 400, 500), category: "Shoes", shopUrl: "#", saves: 1560 },
+      { id: "i28", name: "Straw Sun Hat", brand: "Lack of Color", price: 89, image: UNSPLASH("photo-1521369909029-2afed882baee", 400, 500), category: "Accessories", shopUrl: "#", saves: 4210 },
     ],
   },
   {
@@ -262,11 +289,14 @@ export const feedLooks: Look[] = [
       "The modern suit is your armor. Structured enough to command respect, relaxed enough to feel like you.",
     likes: 8900,
     mood: "classic",
+    aesthetic: "Boss Energy",
+    editorsNote: "The suit that makes the CEO ask where you shop. Power move.",
+    styleWeights: { "Classic": 6, "Minimalist": 2 },
     items: [
-      { id: "i29", name: "Double-Breasted Blazer", brand: "Toteme", price: 690, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#" },
-      { id: "i30", name: "High-Waist Trousers", brand: "Toteme", price: 390, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
-      { id: "i31", name: "Leather Tote", brand: "Mansur Gavriel", price: 595, image: UNSPLASH("photo-1584917865442-de89df76afd3", 400, 500), category: "Bags", shopUrl: "#" },
-      { id: "i32", name: "Pointed Pumps", brand: "Stuart Weitzman", price: 395, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+      { id: "i29", name: "Double-Breasted Blazer", brand: "Toteme", price: 690, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#", saves: 3670, sellingFast: true },
+      { id: "i30", name: "High-Waist Trousers", brand: "Toteme", price: 390, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#", saves: 2890 },
+      { id: "i31", name: "Leather Tote", brand: "Mansur Gavriel", price: 595, image: UNSPLASH("photo-1584917865442-de89df76afd3", 400, 500), category: "Bags", shopUrl: "#", saves: 4120, budgetAlt: { name: "Structured Tote", brand: "Cuyana", price: 195 } },
+      { id: "i32", name: "Pointed Pumps", brand: "Stuart Weitzman", price: 395, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#", saves: 1780 },
     ],
   },
   {
@@ -287,11 +317,14 @@ export const feedLooks: Look[] = [
     likes: 22100,
     trending: true,
     mood: "classic",
+    aesthetic: "Old Money",
+    editorsNote: "The most expensive-looking outfit that nobody will ask you about. That's the point.",
+    styleWeights: { "Classic": 5, "Minimalist": 4 },
     items: [
-      { id: "i33", name: "Cashmere Crew", brand: "The Row", price: 890, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
-      { id: "i34", name: "Wool Palazzo Pants", brand: "Toteme", price: 450, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
-      { id: "i35", name: "Leather Belt Bag", brand: "Bottega Veneta", price: 1850, image: UNSPLASH("photo-1548036328-c9fa89d128fa", 400, 500), category: "Bags", shopUrl: "#" },
-      { id: "i36", name: "Suede Loafers", brand: "The Row", price: 990, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+      { id: "i33", name: "Cashmere Crew", brand: "The Row", price: 890, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#", saves: 7840, sellingFast: true, budgetAlt: { name: "Cashmere-Blend Crew", brand: "Everlane", price: 98 } },
+      { id: "i34", name: "Wool Palazzo Pants", brand: "Toteme", price: 450, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#", saves: 3210 },
+      { id: "i35", name: "Leather Belt Bag", brand: "Bottega Veneta", price: 1850, image: UNSPLASH("photo-1548036328-c9fa89d128fa", 400, 500), category: "Bags", shopUrl: "#", saves: 9100, budgetAlt: { name: "Woven Crossbody", brand: "Anthropologie", price: 78 } },
+      { id: "i36", name: "Suede Loafers", brand: "The Row", price: 990, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#", saves: 5430, budgetAlt: { name: "Suede Penny Loafer", brand: "G.H. Bass", price: 110 } },
     ],
   },
   {
@@ -312,11 +345,14 @@ export const feedLooks: Look[] = [
     likes: 15700,
     trending: true,
     mood: "minimal",
+    aesthetic: "Scandi Minimal",
+    editorsNote: "Copenhagen street style in four pieces. The Danes just get it.",
+    styleWeights: { "Minimalist": 6, "Streetwear": 1 },
     items: [
-      { id: "i37", name: "Oversized Wool Shirt", brand: "COS", price: 175, image: UNSPLASH("photo-1596755094514-f87e34085b2c", 400, 500), category: "Tops", shopUrl: "#" },
-      { id: "i38", name: "Wide-Leg Wool Pants", brand: "Arket", price: 149, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
-      { id: "i39", name: "Padded Tote", brand: "Stand Studio", price: 380, image: UNSPLASH("photo-1584917865442-de89df76afd3", 400, 500), category: "Bags", shopUrl: "#" },
-      { id: "i40", name: "Chelsea Boots", brand: "Ganni", price: 475, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+      { id: "i37", name: "Oversized Wool Shirt", brand: "COS", price: 175, image: UNSPLASH("photo-1596755094514-f87e34085b2c", 400, 500), category: "Tops", shopUrl: "#", saves: 2890 },
+      { id: "i38", name: "Wide-Leg Wool Pants", brand: "Arket", price: 149, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#", saves: 1670 },
+      { id: "i39", name: "Padded Tote", brand: "Stand Studio", price: 380, image: UNSPLASH("photo-1584917865442-de89df76afd3", 400, 500), category: "Bags", shopUrl: "#", saves: 3240, sellingFast: true },
+      { id: "i40", name: "Chelsea Boots", brand: "Ganni", price: 475, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#", saves: 2120, budgetAlt: { name: "Chelsea Boot", brand: "Dr. Martens", price: 150 } },
     ],
   },
   {
@@ -336,11 +372,14 @@ export const feedLooks: Look[] = [
       "Organza, tulle, and a touch of Victorian drama. For the woman who treats getting dressed like poetry.",
     likes: 8400,
     mood: "romantic",
+    aesthetic: "Coquette",
+    editorsNote: "Victorian drama meets modern romance. Organza is having a moment — and so are you.",
+    styleWeights: { "Romantic": 6, "Avant-Garde": 2 },
     items: [
-      { id: "i41", name: "Organza Blouse", brand: "Zimmermann", price: 595, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
-      { id: "i42", name: "Tulle Midi Skirt", brand: "Simone Rocha", price: 680, image: UNSPLASH("photo-1583496661160-fb5886a0aabd", 400, 500), category: "Bottoms", shopUrl: "#" },
-      { id: "i43", name: "Pearl Drop Earrings", brand: "Sophie Buhai", price: 345, image: UNSPLASH("photo-1535632066927-ab7c9ab60908", 400, 500), category: "Accessories", shopUrl: "#" },
-      { id: "i44", name: "Satin Kitten Heels", brand: "Mach & Mach", price: 650, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+      { id: "i41", name: "Organza Blouse", brand: "Zimmermann", price: 595, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#", saves: 2340, sellingFast: true },
+      { id: "i42", name: "Tulle Midi Skirt", brand: "Simone Rocha", price: 680, image: UNSPLASH("photo-1583496661160-fb5886a0aabd", 400, 500), category: "Bottoms", shopUrl: "#", saves: 1890 },
+      { id: "i43", name: "Pearl Drop Earrings", brand: "Sophie Buhai", price: 345, image: UNSPLASH("photo-1535632066927-ab7c9ab60908", 400, 500), category: "Accessories", shopUrl: "#", saves: 5670, budgetAlt: { name: "Pearl Drop Earring", brand: "Baublebar", price: 38 } },
+      { id: "i44", name: "Satin Kitten Heels", brand: "Mach & Mach", price: 650, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#", saves: 3120 },
     ],
   },
   {
@@ -361,11 +400,14 @@ export const feedLooks: Look[] = [
     likes: 19200,
     trending: true,
     mood: "street",
+    aesthetic: "Techwear",
+    editorsNote: "Harajuku meets SoHo. Proportion play is the new accessorizing.",
+    styleWeights: { "Streetwear": 5, "Avant-Garde": 3 },
     items: [
-      { id: "i45", name: "Graphic Hoodie", brand: "Sacai", price: 580, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
-      { id: "i46", name: "Cargo Pants", brand: "Needles", price: 340, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
-      { id: "i47", name: "Chunky Sneakers", brand: "New Balance", price: 175, image: UNSPLASH("photo-1549298916-b41d501d3772", 400, 500), category: "Shoes", shopUrl: "#" },
-      { id: "i48", name: "Crossbody Pouch", brand: "Porter-Yoshida", price: 195, image: UNSPLASH("photo-1548036328-c9fa89d128fa", 400, 500), category: "Bags", shopUrl: "#" },
+      { id: "i45", name: "Graphic Hoodie", brand: "Sacai", price: 580, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#", saves: 4560, budgetAlt: { name: "Graphic Hoodie", brand: "Nike", price: 65 } },
+      { id: "i46", name: "Cargo Pants", brand: "Needles", price: 340, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#", saves: 3890, sellingFast: true },
+      { id: "i47", name: "Chunky Sneakers", brand: "New Balance", price: 175, image: UNSPLASH("photo-1549298916-b41d501d3772", 400, 500), category: "Shoes", shopUrl: "#", saves: 8920 },
+      { id: "i48", name: "Crossbody Pouch", brand: "Porter-Yoshida", price: 195, image: UNSPLASH("photo-1548036328-c9fa89d128fa", 400, 500), category: "Bags", shopUrl: "#", saves: 2670 },
     ],
   },
   {
@@ -386,11 +428,14 @@ export const feedLooks: Look[] = [
     likes: 12600,
     editorsChoice: true,
     mood: "evening",
+    aesthetic: "Red Carpet",
+    editorsNote: "Main character energy, weaponized. This look doesn't enter a room — it takes it.",
+    styleWeights: { "Avant-Garde": 5, "Romantic": 2 },
     items: [
-      { id: "i49", name: "Draped Gown", brand: "Saint Laurent", price: 2890, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), category: "Dresses", shopUrl: "#" },
-      { id: "i50", name: "Statement Cuff", brand: "Alexander McQueen", price: 790, image: UNSPLASH("photo-1535632066927-ab7c9ab60908", 400, 500), category: "Accessories", shopUrl: "#" },
-      { id: "i51", name: "Platform Heels", brand: "Versace", price: 1250, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
-      { id: "i52", name: "Crystal Minaudière", brand: "Judith Leiber", price: 2490, image: UNSPLASH("photo-1548036328-c9fa89d128fa", 400, 500), category: "Bags", shopUrl: "#" },
+      { id: "i49", name: "Draped Gown", brand: "Saint Laurent", price: 2890, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), category: "Dresses", shopUrl: "#", saves: 6780 },
+      { id: "i50", name: "Statement Cuff", brand: "Alexander McQueen", price: 790, image: UNSPLASH("photo-1535632066927-ab7c9ab60908", 400, 500), category: "Accessories", shopUrl: "#", saves: 3240 },
+      { id: "i51", name: "Platform Heels", brand: "Versace", price: 1250, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#", saves: 4560, sellingFast: true },
+      { id: "i52", name: "Crystal Minaudière", brand: "Judith Leiber", price: 2490, image: UNSPLASH("photo-1548036328-c9fa89d128fa", 400, 500), category: "Bags", shopUrl: "#", saves: 2340 },
     ],
   },
   {
@@ -411,11 +456,14 @@ export const feedLooks: Look[] = [
     likes: 16500,
     trending: true,
     mood: "classic",
+    aesthetic: "Coastal Grandma",
+    editorsNote: "Nancy Meyers walked so this look could run. Linen is a personality trait.",
+    styleWeights: { "Classic": 5, "Romantic": 2 },
     items: [
-      { id: "i53", name: "Oversized Linen Shirt", brand: "Frank & Eileen", price: 248, image: UNSPLASH("photo-1596755094514-f87e34085b2c", 400, 500), category: "Tops", shopUrl: "#" },
-      { id: "i54", name: "Wide-Leg Linen Pants", brand: "Jenni Kayne", price: 295, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
-      { id: "i55", name: "Canvas Espadrilles", brand: "Castañer", price: 120, image: UNSPLASH("photo-1603487742131-4160ec999306", 400, 500), category: "Shoes", shopUrl: "#" },
-      { id: "i56", name: "Straw Market Tote", brand: "Loewe", price: 550, image: UNSPLASH("photo-1590874103328-eac38a683ce7", 400, 500), category: "Bags", shopUrl: "#" },
+      { id: "i53", name: "Oversized Linen Shirt", brand: "Frank & Eileen", price: 248, image: UNSPLASH("photo-1596755094514-f87e34085b2c", 400, 500), category: "Tops", shopUrl: "#", saves: 4120, budgetAlt: { name: "Linen Button-Down", brand: "Old Navy", price: 34 } },
+      { id: "i54", name: "Wide-Leg Linen Pants", brand: "Jenni Kayne", price: 295, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#", saves: 3560 },
+      { id: "i55", name: "Canvas Espadrilles", brand: "Castañer", price: 120, image: UNSPLASH("photo-1603487742131-4160ec999306", 400, 500), category: "Shoes", shopUrl: "#", saves: 2780 },
+      { id: "i56", name: "Straw Market Tote", brand: "Loewe", price: 550, image: UNSPLASH("photo-1590874103328-eac38a683ce7", 400, 500), category: "Bags", shopUrl: "#", saves: 6240, sellingFast: true, budgetAlt: { name: "Straw Basket Bag", brand: "Target", price: 29 } },
     ],
   },
   {
@@ -435,11 +483,14 @@ export const feedLooks: Look[] = [
       "The girlboss blazer is dead. Long live the office siren — fitted, intentional, and unforgettable.",
     likes: 13800,
     mood: "classic",
+    aesthetic: "Office Siren",
+    editorsNote: "The girlboss blazer is dead. The office siren era starts now.",
+    styleWeights: { "Classic": 4, "Avant-Garde": 3 },
     items: [
-      { id: "i57", name: "Fitted Blazer Dress", brand: "Mugler", price: 790, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Dresses", shopUrl: "#" },
-      { id: "i58", name: "Sheer Turtleneck", brand: "Wolford", price: 250, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
-      { id: "i59", name: "Pencil Skirt", brand: "Max Mara", price: 495, image: UNSPLASH("photo-1583496661160-fb5886a0aabd", 400, 500), category: "Bottoms", shopUrl: "#" },
-      { id: "i60", name: "Pointed Slingbacks", brand: "Manolo Blahnik", price: 745, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+      { id: "i57", name: "Fitted Blazer Dress", brand: "Mugler", price: 790, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Dresses", shopUrl: "#", saves: 5670, sellingFast: true },
+      { id: "i58", name: "Sheer Turtleneck", brand: "Wolford", price: 250, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#", saves: 3890 },
+      { id: "i59", name: "Pencil Skirt", brand: "Max Mara", price: 495, image: UNSPLASH("photo-1583496661160-fb5886a0aabd", 400, 500), category: "Bottoms", shopUrl: "#", saves: 2340, budgetAlt: { name: "Midi Pencil Skirt", brand: "Aritzia", price: 68 } },
+      { id: "i60", name: "Pointed Slingbacks", brand: "Manolo Blahnik", price: 745, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#", saves: 4120, budgetAlt: { name: "Slingback Kitten Heel", brand: "Marc Fisher", price: 99 } },
     ],
   },
   {
@@ -460,11 +511,14 @@ export const feedLooks: Look[] = [
     likes: 21300,
     trending: true,
     mood: "adventure",
+    aesthetic: "Boho Revival",
+    editorsNote: "Forget flower crowns. Modern festival is crochet, denim, and main-stage confidence.",
+    styleWeights: { "Romantic": 3, "Streetwear": 2, "Avant-Garde": 2 },
     items: [
-      { id: "i61", name: "Crochet Top", brand: "Cult Gaia", price: 198, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
-      { id: "i62", name: "Denim Cutoffs", brand: "RE/DONE", price: 225, image: UNSPLASH("photo-1541099649105-f69ad21f3246", 400, 500), category: "Bottoms", shopUrl: "#" },
-      { id: "i63", name: "Western Boots", brand: "Isabel Marant", price: 390, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
-      { id: "i64", name: "Layered Necklaces", brand: "Missoma", price: 89, image: UNSPLASH("photo-1599643478518-a784e5dc4c8f", 400, 500), category: "Accessories", shopUrl: "#" },
+      { id: "i61", name: "Crochet Top", brand: "Cult Gaia", price: 198, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#", saves: 3890, sellingFast: true, budgetAlt: { name: "Crochet Halter", brand: "Free People", price: 48 } },
+      { id: "i62", name: "Denim Cutoffs", brand: "RE/DONE", price: 225, image: UNSPLASH("photo-1541099649105-f69ad21f3246", 400, 500), category: "Bottoms", shopUrl: "#", saves: 2560, budgetAlt: { name: "Denim Shorts", brand: "Levi's", price: 59 } },
+      { id: "i63", name: "Western Boots", brand: "Isabel Marant", price: 390, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#", saves: 5120 },
+      { id: "i64", name: "Layered Necklaces", brand: "Missoma", price: 89, image: UNSPLASH("photo-1599643478518-a784e5dc4c8f", 400, 500), category: "Accessories", shopUrl: "#", saves: 7890 },
     ],
   },
 ];

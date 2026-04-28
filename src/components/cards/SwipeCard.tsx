@@ -1,7 +1,8 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion";
-import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2 } from "lucide-react";
+import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2, Percent } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { useStore } from "../../stores/useStore";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -34,6 +35,9 @@ export function SwipeCard({
   onDoubleTap,
   isTop,
 }: SwipeCardProps) {
+  const getStyleMatch = useStore((s) => s.getStyleMatch);
+  const styleMatch = getStyleMatch(look);
+
   const [exitDirection, setExitDirection] = useState<"left" | "right" | "up" | null>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [showHeartBurst, setShowHeartBurst] = useState(false);
@@ -209,7 +213,12 @@ export function SwipeCard({
         {/* Bottom gradient + content */}
         <div className="absolute inset-x-0 bottom-0 gradient-bottom p-6 pb-8">
           <div className="space-y-3">
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              {look.aesthetic && (
+                <span className="text-[10px] font-inter font-semibold tracking-[0.15em] uppercase text-white bg-white/15 backdrop-blur-sm rounded-full px-3 py-1 border border-white/20">
+                  {look.aesthetic}
+                </span>
+              )}
               {look.tags.map((tag) => (
                 <span
                   key={tag.label}
@@ -222,10 +231,21 @@ export function SwipeCard({
             <h2 className="font-editorial text-3xl text-white leading-tight">
               {look.title}
             </h2>
-            <p className="font-subhead text-base text-white/80 italic">
-              {look.subtitle}
-            </p>
+            {look.editorsNote && (
+              <p className="text-[11px] font-inter text-white/60 leading-relaxed line-clamp-2">
+                {look.editorsNote}
+              </p>
+            )}
             <div className="flex items-center gap-3 pt-1">
+              {styleMatch > 0 && (
+                <>
+                  <span className="flex items-center gap-1 text-xs font-inter font-medium text-gold">
+                    <Percent size={10} />
+                    {styleMatch}% your vibe
+                  </span>
+                  <span className="text-white/30">·</span>
+                </>
+              )}
               <span className="flex items-center gap-1 text-xs font-inter text-white/60">
                 <Heart size={12} fill="currentColor" />
                 {formatCount(look.likes)}
@@ -233,10 +253,6 @@ export function SwipeCard({
               <span className="text-white/30">·</span>
               <span className="text-xs font-inter text-white/50">
                 {look.priceRange}
-              </span>
-              <span className="text-white/30">·</span>
-              <span className="text-xs font-inter text-white/50">
-                {look.items.length} pieces
               </span>
             </div>
           </div>

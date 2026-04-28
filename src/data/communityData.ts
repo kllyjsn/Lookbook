@@ -1,5 +1,13 @@
 import type { StyleTag, LookItem } from "./mockData";
 
+export interface StylePoll {
+  id: string;
+  question: string;
+  optionA: { label: string; image: string; votes: number };
+  optionB: { label: string; image: string; votes: number };
+  totalVotes: number;
+}
+
 export interface Creator {
   id: string;
   username: string;
@@ -461,5 +469,32 @@ export const mustHaveLists: MustHaveList[] = [
     ],
     likes: 11200,
     saves: 6100,
+  },
+];
+
+const POLL_IMG = (id: string) =>
+  `https://images.unsplash.com/${id}?w=400&h=400&fit=crop&q=80`;
+
+export const stylePolls: StylePoll[] = [
+  {
+    id: "poll-1",
+    question: "Date night: which vibe?",
+    optionA: { label: "Little Black Dress", image: POLL_IMG("photo-1469334031218-e382a71b716b"), votes: 12400 },
+    optionB: { label: "Power Suit", image: POLL_IMG("photo-1539109136881-3be0616acf4b"), votes: 8900 },
+    totalVotes: 21300,
+  },
+  {
+    id: "poll-2",
+    question: "Office fit: classic or siren?",
+    optionA: { label: "Quiet Luxury", image: POLL_IMG("photo-1558618666-fcd25c85f82e"), votes: 15700 },
+    optionB: { label: "Office Siren", image: POLL_IMG("photo-1550614000-4895a10e1bfd"), votes: 18200 },
+    totalVotes: 33900,
+  },
+  {
+    id: "poll-3",
+    question: "Summer essential?",
+    optionA: { label: "Linen Everything", image: POLL_IMG("photo-1544957992-20514f595d6f"), votes: 22100 },
+    optionB: { label: "Crochet & Denim", image: POLL_IMG("photo-1506152983158-b4a74a01c721"), votes: 19800 },
+    totalVotes: 41900,
   },
 ];

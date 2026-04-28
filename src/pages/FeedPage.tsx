@@ -4,7 +4,7 @@ import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
 import { SearchPage } from "./SearchPage";
 import { Logo } from "../components/ui/Logo";
-import { RefreshCw, Sparkles, Camera } from "lucide-react";
+import { RefreshCw, Sparkles, Camera, Flame as FlameIcon } from "lucide-react";
 import { feedLooks, moodFilters } from "../data/mockData";
 import type { MoodFilter } from "../data/mockData";
 import { useStore } from "../stores/useStore";
@@ -23,7 +23,12 @@ export function FeedPage() {
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
   const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
+  const streakCount = useStore((s) => s.streakCount);
+  const recordActivity = useStore((s) => s.recordActivity);
   const [showSearch, setShowSearch] = useState(false);
+
+  // Record activity on mount
+  useState(() => { recordActivity(); });
 
   const filteredLooks = useMemo(
     () =>
@@ -92,7 +97,19 @@ export function FeedPage() {
     <div className="h-full flex flex-col bg-cream">
       {/* Header */}
       <div className="flex items-center justify-between py-3 px-6">
-        <Logo variant="mark" size="sm" />
+        <div className="flex items-center gap-2">
+          <Logo variant="mark" size="sm" />
+          {streakCount > 0 && (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="flex items-center gap-1 px-2 py-1 rounded-full bg-gradient-to-r from-rose/10 to-gold/10 border border-rose/20"
+            >
+              <FlameIcon size={12} className="text-rose" />
+              <span className="text-[10px] font-inter font-bold text-rose">{streakCount}</span>
+            </motion.div>
+          )}
+        </div>
         <div className="flex items-center gap-3">
           <span className="text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted">
             {Math.min(currentFeedIndex + 1, feedLooks.length)} / {feedLooks.length}

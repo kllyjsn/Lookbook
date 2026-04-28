@@ -59,6 +59,14 @@ interface AppState {
   followCreator: (id: string) => void;
   unfollowCreator: (id: string) => void;
 
+  // Streak tracking
+  lastActiveDate: string | null;
+  streakCount: number;
+  recordActivity: () => void;
+
+  // Style match scoring
+  getStyleMatch: (look: Look) => number;
+
   // UI state
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -249,6 +257,33 @@ export const useStore = create<AppState>()(
             : [...state.capsuleSelectedItems, itemId],
         })),
 
+      lastActiveDate: null,
+      streakCount: 0,
+      recordActivity: () =>
+        set((state) => {
+          const today = new Date().toISOString().slice(0, 10);
+          if (state.lastActiveDate === today) return state;
+          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+          const newStreak = state.lastActiveDate === yesterday ? state.streakCount + 1 : 1;
+          return { lastActiveDate: today, streakCount: newStreak };
+        }),
+
+      getStyleMatch: (look: Look) => {
+        const dna = get().styleDNA;
+        if (!look.styleWeights || dna.length === 0) return 0;
+        const dnaMap: Record<string, number> = {};
+        for (const entry of dna) dnaMap[entry.style] = entry.percentage;
+        let score = 0;
+        let totalWeight = 0;
+        for (const [style, weight] of Object.entries(look.styleWeights)) {
+          score += (dnaMap[style] ?? 0) * weight;
+          totalWeight += weight;
+        }
+        if (totalWeight === 0) return 0;
+        const raw = score / totalWeight;
+        return Math.min(99, Math.max(40, Math.round(raw * 1.5 + 30)));
+      },
+
       followedCreators: [],
       followCreator: (id) =>
         set((state) => ({
@@ -279,6 +314,8 @@ export const useStore = create<AppState>()(
         capsuleBudget: state.capsuleBudget,
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
+        lastActiveDate: state.lastActiveDate,
+        streakCount: state.streakCount,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
       }),
     }

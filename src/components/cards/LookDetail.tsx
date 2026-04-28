@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
+import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp, Percent, DollarSign, PenLine } from "lucide-react";
 import type { Look } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
@@ -21,8 +21,12 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
+  const getStyleMatch = useStore((s) => s.getStyleMatch);
+  const styleMatch = getStyleMatch(look);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showBudgetAlts, setShowBudgetAlts] = useState(false);
+  const hasBudgetAlts = look.items.some((item) => item.budgetAlt);
 
   return (
     <AnimatePresence>
@@ -79,6 +83,25 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
 
           {/* Editorial content */}
           <div className="px-6 py-8 max-w-2xl mx-auto">
+            {/* Style match + aesthetic */}
+            {(styleMatch > 0 || look.aesthetic) && (
+              <div className="flex items-center gap-3 mb-4">
+                {styleMatch > 0 && (
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-gold/10 to-blush/10 border border-gold/20">
+                    <Percent size={12} className="text-gold" />
+                    <span className="text-xs font-inter font-semibold text-gold">
+                      {styleMatch}% your vibe
+                    </span>
+                  </div>
+                )}
+                {look.aesthetic && (
+                  <span className="text-[10px] font-inter font-semibold tracking-[0.15em] uppercase text-ink bg-ivory rounded-full px-3 py-1.5 border border-ink/10">
+                    {look.aesthetic}
+                  </span>
+                )}
+              </div>
+            )}
+
             {/* Tags + badges */}
             <div className="flex flex-wrap gap-2 mb-4">
               {look.trending && (
@@ -112,6 +135,21 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 {look.priceRange}
               </span>
             </div>
+
+            {/* Editor's Note */}
+            {look.editorsNote && (
+              <div className="mb-6 px-4 py-3 rounded-xl bg-ivory border border-ink/5">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <PenLine size={12} className="text-gold" />
+                  <span className="text-[10px] font-inter font-semibold tracking-[0.15em] uppercase text-gold">
+                    Editor's Note
+                  </span>
+                </div>
+                <p className="text-sm font-subhead text-ink-light italic leading-relaxed">
+                  {look.editorsNote}
+                </p>
+              </div>
+            )}
 
             {/* Description */}
             <p className="font-subhead text-xl text-ink-light leading-relaxed mb-8 italic">
@@ -174,16 +212,30 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
 
             {/* Shop the Look section */}
             <div className="mb-10">
-              <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center gap-3 mb-4">
                 <ShoppingBag size={18} className="text-ink" />
                 <h3 className="font-editorial text-xl text-ink">Shop the Look</h3>
                 <span className="text-xs font-inter text-ink-muted ml-auto">
                   {look.priceRange}
                 </span>
               </div>
+              {hasBudgetAlts && (
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowBudgetAlts(!showBudgetAlts)}
+                  className={`w-full mb-4 py-2.5 rounded-full text-xs font-inter font-medium flex items-center justify-center gap-2 transition-all ${
+                    showBudgetAlts
+                      ? "bg-sage/15 text-sage border border-sage/30"
+                      : "bg-ivory text-ink-muted border border-ink/10"
+                  }`}
+                >
+                  <DollarSign size={14} />
+                  {showBudgetAlts ? "Showing budget alternatives" : "Show budget alternatives"}
+                </motion.button>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 {look.items.map((item, i) => (
-                  <ProductCard key={item.id} item={item} index={i} />
+                  <ProductCard key={item.id} item={item} index={i} showBudgetAlt={showBudgetAlts} />
                 ))}
               </div>
             </div>
