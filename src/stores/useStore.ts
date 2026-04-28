@@ -149,9 +149,9 @@ function computeDNA(likedLooks: Look[]): StyleDNAEntry[] {
 }
 
 function streakUpdate(state: AppState) {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = new Date().toLocaleDateString('en-CA');
   if (state.lastSwipeDate === today) return {};
-  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-CA');
   const streak = state.lastSwipeDate === yesterday ? state.swipeStreak + 1 : 1;
   return { swipeStreak: streak, lastSwipeDate: today };
 }
@@ -300,9 +300,9 @@ export const useStore = create<AppState>()(
       lastSwipeDate: null,
       recordSwipeDay: () =>
         set((state) => {
-          const today = new Date().toISOString().slice(0, 10);
+          const today = new Date().toLocaleDateString('en-CA');
           if (state.lastSwipeDate === today) return state;
-          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+          const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-CA');
           const streak = state.lastSwipeDate === yesterday ? state.swipeStreak + 1 : 1;
           return { swipeStreak: streak, lastSwipeDate: today };
         }),
