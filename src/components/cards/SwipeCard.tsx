@@ -1,7 +1,9 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion";
-import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2 } from "lucide-react";
+import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2, Sparkles } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { useStore } from "../../stores/useStore";
+import { computeMatchScore, getRecommendationReason } from "../../lib/styleMatch";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -14,6 +16,30 @@ const badgeConfig = {
   "editors-pick": { label: "EDITOR'S PICK", icon: Award, bg: "bg-gold/90", text: "text-white" },
   "new": { label: "NEW", icon: Zap, bg: "bg-ink/80", text: "text-cream" },
 } as const;
+
+function StyleMatchBadge({ look }: { look: Look }) {
+  const styleDNA = useStore((s) => s.styleDNA);
+  const likedCount = useStore((s) => s.likedLooks.length);
+  const score = computeMatchScore(look, styleDNA);
+  const reason = getRecommendationReason(look, styleDNA, likedCount);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: 0.4 }}
+      className="flex items-center gap-2"
+    >
+      <span className="flex items-center gap-1 text-[10px] font-inter font-semibold tracking-wide bg-white/15 backdrop-blur-sm text-white rounded-full px-2.5 py-1">
+        <Sparkles size={9} />
+        {score}% match
+      </span>
+      <span className="text-[10px] font-inter text-white/50 italic">
+        {reason}
+      </span>
+    </motion.div>
+  );
+}
 
 interface SwipeCardProps {
   look: Look;
@@ -209,6 +235,7 @@ export function SwipeCard({
         {/* Bottom gradient + content */}
         <div className="absolute inset-x-0 bottom-0 gradient-bottom p-6 pb-8">
           <div className="space-y-3">
+            <StyleMatchBadge look={look} />
             <div className="flex gap-2">
               {look.tags.map((tag) => (
                 <span

@@ -78,10 +78,13 @@ export function FeedPage() {
     setShowLookDetail(currentLook);
   }, [currentLook, setShowLookDetail]);
 
+  const [showSaveToast, setShowSaveToast] = useState(false);
+
   const handleButtonSave = useCallback(() => {
     addToCollection("favorites", currentLook);
-    setActiveTab("profile");
-  }, [currentLook, addToCollection, setActiveTab]);
+    setShowSaveToast(true);
+    setTimeout(() => setShowSaveToast(false), 1500);
+  }, [currentLook, addToCollection]);
 
   const handleMoodFilter = useCallback(
     (mood: MoodFilter) => {
@@ -236,6 +239,20 @@ export function FeedPage() {
           </p>
         </div>
       )}
+
+      {/* Quick-save toast */}
+      <AnimatePresence>
+        {showSaveToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 bg-ink text-cream text-sm font-inter font-medium px-5 py-2.5 rounded-full shadow-lg"
+          >
+            Saved to Favorites
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Search overlay */}
       <AnimatePresence>

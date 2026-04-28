@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
+import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp, ShoppingCart } from "lucide-react";
 import type { Look } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { DupeFinder } from "./DupeFinder";
+import { ShareSheet } from "./ShareSheet";
+import { ColorPalette } from "./ColorPalette";
 import { Tag } from "../ui/Tag";
 import { useStore } from "../../stores/useStore";
+import { extractColorPalette } from "../../lib/styleMatch";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -24,6 +27,13 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
   const addToCollection = useStore((s) => s.addToCollection);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showShare, setShowShare] = useState(false);
+  const [allSaved, setAllSaved] = useState(false);
+  const palette = useMemo(() => extractColorPalette(look), [look]);
+  const totalPrice = useMemo(
+    () => look.items.reduce((sum, item) => sum + item.price, 0),
+    [look]
+  );
 
   return (
     <AnimatePresence>
@@ -158,33 +168,49 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  if (navigator.share) {
-                    navigator.share({
-                      title: `LKBK — ${look.title}`,
-                      text: look.description,
-                      url: window.location.href,
-                    }).catch(() => {});
-                  }
-                }}
+                onClick={() => setShowShare(true)}
                 className="w-12 h-12 rounded-full flex items-center justify-center border border-ink/10 hover:border-ink/30"
               >
                 <Share2 size={18} className="text-ink-muted" />
               </motion.button>
             </div>
 
+            {/* Color Palette */}
+            <ColorPalette colors={palette} />
+
             {/* Shop the Look section */}
             <div className="mb-10">
-              <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center gap-3 mb-2">
                 <ShoppingBag size={18} className="text-ink" />
                 <h3 className="font-editorial text-xl text-ink">Shop the Look</h3>
                 <span className="text-xs font-inter text-ink-muted ml-auto">
                   {look.priceRange}
                 </span>
               </div>
+              <p className="text-xs font-inter text-ink-muted mb-4">
+                {look.items.length} pieces · ${totalPrice} total
+              </p>
+
+              {/* Shop All CTA */}
+              <motion.button
+                whileTap={{ scale: 0.98 }}
+                onClick={() => {
+                  addToCollection("wishlist", look);
+                  setAllSaved(true);
+                }}
+                className={`w-full py-3 rounded-full flex items-center justify-center gap-2 text-sm font-inter font-medium mb-6 transition-colors ${
+                  allSaved
+                    ? "bg-gold/10 text-gold border border-gold/20"
+                    : "bg-ink text-cream"
+                }`}
+              >
+                <ShoppingCart size={15} />
+                {allSaved ? "Saved to Wishlist" : "Shop All — Save Entire Look"}
+              </motion.button>
+
               <div className="grid grid-cols-2 gap-4">
                 {look.items.map((item, i) => (
-                  <ProductCard key={item.id} item={item} index={i} />
+                  <ProductCard key={item.id} item={item} index={i} showCostPerWear />
                 ))}
               </div>
             </div>
@@ -200,6 +226,13 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
             )}
           </div>
         </div>
+
+        {/* Share Sheet */}
+        <AnimatePresence>
+          {showShare && (
+            <ShareSheet look={look} onClose={() => setShowShare(false)} />
+          )}
+        </AnimatePresence>
       </motion.div>
     </AnimatePresence>
   );
