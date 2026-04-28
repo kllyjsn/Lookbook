@@ -235,13 +235,26 @@ export function FeedPage() {
 
   useEffect(() => { recordSwipeDay(); }, [recordSwipeDay]);
 
+  // Sort feed once when the component mounts or mood filter changes.
+  // We use a version counter to avoid re-sorting on every styleDNA change (which happens on every like).
+  const [feedVersion, setFeedVersion] = useState(0);
+  const handleMoodFilterWithReset = useCallback(
+    (mood: MoodFilter) => {
+      setActiveMoodFilter(mood);
+      setFeedVersion((v) => v + 1);
+    },
+    [setActiveMoodFilter]
+  );
+
   const filteredLooks = useMemo(() => {
     const base =
       activeMoodFilter === "all"
         ? feedLooks
         : feedLooks.filter((l) => l.mood === activeMoodFilter);
     return sortByStyleMatch(base, styleDNA);
-  }, [activeMoodFilter, styleDNA]);
+    // feedVersion triggers re-sort only on filter change, not on every styleDNA mutation
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeMoodFilter, feedVersion]);
 
   const hasSeenAll = currentFeedIndex >= filteredLooks.length;
 
@@ -299,20 +312,18 @@ export function FeedPage() {
     setActiveTab("profile");
   }, [currentLook, addToCollection, setActiveTab]);
 
-  const handleMoodFilter = useCallback(
-    (mood: MoodFilter) => {
-      setActiveMoodFilter(mood);
-    },
-    [setActiveMoodFilter]
-  );
+  const handleMoodFilter = handleMoodFilterWithReset;
+
+  const duelLikeLook = useStore((s) => s.duelLikeLook);
+  const duelPassLook = useStore((s) => s.duelPassLook);
 
   const handleDuelPick = useCallback(
     (winner: Look, loser: Look) => {
-      likeLook(winner);
-      passLook(loser);
+      duelLikeLook(winner);
+      duelPassLook(loser);
       setDuelIndex((i) => i + 1);
     },
-    [likeLook, passLook]
+    [duelLikeLook, duelPassLook]
   );
 
   const topMatch = useMemo(() => {
@@ -514,6 +525,7 @@ export function FeedPage() {
       <AnimatePresence>
         {showLookDetail && (
           <LookDetail
+            key={showLookDetail.id}
             look={showLookDetail}
             onClose={() => setShowLookDetail(null)}
           />

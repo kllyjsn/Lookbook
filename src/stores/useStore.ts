@@ -64,7 +64,9 @@ interface AppState {
   lastSwipeDate: string | null;
   recordSwipeDay: () => void;
 
-  // Feed mode: "this-or-that" duel
+  // Duel mode (like/pass without advancing feed index)
+  duelLikeLook: (look: Look) => void;
+  duelPassLook: (look: Look) => void;
   duelMode: boolean;
   toggleDuelMode: () => void;
 
@@ -186,6 +188,20 @@ export const useStore = create<AppState>()(
           likedLooks: state.likedLooks.some((l) => l.id === look.id)
             ? state.likedLooks
             : [...state.likedLooks, look],
+        })),
+
+      duelLikeLook: (look) =>
+        set((state) => {
+          const newLiked = state.likedLooks.some((l) => l.id === look.id)
+            ? state.likedLooks
+            : [...state.likedLooks, look];
+          return { likedLooks: newLiked, styleDNA: computeDNA(newLiked) };
+        }),
+      duelPassLook: (look) =>
+        set((state) => ({
+          passedLooks: state.passedLooks.some((l) => l.id === look.id)
+            ? state.passedLooks
+            : [...state.passedLooks, look],
         })),
 
       undoLastSwipe: () =>
