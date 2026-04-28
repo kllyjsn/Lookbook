@@ -1,7 +1,8 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion";
-import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2 } from "lucide-react";
+import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2, Flame, Sparkles, Crown, Users } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { useStore } from "../../stores/useStore";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -13,7 +14,32 @@ const badgeConfig = {
   "trending": { label: "TRENDING", icon: TrendingUp, bg: "bg-rose/90", text: "text-white" },
   "editors-pick": { label: "EDITOR'S PICK", icon: Award, bg: "bg-gold/90", text: "text-white" },
   "new": { label: "NEW", icon: Zap, bg: "bg-ink/80", text: "text-cream" },
+  "viral": { label: "VIRAL", icon: Flame, bg: "bg-gradient-to-r from-rose/90 to-gold/90", text: "text-white" },
 } as const;
+
+const tagToStyleMap: Record<string, string> = {
+  "Minimalist": "Minimalist", "Office": "Classic", "Romantic": "Romantic",
+  "Evening": "Romantic", "Streetwear": "Streetwear", "Casual": "Streetwear",
+  "Glamour": "Avant-Garde", "Adventure": "Classic", "Utility": "Classic",
+  "Chic": "Minimalist", "Feminine": "Romantic", "Social": "Romantic",
+  "Tailored": "Classic", "Power": "Classic", "Clean": "Minimalist",
+  "Scandi": "Minimalist", "Quiet Luxury": "Classic", "Investment": "Classic",
+  "Tokyo": "Avant-Garde", "Creative": "Avant-Garde", "Statement": "Avant-Garde",
+  "Corporate": "Classic", "Siren": "Avant-Garde", "Coastal": "Classic",
+  "Festival": "Avant-Garde", "Boho": "Romantic", "Vintage": "Romantic",
+  "Sustainable": "Minimalist",
+};
+
+function computeStyleMatch(look: Look, styleDNA: { style: string; percentage: number }[]): number {
+  if (styleDNA.length === 0) return 0;
+  const lookStyles = look.tags.map(t => tagToStyleMap[t.label]).filter(Boolean);
+  if (lookStyles.length === 0) return 0;
+  const matchScore = lookStyles.reduce((sum, style) => {
+    const entry = styleDNA.find(d => d.style === style);
+    return sum + (entry ? entry.percentage : 0);
+  }, 0);
+  return Math.min(99, Math.round(matchScore / lookStyles.length));
+}
 
 interface SwipeCardProps {
   look: Look;
@@ -34,6 +60,8 @@ export function SwipeCard({
   onDoubleTap,
   isTop,
 }: SwipeCardProps) {
+  const styleDNA = useStore((s) => s.styleDNA);
+  const styleMatch = computeStyleMatch(look, styleDNA);
   const [exitDirection, setExitDirection] = useState<"left" | "right" | "up" | null>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [showHeartBurst, setShowHeartBurst] = useState(false);
@@ -238,7 +266,30 @@ export function SwipeCard({
               <span className="text-xs font-inter text-white/50">
                 {look.items.length} pieces
               </span>
+              {styleMatch > 0 && (
+                <>
+                  <span className="text-white/30">·</span>
+                  <span className="flex items-center gap-1 text-xs font-inter font-semibold text-gold">
+                    {styleMatch}% match
+                  </span>
+                </>
+              )}
             </div>
+            {typeof look.stylingNow === 'number' && look.stylingNow > 0 && (
+              <div className="flex items-center gap-1.5 pt-1.5">
+                <Users size={10} className="text-white/40" />
+                <span className="text-[10px] font-inter text-white/40">
+                  {formatCount(look.stylingNow)} styling this now
+                </span>
+              </div>
+            )}
+            {look.viralTag && (
+              <div className="flex items-center gap-1 pt-1">
+                <span className="text-[9px] font-inter font-bold tracking-wider text-gold/80">
+                  #{look.viralTag}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -304,62 +355,112 @@ interface SwipeButtonsProps {
   onSave: () => void;
   onUndo: () => void;
   canUndo: boolean;
+  onReaction?: (reaction: string) => void;
+  streak?: number;
 }
 
-export function SwipeButtons({ onPass, onLike, onShop, onSave, onUndo, canUndo }: SwipeButtonsProps) {
+export function SwipeButtons({ onPass, onLike, onShop, onSave, onUndo, canUndo, onReaction, streak = 0 }: SwipeButtonsProps) {
   return (
-    <div className="flex items-center justify-center gap-4 py-4">
+    <div className="space-y-2">
+      {/* Streak counter */}
       <AnimatePresence>
-        {canUndo && (
-          <motion.button
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={onUndo}
-            className="w-10 h-10 rounded-full border-2 border-ink/10 flex items-center justify-center bg-cream hover:border-lavender/40 hover:bg-lavender/5 transition-colors"
+        {streak >= 3 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            className="flex items-center justify-center gap-2"
           >
-            <Undo2 size={14} className="text-ink-muted" />
-          </motion.button>
+            <Flame size={14} className={streak >= 10 ? "text-rose" : "text-gold"} />
+            <span className={`text-xs font-inter font-bold tracking-wider ${streak >= 10 ? "text-rose" : "text-gold"}`}>
+              {streak} streak
+            </span>
+            {streak >= 5 && streak < 10 && (
+              <span className="text-[9px] font-inter text-ink-muted">Style Maven</span>
+            )}
+            {streak >= 10 && streak < 15 && (
+              <span className="text-[9px] font-inter text-rose">Trendsetter</span>
+            )}
+            {streak >= 15 && (
+              <span className="text-[9px] font-inter text-rose font-bold">Fashion Icon</span>
+            )}
+          </motion.div>
         )}
       </AnimatePresence>
 
-      <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={onPass}
-        className="w-14 h-14 rounded-full border-2 border-ink/10 flex items-center justify-center bg-cream hover:border-rose/40 hover:bg-rose/5 transition-colors"
-      >
-        <X size={22} className="text-ink-muted" />
-      </motion.button>
+      {/* Quick reaction chips */}
+      <div className="flex items-center justify-center gap-2">
+        {[
+          { id: "fire", label: "Fire", icon: Flame, color: "text-rose", bg: "hover:bg-rose/5 hover:border-rose/30" },
+          { id: "dreamy", label: "Dreamy", icon: Sparkles, color: "text-lavender", bg: "hover:bg-lavender/5 hover:border-lavender/30" },
+          { id: "slay", label: "Slay", icon: Crown, color: "text-gold", bg: "hover:bg-gold/5 hover:border-gold/30" },
+        ].map((r) => (
+          <motion.button
+            key={r.id}
+            whileTap={{ scale: 0.85 }}
+            onClick={() => onReaction?.(r.id)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-ink/8 bg-cream text-xs font-inter font-medium transition-colors ${r.bg}`}
+          >
+            <r.icon size={12} className={r.color} />
+            <span className="text-ink-muted">{r.label}</span>
+          </motion.button>
+        ))}
+      </div>
 
-      <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={onShop}
-        className="w-12 h-12 rounded-full border-2 border-ink/10 flex items-center justify-center bg-cream hover:border-gold/40 hover:bg-gold/5 transition-colors"
-      >
-        <ShoppingBag size={18} className="text-ink-muted" />
-      </motion.button>
+      {/* Main action buttons */}
+      <div className="flex items-center justify-center gap-4 py-2">
+        <AnimatePresence>
+          {canUndo && (
+            <motion.button
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={onUndo}
+              className="w-10 h-10 rounded-full border-2 border-ink/10 flex items-center justify-center bg-cream hover:border-lavender/40 hover:bg-lavender/5 transition-colors"
+            >
+              <Undo2 size={14} className="text-ink-muted" />
+            </motion.button>
+          )}
+        </AnimatePresence>
 
-      <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={onLike}
-        className="w-14 h-14 rounded-full border-2 border-ink/10 flex items-center justify-center bg-cream hover:border-rose/40 hover:bg-rose/5 transition-colors"
-      >
-        <Heart size={22} className="text-ink-muted" />
-      </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={onPass}
+          className="w-14 h-14 rounded-full border-2 border-ink/10 flex items-center justify-center bg-cream hover:border-rose/40 hover:bg-rose/5 transition-colors"
+        >
+          <X size={22} className="text-ink-muted" />
+        </motion.button>
 
-      <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={onSave}
-        className="w-12 h-12 rounded-full border-2 border-ink/10 flex items-center justify-center bg-cream hover:border-gold/40 hover:bg-gold/5 transition-colors"
-      >
-        <Bookmark size={18} className="text-ink-muted" />
-      </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={onShop}
+          className="w-12 h-12 rounded-full border-2 border-ink/10 flex items-center justify-center bg-cream hover:border-gold/40 hover:bg-gold/5 transition-colors"
+        >
+          <ShoppingBag size={18} className="text-ink-muted" />
+        </motion.button>
+
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={onLike}
+          className="w-14 h-14 rounded-full border-2 border-ink/10 flex items-center justify-center bg-cream hover:border-rose/40 hover:bg-rose/5 transition-colors"
+        >
+          <Heart size={22} className="text-ink-muted" />
+        </motion.button>
+
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={onSave}
+          className="w-12 h-12 rounded-full border-2 border-ink/10 flex items-center justify-center bg-cream hover:border-gold/40 hover:bg-gold/5 transition-colors"
+        >
+          <Bookmark size={18} className="text-ink-muted" />
+        </motion.button>
+      </div>
     </div>
   );
 }

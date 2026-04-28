@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
+import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp, ChevronRight } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { feedLooks } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
 import { useStore } from "../../stores/useStore";
@@ -15,14 +16,29 @@ function formatCount(n: number): string {
 interface LookDetailProps {
   look: Look;
   onClose: () => void;
+  onNavigate?: (look: Look) => void;
 }
 
-export function LookDetail({ look, onClose }: LookDetailProps) {
+export function LookDetail({ look, onClose, onNavigate }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
+  const addToRecentlyViewed = useStore((s) => s.addToRecentlyViewed);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  const similarLooks = useMemo(() => {
+    const lookTags = new Set(look.tags.map((t) => t.label));
+    return feedLooks
+      .filter((l) => l.id !== look.id)
+      .map((l) => ({
+        look: l,
+        score: l.tags.filter((t) => lookTags.has(t.label)).length + (l.mood === look.mood ? 1 : 0),
+      }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 4)
+      .map((s) => s.look);
+  }, [look]);
 
   return (
     <AnimatePresence>
@@ -187,6 +203,57 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 ))}
               </div>
             </div>
+
+            {/* You'll Also Love */}
+            {similarLooks.length > 0 && (
+              <div className="mb-10">
+                <div className="flex items-center gap-3 mb-5">
+                  <Heart size={16} className="text-rose" />
+                  <h3 className="font-editorial text-xl text-ink">You'll Also Love</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {similarLooks.map((similar, i) => (
+                    <motion.div
+                      key={similar.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.08 }}
+                      onClick={() => {
+                        addToRecentlyViewed(similar);
+                        onNavigate?.(similar);
+                      }}
+                      className="group cursor-pointer"
+                    >
+                      <div className="relative aspect-[3/4] rounded-xl overflow-hidden mb-2">
+                        <img
+                          src={similar.image}
+                          alt={similar.title}
+                          className="img-editorial group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-x-0 bottom-0 gradient-bottom p-3">
+                          <p className="text-white text-xs font-inter font-medium leading-tight">
+                            {similar.title}
+                          </p>
+                          <div className="flex items-center gap-1.5 mt-1">
+                            <span className="text-white/50 text-[10px] font-inter">
+                              {similar.priceRange}
+                            </span>
+                            <ChevronRight size={10} className="text-white/40" />
+                          </div>
+                        </div>
+                        {similar.badge && (
+                          <div className="absolute top-2 left-2">
+                            <span className="text-[8px] font-inter font-bold tracking-wider uppercase bg-white/20 backdrop-blur-sm text-white rounded-full px-2 py-0.5">
+                              {similar.badge === "editors-pick" ? "PICK" : similar.badge.toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Photographer credit */}
             {look.photographer && (

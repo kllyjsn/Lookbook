@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
@@ -23,7 +23,16 @@ export function FeedPage() {
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
   const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
+  const swipeStreak = useStore((s) => s.swipeStreak);
+  const incrementStreak = useStore((s) => s.incrementStreak);
+  const addReaction = useStore((s) => s.addReaction);
+  const addToRecentlyViewed = useStore((s) => s.addToRecentlyViewed);
+  const setLastSeenFeedCount = useStore((s) => s.setLastSeenFeedCount);
   const [showSearch, setShowSearch] = useState(false);
+
+  useEffect(() => {
+    setLastSeenFeedCount(feedLooks.length);
+  }, [setLastSeenFeedCount]);
 
   const filteredLooks = useMemo(
     () =>
@@ -46,11 +55,17 @@ export function FeedPage() {
 
   const handleSwipeRight = useCallback(() => {
     likeLook(currentLook);
-  }, [currentLook, likeLook]);
+    incrementStreak();
+    addToRecentlyViewed(currentLook);
+  }, [currentLook, likeLook, incrementStreak, addToRecentlyViewed]);
+
+  const resetStreak = useStore((s) => s.resetStreak);
 
   const handleSwipeLeft = useCallback(() => {
     passLook(currentLook);
-  }, [currentLook, passLook]);
+    resetStreak();
+    addToRecentlyViewed(currentLook);
+  }, [currentLook, passLook, resetStreak, addToRecentlyViewed]);
 
   const handleSwipeUp = useCallback(() => {
     setShowLookDetail(currentLook);
@@ -62,15 +77,21 @@ export function FeedPage() {
 
   const handleDoubleTap = useCallback(() => {
     likeLook(currentLook);
-  }, [currentLook, likeLook]);
+    incrementStreak();
+    addToRecentlyViewed(currentLook);
+  }, [currentLook, likeLook, incrementStreak, addToRecentlyViewed]);
 
   const handleButtonLike = useCallback(() => {
     likeLook(currentLook);
-  }, [currentLook, likeLook]);
+    incrementStreak();
+    addToRecentlyViewed(currentLook);
+  }, [currentLook, likeLook, incrementStreak, addToRecentlyViewed]);
 
   const handleButtonPass = useCallback(() => {
     passLook(currentLook);
-  }, [currentLook, passLook]);
+    resetStreak();
+    addToRecentlyViewed(currentLook);
+  }, [currentLook, passLook, resetStreak, addToRecentlyViewed]);
 
   const handleButtonShop = useCallback(() => {
     setShowLookDetail(currentLook);
@@ -81,11 +102,22 @@ export function FeedPage() {
     setActiveTab("profile");
   }, [currentLook, addToCollection, setActiveTab]);
 
+  const handleReaction = useCallback(
+    (reaction: string) => {
+      addReaction(currentLook.id, reaction);
+      likeLook(currentLook);
+      incrementStreak();
+      addToRecentlyViewed(currentLook);
+    },
+    [currentLook, addReaction, likeLook, incrementStreak, addToRecentlyViewed]
+  );
+
   const handleMoodFilter = useCallback(
     (mood: MoodFilter) => {
       setActiveMoodFilter(mood);
+      setLastSeenFeedCount(feedLooks.length);
     },
-    [setActiveMoodFilter]
+    [setActiveMoodFilter, setLastSeenFeedCount]
   );
 
   return (
@@ -219,6 +251,8 @@ export function FeedPage() {
             onSave={handleButtonSave}
             onUndo={undoLastSwipe}
             canUndo={!!lastSwipedLook}
+            onReaction={handleReaction}
+            streak={swipeStreak}
           />
           <p className="text-center text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted mt-1">
             Swipe right to love · Left to pass · Up to shop · Double-tap to love
@@ -253,8 +287,10 @@ export function FeedPage() {
       <AnimatePresence>
         {showLookDetail && (
           <LookDetail
+            key={showLookDetail.id}
             look={showLookDetail}
             onClose={() => setShowLookDetail(null)}
+            onNavigate={(look) => setShowLookDetail(look)}
           />
         )}
       </AnimatePresence>

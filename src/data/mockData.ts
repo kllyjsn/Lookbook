@@ -13,7 +13,7 @@ export interface LookItem {
   shopUrl: string;
 }
 
-export type MoodFilter = "all" | "minimal" | "romantic" | "street" | "evening" | "classic" | "adventure";
+export type MoodFilter = "all" | "minimal" | "romantic" | "street" | "evening" | "classic" | "adventure" | "viral";
 
 export interface Look {
   id: string;
@@ -31,7 +31,9 @@ export interface Look {
   trending?: boolean;
   editorsChoice?: boolean;
   mood: MoodFilter;
-  badge?: "trending" | "editors-pick" | "new";
+  badge?: "trending" | "editors-pick" | "new" | "viral";
+  viralTag?: string;
+  stylingNow?: number;
 }
 
 export interface EventType {
@@ -467,10 +469,179 @@ export const feedLooks: Look[] = [
       { id: "i64", name: "Layered Necklaces", brand: "Missoma", price: 89, image: UNSPLASH("photo-1599643478518-a784e5dc4c8f", 400, 500), category: "Accessories", shopUrl: "#" },
     ],
   },
+  {
+    id: "look-17",
+    image: UNSPLASH("photo-1544005313-94ddf0286df2", 800, 1200),
+    title: "Mob Wife Aesthetic",
+    subtitle: "Fur, gold, and audacity",
+    photographer: "Vogue Italia",
+    badge: "viral",
+    viralTag: "MobWife",
+    stylingNow: 2340,
+    tags: [
+      { label: "Glamour", color: "#C5A572" },
+      { label: "Statement", color: "#1A1A1A" },
+    ],
+    occasion: "Any",
+    priceRange: "$300 – $2,500",
+    season: "Fall/Winter",
+    description:
+      "Leopard print, oversized fur, chunky gold — the mob wife doesn't ask permission. She takes the table.",
+    likes: 47200,
+    trending: true,
+    mood: "viral",
+    items: [
+      { id: "i65", name: "Faux Fur Coat", brand: "Stand Studio", price: 695, image: UNSPLASH("photo-1539533018447-63fcce2678e3", 400, 500), category: "Outerwear", shopUrl: "#" },
+      { id: "i66", name: "Leopard Print Midi", brand: "Ganni", price: 425, image: UNSPLASH("photo-1583496661160-fb5886a0aabd", 400, 500), category: "Dresses", shopUrl: "#" },
+      { id: "i67", name: "Chunky Gold Hoops", brand: "Bottega Veneta", price: 890, image: UNSPLASH("photo-1535632066927-ab7c9ab60908", 400, 500), category: "Accessories", shopUrl: "#" },
+      { id: "i68", name: "Leather Knee Boots", brand: "Khaite", price: 1490, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+    ],
+  },
+  {
+    id: "look-18",
+    image: UNSPLASH("photo-1529139574466-a303027c1d8b", 800, 1200),
+    title: "Coquette",
+    subtitle: "Bows, blush, and ballet",
+    photographer: "Elle Magazine",
+    badge: "viral",
+    viralTag: "Coquette",
+    stylingNow: 3180,
+    tags: [
+      { label: "Romantic", color: "#E8D5D0" },
+      { label: "Feminine", color: "#C4797A" },
+    ],
+    occasion: "Date Night",
+    priceRange: "$100 – $800",
+    season: "Spring/Summer",
+    description:
+      "Ribbons in your hair, a kitten heel, that specific shade of blush pink. Coquette is a whole philosophy.",
+    likes: 58600,
+    trending: true,
+    mood: "viral",
+    items: [
+      { id: "i69", name: "Bow-Detail Blouse", brand: "Simone Rocha", price: 495, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
+      { id: "i70", name: "Pleated Mini Skirt", brand: "Miu Miu", price: 690, image: UNSPLASH("photo-1583496661160-fb5886a0aabd", 400, 500), category: "Bottoms", shopUrl: "#" },
+      { id: "i71", name: "Satin Ballet Flats", brand: "Repetto", price: 345, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+      { id: "i72", name: "Pearl Hair Clips", brand: "Lelet NY", price: 128, image: UNSPLASH("photo-1535632066927-ab7c9ab60908", 400, 500), category: "Accessories", shopUrl: "#" },
+    ],
+  },
+  {
+    id: "look-19",
+    image: UNSPLASH("photo-1509631179647-0177331693ae", 800, 1200),
+    title: "Clean Girl",
+    subtitle: "Slick bun energy",
+    photographer: "Hailey Bieber",
+    badge: "viral",
+    viralTag: "CleanGirl",
+    stylingNow: 5420,
+    tags: [
+      { label: "Minimalist", color: "#1A1A1A" },
+      { label: "Clean", color: "#8A8A8A" },
+    ],
+    occasion: "Any",
+    priceRange: "$50 – $400",
+    season: "All Season",
+    description:
+      "Gold hoops, lip gloss, slicked-back hair, and basics that cost more than they look. Effortless is the hardest thing to fake.",
+    likes: 72400,
+    trending: true,
+    mood: "viral",
+    items: [
+      { id: "i73", name: "Ribbed Tank Top", brand: "Skims", price: 48, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
+      { id: "i74", name: "Wide-Leg Trousers", brand: "Aritzia", price: 148, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
+      { id: "i75", name: "Gold Mini Hoops", brand: "Mejuri", price: 78, image: UNSPLASH("photo-1599643478518-a784e5dc4c8f", 400, 500), category: "Accessories", shopUrl: "#" },
+      { id: "i76", name: "Cloud Slides", brand: "The Row", price: 390, image: UNSPLASH("photo-1549298916-b41d501d3772", 400, 500), category: "Shoes", shopUrl: "#" },
+    ],
+  },
+  {
+    id: "look-20",
+    image: UNSPLASH("photo-1539109136881-3be0616acf4b", 800, 1200),
+    title: "Old Money Sport",
+    subtitle: "Country club, deconstructed",
+    photographer: "Ralph Lauren",
+    badge: "viral",
+    viralTag: "OldMoney",
+    stylingNow: 1890,
+    tags: [
+      { label: "Classic", color: "#C5A572" },
+      { label: "Tailored", color: "#1A1A1A" },
+    ],
+    occasion: "Weekend",
+    priceRange: "$200 – $1,200",
+    season: "Spring/Summer",
+    description:
+      "Tennis whites, cable knit over the shoulders, loafers without socks. Old money doesn't try — it just is.",
+    likes: 38900,
+    trending: true,
+    mood: "viral",
+    items: [
+      { id: "i77", name: "Cable Knit V-Neck", brand: "Brunello Cucinelli", price: 1190, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
+      { id: "i78", name: "Pleated Tennis Skirt", brand: "Tory Sport", price: 198, image: UNSPLASH("photo-1583496661160-fb5886a0aabd", 400, 500), category: "Bottoms", shopUrl: "#" },
+      { id: "i79", name: "Leather Loafers", brand: "G.H. Bass", price: 175, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+      { id: "i80", name: "Canvas Tennis Bag", brand: "Paravel", price: 245, image: UNSPLASH("photo-1590874103328-eac38a683ce7", 400, 500), category: "Bags", shopUrl: "#" },
+    ],
+  },
+  {
+    id: "look-21",
+    image: UNSPLASH("photo-1485968579580-b6d095142e6e", 800, 1200),
+    title: "Dark Feminine",
+    subtitle: "Power in the shadows",
+    photographer: "CR Fashion Book",
+    badge: "viral",
+    viralTag: "DarkFeminine",
+    stylingNow: 4150,
+    tags: [
+      { label: "Evening", color: "#1A1A1A" },
+      { label: "Glamour", color: "#C4797A" },
+    ],
+    occasion: "Evening",
+    priceRange: "$300 – $1,800",
+    season: "Fall/Winter",
+    description:
+      "Black lace, corset details, smoky eyes, and an energy that says 'I know something you don't.' Dark femininity is a vibe, not a wardrobe.",
+    likes: 41500,
+    trending: true,
+    mood: "viral",
+    items: [
+      { id: "i81", name: "Lace Corset Top", brand: "Dion Lee", price: 590, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
+      { id: "i82", name: "Leather Maxi Skirt", brand: "Khaite", price: 1280, image: UNSPLASH("photo-1583496661160-fb5886a0aabd", 400, 500), category: "Bottoms", shopUrl: "#" },
+      { id: "i83", name: "Strappy Stilettos", brand: "Amina Muaddi", price: 895, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+      { id: "i84", name: "Onyx Drop Earrings", brand: "David Yurman", price: 450, image: UNSPLASH("photo-1535632066927-ab7c9ab60908", 400, 500), category: "Accessories", shopUrl: "#" },
+    ],
+  },
+  {
+    id: "look-22",
+    image: UNSPLASH("photo-1544957992-20514f595d6f", 800, 1200),
+    title: "Coastal Cowgirl",
+    subtitle: "Sun, denim, and boots",
+    photographer: "Free People",
+    badge: "viral",
+    viralTag: "CoastalCowgirl",
+    stylingNow: 2760,
+    tags: [
+      { label: "Coastal", color: "#A8B5A0" },
+      { label: "Festival", color: "#B8A9C9" },
+    ],
+    occasion: "Festival",
+    priceRange: "$100 – $600",
+    season: "Spring/Summer",
+    description:
+      "Fringe meets surf. Western boots on the boardwalk. Cowgirl hat with a bikini top. Rules were never the point.",
+    likes: 33700,
+    trending: true,
+    mood: "viral",
+    items: [
+      { id: "i85", name: "Fringe Suede Jacket", brand: "Free People", price: 298, image: UNSPLASH("photo-1551028719-00167b16eac5", 400, 500), category: "Outerwear", shopUrl: "#" },
+      { id: "i86", name: "Denim Cutoffs", brand: "RE/DONE", price: 225, image: UNSPLASH("photo-1541099649105-f69ad21f3246", 400, 500), category: "Bottoms", shopUrl: "#" },
+      { id: "i87", name: "Western Cowboy Boots", brand: "Golden Goose", price: 595, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+      { id: "i88", name: "Turquoise Ring Set", brand: "Sezane", price: 78, image: UNSPLASH("photo-1599643478518-a784e5dc4c8f", 400, 500), category: "Accessories", shopUrl: "#" },
+    ],
+  },
 ];
 
 export const moodFilters: { id: MoodFilter; label: string; emoji: string }[] = [
   { id: "all", label: "All", emoji: "" },
+  { id: "viral", label: "Viral", emoji: "" },
   { id: "minimal", label: "Minimal", emoji: "" },
   { id: "romantic", label: "Romantic", emoji: "" },
   { id: "street", label: "Street", emoji: "" },

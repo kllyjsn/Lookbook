@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2 } from "lucide-react";
+import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2, Eye } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
 import { LookDetail } from "../components/cards/LookDetail";
 import type { Look } from "../data/mockData";
 
-type ProfileSection = "dna" | "liked" | "collections";
+type ProfileSection = "dna" | "liked" | "collections" | "recent";
 
 export function ProfilePage() {
   const styleDNA = useStore((s) => s.styleDNA);
@@ -15,6 +15,9 @@ export function ProfilePage() {
   const collections = useStore((s) => s.collections);
   const createCollection = useStore((s) => s.createCollection);
   const removeFromCollection = useStore((s) => s.removeFromCollection);
+  const recentlyViewed = useStore((s) => s.recentlyViewed);
+  const reactions = useStore((s) => s.reactions);
+  const swipeStreak = useStore((s) => s.swipeStreak);
   const [activeSection, setActiveSection] = useState<ProfileSection>("dna");
   const [selectedLook, setSelectedLook] = useState<Look | null>(null);
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
@@ -54,7 +57,7 @@ export function ProfilePage() {
           <div>
             <h2 className="font-editorial text-xl text-ink">Your Profile</h2>
             <p className="text-xs font-inter text-ink-muted">
-              {likedLooks.length} looks loved · {collections.reduce((sum, c) => sum + c.looks.length, 0)} saved
+              {likedLooks.length} loved · {collections.reduce((sum, c) => sum + c.looks.length, 0)} saved{swipeStreak >= 3 ? ` · ${swipeStreak} streak` : ""}
             </p>
           </div>
         </div>
@@ -65,6 +68,7 @@ export function ProfilePage() {
             { id: "dna" as const, label: "Style DNA" },
             { id: "liked" as const, label: "Loved" },
             { id: "collections" as const, label: "Collections" },
+            { id: "recent" as const, label: "Recent" },
           ]).map((tab) => (
             <motion.button
               key={tab.id}
@@ -280,6 +284,73 @@ export function ProfilePage() {
             </motion.div>
           )}
 
+          {activeSection === "recent" && (
+            <motion.div
+              key="recent"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              {recentlyViewed.length === 0 ? (
+                <div className="flex flex-col items-center py-16">
+                  <Eye size={32} className="text-ink/10 mb-3" />
+                  <p className="font-subhead text-base text-ink-muted italic">
+                    No recently viewed looks
+                  </p>
+                  <p className="text-xs font-inter text-ink-muted mt-1">
+                    Browse the feed to start tracking
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <p className="text-xs font-inter text-ink-muted mb-4">
+                    {recentlyViewed.length} looks recently viewed
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {recentlyViewed.map((look, i) => {
+                      const lookReactions = reactions[look.id] ?? [];
+                      return (
+                        <motion.div
+                          key={look.id + "-recent-" + i}
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: i * 0.05 }}
+                          onClick={() => setSelectedLook(look)}
+                          className="group cursor-pointer"
+                        >
+                          <div className="relative aspect-[3/4] rounded-xl overflow-hidden">
+                            <img
+                              src={look.image}
+                              alt={look.title}
+                              className="img-editorial group-hover:scale-105 transition-transform duration-500"
+                            />
+                            <div className="absolute inset-x-0 bottom-0 gradient-bottom p-3">
+                              <p className="text-white text-xs font-inter font-medium">
+                                {look.title}
+                              </p>
+                              <p className="text-white/50 text-[10px] font-inter">
+                                {look.occasion}
+                              </p>
+                            </div>
+                            {lookReactions.length > 0 && (
+                              <div className="absolute top-2 left-2 flex gap-1">
+                                {Array.from(new Set(lookReactions)).map((r) => (
+                                  <span key={r} className="text-[10px] bg-white/20 backdrop-blur-sm rounded-full px-1.5 py-0.5 text-white font-inter font-medium">
+                                    {r === "fire" ? "Fire" : r === "dreamy" ? "Dreamy" : "Slay"}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </motion.div>
+          )}
+
           {activeSection === "collections" && selectedCollection && currentCollection && (
             <motion.div
               key="collection-detail"
@@ -410,8 +481,10 @@ export function ProfilePage() {
       <AnimatePresence>
         {selectedLook && (
           <LookDetail
+            key={selectedLook.id}
             look={selectedLook}
             onClose={() => setSelectedLook(null)}
+            onNavigate={(look) => setSelectedLook(look)}
           />
         )}
       </AnimatePresence>
