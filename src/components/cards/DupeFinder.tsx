@@ -34,7 +34,7 @@ export function DupeFinder({ items }: DupeFinderProps) {
       <div className="space-y-3">
         {dupes.map((dupe, i) => (
           <motion.div
-            key={dupe.originalId + "-dupe"}
+            key={dupe.originalId + "-dupe-" + i}
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.08 }}
