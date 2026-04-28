@@ -482,6 +482,7 @@ export function ProfilePage() {
             key={selectedLook.id}
             look={selectedLook}
             onClose={() => setSelectedLook(null)}
+            onNavigate={setSelectedLook}
           />
         )}
       </AnimatePresence>

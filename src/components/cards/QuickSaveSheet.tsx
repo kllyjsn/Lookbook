@@ -20,6 +20,8 @@ export function QuickSaveSheet() {
     setTimeout(() => {
       setQuickSaveLook(null);
       setSavedTo([]);
+      setShowNew(false);
+      setNewName("");
     }, 600);
   };
 
@@ -33,6 +35,8 @@ export function QuickSaveSheet() {
     setTimeout(() => {
       setQuickSaveLook(null);
       setSavedTo([]);
+      setShowNew(false);
+      setNewName("");
     }, 600);
   };
 

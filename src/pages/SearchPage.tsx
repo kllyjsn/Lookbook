@@ -278,6 +278,7 @@ export function SearchPage() {
             key={selectedLook.id}
             look={selectedLook}
             onClose={() => setSelectedLook(null)}
+            onNavigate={setSelectedLook}
           />
         )}
       </AnimatePresence>

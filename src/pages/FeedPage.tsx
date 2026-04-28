@@ -272,6 +272,7 @@ export function FeedPage() {
             key={showLookDetail.id}
             look={showLookDetail}
             onClose={() => setShowLookDetail(null)}
+            onNavigate={setShowLookDetail}
           />
         )}
       </AnimatePresence>
