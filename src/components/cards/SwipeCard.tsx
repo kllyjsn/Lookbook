@@ -1,7 +1,9 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion";
-import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2 } from "lucide-react";
+import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2, Sparkles } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { computeStyleMatch } from "../../data/mockData";
+import { useStore } from "../../stores/useStore";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -43,6 +45,9 @@ export function SwipeCard({
   const singleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const doubleTapDetectedRef = useRef(false);
   const swipedRef = useRef(false);
+
+  const styleDNA = useStore((s) => s.styleDNA);
+  const styleMatch = computeStyleMatch(look, styleDNA);
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -209,7 +214,7 @@ export function SwipeCard({
         {/* Bottom gradient + content */}
         <div className="absolute inset-x-0 bottom-0 gradient-bottom p-6 pb-8">
           <div className="space-y-3">
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               {look.tags.map((tag) => (
                 <span
                   key={tag.label}
@@ -218,6 +223,17 @@ export function SwipeCard({
                   {tag.label}
                 </span>
               ))}
+              {styleMatch > 0 && (
+                <motion.span
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.4, type: "spring", stiffness: 300 }}
+                  className="flex items-center gap-1 text-[10px] font-inter font-semibold tracking-wider bg-gold/90 text-white rounded-full px-2.5 py-1 ml-auto"
+                >
+                  <Sparkles size={9} />
+                  {styleMatch}% match
+                </motion.span>
+              )}
             </div>
             <h2 className="font-editorial text-3xl text-white leading-tight">
               {look.title}

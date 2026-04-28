@@ -32,6 +32,8 @@ export interface Look {
   editorsChoice?: boolean;
   mood: MoodFilter;
   badge?: "trending" | "editors-pick" | "new";
+  stylingTip?: string;
+  relatedLookIds?: string[];
 }
 
 export interface EventType {
@@ -88,6 +90,8 @@ export const feedLooks: Look[] = [
     trending: true,
     editorsChoice: true,
     mood: "minimal",
+    stylingTip: "Roll the blazer sleeves once for a relaxed-editorial finish. Let the camisole peek just above the neckline — never tuck.",
+    relatedLookIds: ["look-6", "look-10", "look-9"],
     items: [
       { id: "i1", name: "Structured Wool Blazer", brand: "COS", price: 275, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#" },
       { id: "i2", name: "Silk Camisole", brand: "Vince", price: 195, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
@@ -113,6 +117,8 @@ export const feedLooks: Look[] = [
     likes: 9800,
     trending: true,
     mood: "romantic",
+    stylingTip: "Add a light cashmere wrap for evening breezes. Gold jewelry only — silver fights this palette.",
+    relatedLookIds: ["look-7", "look-11", "look-4"],
     items: [
       { id: "i5", name: "Flowing Midi Dress", brand: "Reformation", price: 248, image: UNSPLASH("photo-1595777457583-95e059d581b8", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i6", name: "Strappy Heeled Sandals", brand: "By Far", price: 420, image: UNSPLASH("photo-1603487742131-4160ec999306", 400, 500), category: "Shoes", shopUrl: "#" },
@@ -139,6 +145,8 @@ export const feedLooks: Look[] = [
     likes: 18400,
     trending: true,
     mood: "street",
+    stylingTip: "Half-tuck the tee into one side. Leave the jacket open. Sneakers must be box-fresh or beat-up — nothing in between.",
+    relatedLookIds: ["look-12", "look-16", "look-5"],
     items: [
       { id: "i9", name: "Oversized Cotton Tee", brand: "Aritzia", price: 58, image: UNSPLASH("photo-1521572163474-6864f9cf17ab", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i10", name: "Leather Moto Jacket", brand: "AllSaints", price: 499, image: UNSPLASH("photo-1551028719-00167b16eac5", 400, 500), category: "Outerwear", shopUrl: "#" },
@@ -163,6 +171,8 @@ export const feedLooks: Look[] = [
       "When the invitation says black tie, answer with conviction. Statement pieces that command every room.",
     likes: 7600,
     mood: "evening",
+    stylingTip: "One statement piece per outfit. If the dress is the star, keep jewelry delicate. Hair up to show the earrings.",
+    relatedLookIds: ["look-13", "look-2", "look-11"],
     items: [
       { id: "i13", name: "Sequin Column Dress", brand: "Rotate", price: 595, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i14", name: "Crystal Drop Earrings", brand: "Swarovski", price: 189, image: UNSPLASH("photo-1535632066927-ab7c9ab60908", 400, 500), category: "Accessories", shopUrl: "#" },
@@ -188,6 +198,8 @@ export const feedLooks: Look[] = [
       "Pack less, look more. Versatile silhouettes in earth tones that take you from gallery to rooftop bar.",
     likes: 6200,
     mood: "adventure",
+    stylingTip: "Cuff the culottes once above the ankle. Belt the utility shirt at the waist to create shape. Espadrilles or flat sandals only.",
+    relatedLookIds: ["look-14", "look-16", "look-3"],
     items: [
       { id: "i17", name: "Linen Utility Shirt", brand: "Apiece Apart", price: 265, image: UNSPLASH("photo-1596755094514-f87e34085b2c", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i18", name: "Cargo Culottes", brand: "COS", price: 135, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -213,6 +225,8 @@ export const feedLooks: Look[] = [
     likes: 11300,
     trending: true,
     mood: "minimal",
+    stylingTip: "Monochrome only works if textures vary. Mix matte knit against wool coat against leather shoes. Same color, different feel.",
+    relatedLookIds: ["look-1", "look-9", "look-10"],
     items: [
       { id: "i21", name: "Cashmere Turtleneck", brand: "Nili Lotan", price: 495, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i22", name: "Tailored Wool Coat", brand: "Max Mara", price: 895, image: UNSPLASH("photo-1539533018447-63fcce2678e3", 400, 500), category: "Outerwear", shopUrl: "#" },
@@ -238,6 +252,8 @@ export const feedLooks: Look[] = [
       "Prints that feel fresh, not fussy. The kind of outfit that makes everyone ask where you got it.",
     likes: 5400,
     mood: "romantic",
+    stylingTip: "Tie the wrap dress slightly off-center for a modern silhouette. Add a structured bag to ground the florals.",
+    relatedLookIds: ["look-2", "look-11", "look-14"],
     items: [
       { id: "i25", name: "Printed Wrap Dress", brand: "Diane von Furstenberg", price: 398, image: UNSPLASH("photo-1572804013309-59a88b7e92f1", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i26", name: "Raffia Basket Bag", brand: "Loewe", price: 450, image: UNSPLASH("photo-1590874103328-eac38a683ce7", 400, 500), category: "Bags", shopUrl: "#" },
@@ -262,6 +278,8 @@ export const feedLooks: Look[] = [
       "The modern suit is your armor. Structured enough to command respect, relaxed enough to feel like you.",
     likes: 8900,
     mood: "classic",
+    stylingTip: "Button only the middle button. Push sleeves up slightly. Carry the tote on your forearm, not your shoulder.",
+    relatedLookIds: ["look-15", "look-1", "look-9"],
     items: [
       { id: "i29", name: "Double-Breasted Blazer", brand: "Toteme", price: 690, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#" },
       { id: "i30", name: "High-Waist Trousers", brand: "Toteme", price: 390, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -287,6 +305,8 @@ export const feedLooks: Look[] = [
     likes: 22100,
     trending: true,
     mood: "classic",
+    stylingTip: "No logos, no hardware, no branding. Let the fabric and cut do the talking. The belt bag goes cross-body.",
+    relatedLookIds: ["look-8", "look-6", "look-14"],
     items: [
       { id: "i33", name: "Cashmere Crew", brand: "The Row", price: 890, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i34", name: "Wool Palazzo Pants", brand: "Toteme", price: 450, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -312,6 +332,8 @@ export const feedLooks: Look[] = [
     likes: 15700,
     trending: true,
     mood: "minimal",
+    stylingTip: "Tonal layering is the move. Keep the palette within two shades. Oversized on top, slim on bottom — or vice versa, never both.",
+    relatedLookIds: ["look-1", "look-6", "look-8"],
     items: [
       { id: "i37", name: "Oversized Wool Shirt", brand: "COS", price: 175, image: UNSPLASH("photo-1596755094514-f87e34085b2c", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i38", name: "Wide-Leg Wool Pants", brand: "Arket", price: 149, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -336,6 +358,8 @@ export const feedLooks: Look[] = [
       "Organza, tulle, and a touch of Victorian drama. For the woman who treats getting dressed like poetry.",
     likes: 8400,
     mood: "romantic",
+    stylingTip: "Sheer fabrics need confidence, not coverage. Layer the organza over a simple bralette. Let the tulle skirt be the volume.",
+    relatedLookIds: ["look-2", "look-7", "look-4"],
     items: [
       { id: "i41", name: "Organza Blouse", brand: "Zimmermann", price: 595, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i42", name: "Tulle Midi Skirt", brand: "Simone Rocha", price: 680, image: UNSPLASH("photo-1583496661160-fb5886a0aabd", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -361,6 +385,8 @@ export const feedLooks: Look[] = [
     likes: 19200,
     trending: true,
     mood: "street",
+    stylingTip: "Proportion play is key: oversized hoodie plus tapered cargos. The sneakers should be chunky enough to anchor the silhouette.",
+    relatedLookIds: ["look-3", "look-16", "look-5"],
     items: [
       { id: "i45", name: "Graphic Hoodie", brand: "Sacai", price: 580, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i46", name: "Cargo Pants", brand: "Needles", price: 340, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -386,6 +412,8 @@ export const feedLooks: Look[] = [
     likes: 12600,
     editorsChoice: true,
     mood: "evening",
+    stylingTip: "One focal point: either the gown OR the jewelry, never both competing. A bold cuff with a simple dress, or a dramatic gown with barely-there accessories.",
+    relatedLookIds: ["look-4", "look-11", "look-9"],
     items: [
       { id: "i49", name: "Draped Gown", brand: "Saint Laurent", price: 2890, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i50", name: "Statement Cuff", brand: "Alexander McQueen", price: 790, image: UNSPLASH("photo-1535632066927-ab7c9ab60908", 400, 500), category: "Accessories", shopUrl: "#" },
@@ -411,6 +439,8 @@ export const feedLooks: Look[] = [
     likes: 16500,
     trending: true,
     mood: "classic",
+    stylingTip: "Throw cashmere over the shoulders, arms free. Roll the linen sleeves twice. Espadrilles are the only acceptable shoe.",
+    relatedLookIds: ["look-5", "look-9", "look-7"],
     items: [
       { id: "i53", name: "Oversized Linen Shirt", brand: "Frank & Eileen", price: 248, image: UNSPLASH("photo-1596755094514-f87e34085b2c", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i54", name: "Wide-Leg Linen Pants", brand: "Jenni Kayne", price: 295, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -435,6 +465,8 @@ export const feedLooks: Look[] = [
       "The girlboss blazer is dead. Long live the office siren — fitted, intentional, and unforgettable.",
     likes: 13800,
     mood: "classic",
+    stylingTip: "The sheer turtleneck goes under, not over. Slingbacks with a low kitten heel keep the power without the pain.",
+    relatedLookIds: ["look-8", "look-1", "look-4"],
     items: [
       { id: "i57", name: "Fitted Blazer Dress", brand: "Mugler", price: 790, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i58", name: "Sheer Turtleneck", brand: "Wolford", price: 250, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
@@ -460,6 +492,8 @@ export const feedLooks: Look[] = [
     likes: 21300,
     trending: true,
     mood: "adventure",
+    stylingTip: "Western boots with cutoffs hit different when you skip the socks. Layer the necklaces from shortest to longest.",
+    relatedLookIds: ["look-5", "look-3", "look-12"],
     items: [
       { id: "i61", name: "Crochet Top", brand: "Cult Gaia", price: 198, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i62", name: "Denim Cutoffs", brand: "RE/DONE", price: 225, image: UNSPLASH("photo-1541099649105-f69ad21f3246", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -467,7 +501,167 @@ export const feedLooks: Look[] = [
       { id: "i64", name: "Layered Necklaces", brand: "Missoma", price: 89, image: UNSPLASH("photo-1599643478518-a784e5dc4c8f", 400, 500), category: "Accessories", shopUrl: "#" },
     ],
   },
+  {
+    id: "look-17",
+    image: UNSPLASH("photo-1487222477894-8943e31ef7b2", 800, 1200),
+    title: "Vitamin Sea",
+    subtitle: "Poolside to aperitivo",
+    photographer: "Condé Nast Traveller",
+    badge: "new",
+    tags: [
+      { label: "Coastal", color: "#A8B5A0" },
+      { label: "Casual", color: "#8A8A8A" },
+    ],
+    occasion: "Vacation",
+    priceRange: "$80 – $400",
+    season: "Spring/Summer",
+    description:
+      "Mediterranean energy in every thread. This is what happens when you stop packing \"just in case\" and start packing intentionally.",
+    likes: 11900,
+    trending: true,
+    mood: "adventure",
+    stylingTip: "The cover-up doubles as a dinner dress. Bring one gold bangle and nothing else. Sunglasses are the only accessory you need until 6 PM.",
+    relatedLookIds: ["look-14", "look-5", "look-7"],
+    items: [
+      { id: "i65", name: "Linen Wrap Dress", brand: "Sir the Label", price: 320, image: UNSPLASH("photo-1572804013309-59a88b7e92f1", 400, 500), category: "Dresses", shopUrl: "#" },
+      { id: "i66", name: "Woven Slide Sandals", brand: "Ancient Greek Sandals", price: 185, image: UNSPLASH("photo-1603487742131-4160ec999306", 400, 500), category: "Shoes", shopUrl: "#" },
+      { id: "i67", name: "Oversized Sunglasses", brand: "Le Specs", price: 79, image: UNSPLASH("photo-1535632066927-ab7c9ab60908", 400, 500), category: "Accessories", shopUrl: "#" },
+      { id: "i68", name: "Straw Basket Bag", brand: "Hereu", price: 390, image: UNSPLASH("photo-1590874103328-eac38a683ce7", 400, 500), category: "Bags", shopUrl: "#" },
+    ],
+  },
+  {
+    id: "look-18",
+    image: UNSPLASH("photo-1509551388413-e18d0ac5d495", 800, 1200),
+    title: "Soft Power",
+    subtitle: "Gentle authority",
+    photographer: "The Gentlewoman",
+    badge: "editors-pick",
+    tags: [
+      { label: "Minimalist", color: "#1A1A1A" },
+      { label: "Tailored", color: "#4A4A4A" },
+    ],
+    occasion: "Work",
+    priceRange: "$300 – $1,200",
+    season: "Fall/Winter",
+    description:
+      "When you don't need to raise your voice because your outfit already did. Structured shoulders, soft fabrics, zero apologies.",
+    likes: 17300,
+    editorsChoice: true,
+    mood: "minimal",
+    stylingTip: "Match your knitwear tone to your trousers for a column effect that elongates. The coat goes over the shoulders, never on.",
+    relatedLookIds: ["look-1", "look-8", "look-9"],
+    items: [
+      { id: "i69", name: "Oversized Wool Coat", brand: "The Frankie Shop", price: 595, image: UNSPLASH("photo-1539533018447-63fcce2678e3", 400, 500), category: "Outerwear", shopUrl: "#" },
+      { id: "i70", name: "Ribbed Knit Set", brand: "Khaite", price: 880, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
+      { id: "i71", name: "Wide Leather Belt", brand: "Isabel Marant", price: 295, image: UNSPLASH("photo-1599643478518-a784e5dc4c8f", 400, 500), category: "Accessories", shopUrl: "#" },
+      { id: "i72", name: "Square-Toe Boots", brand: "Bottega Veneta", price: 1100, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+    ],
+  },
+  {
+    id: "look-19",
+    image: UNSPLASH("photo-1504703395950-b89145a5425b", 800, 1200),
+    title: "Art Basel",
+    subtitle: "Gallery opening energy",
+    photographer: "W Magazine",
+    tags: [
+      { label: "Creative", color: "#B8A9C9" },
+      { label: "Statement", color: "#C4797A" },
+    ],
+    occasion: "Gallery",
+    priceRange: "$200 – $900",
+    season: "All Season",
+    description:
+      "Dress like you might buy something. Architectural shapes, unexpected proportions, and exactly one conversation-starter piece.",
+    likes: 9100,
+    mood: "evening",
+    stylingTip: "Pick one avant-garde element \u2014 an asymmetric hem, an unusual sleeve \u2014 and keep everything else restrained. Let the art be the outfit.",
+    relatedLookIds: ["look-12", "look-6", "look-13"],
+    items: [
+      { id: "i73", name: "Deconstructed Blazer", brand: "Maison Margiela", price: 890, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#" },
+      { id: "i74", name: "Pleated Wide Trousers", brand: "Issey Miyake", price: 590, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
+      { id: "i75", name: "Sculptural Ring", brand: "Charlotte Chesnais", price: 290, image: UNSPLASH("photo-1535632066927-ab7c9ab60908", 400, 500), category: "Accessories", shopUrl: "#" },
+      { id: "i76", name: "Platform Mary Janes", brand: "Molly Goddard", price: 520, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+    ],
+  },
+  {
+    id: "look-20",
+    image: UNSPLASH("photo-1490481651871-ab68de25d43d", 800, 1200),
+    title: "Après-Ski Chic",
+    subtitle: "Lodge life, elevated",
+    photographer: "Vogue Living",
+    tags: [
+      { label: "Classic", color: "#C5A572" },
+      { label: "Adventure", color: "#A8B5A0" },
+    ],
+    occasion: "Travel",
+    priceRange: "$200 – $1,500",
+    season: "Fall/Winter",
+    description:
+      "For the woman who looks as good in a lodge as she does on a chairlift. Cable knit, shearling, and hot chocolate as an accessory.",
+    likes: 14400,
+    trending: true,
+    mood: "classic",
+    stylingTip: "Tuck knitwear into high-waisted pants to avoid bulk. The shearling jacket should look inherited, not bought. Warm tones only.",
+    relatedLookIds: ["look-9", "look-14", "look-6"],
+    items: [
+      { id: "i77", name: "Cable Knit Sweater", brand: "Loro Piana", price: 1450, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
+      { id: "i78", name: "Shearling Jacket", brand: "Acne Studios", price: 1200, image: UNSPLASH("photo-1551028719-00167b16eac5", 400, 500), category: "Outerwear", shopUrl: "#" },
+      { id: "i79", name: "Wool Wide-Leg Pants", brand: "Max Mara", price: 595, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
+      { id: "i80", name: "Suede Lug-Sole Boots", brand: "Gianvito Rossi", price: 895, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+    ],
+  },
+  {
+    id: "look-21",
+    image: UNSPLASH("photo-1518577915332-c2a19f149a75", 800, 1200),
+    title: "Vintage Revival",
+    subtitle: "Yesterday's treasures, today's edge",
+    photographer: "i-D Magazine",
+    badge: "trending",
+    tags: [
+      { label: "Vintage", color: "#C5A572" },
+      { label: "Sustainable", color: "#A8B5A0" },
+    ],
+    occasion: "Weekend",
+    priceRange: "$50 – $500",
+    season: "All Season",
+    description:
+      "The most sustainable outfit is the one already made. Mixing decades, hunting racks, and proving that personal style can't be bought new.",
+    likes: 24800,
+    trending: true,
+    mood: "street",
+    stylingTip: "One vintage hero piece per outfit. Ground it with modern basics so it reads intentional, not costume. Tailoring is your secret weapon for thrift finds.",
+    relatedLookIds: ["look-3", "look-12", "look-16"],
+    items: [
+      { id: "i81", name: "Vintage Levi's 501s", brand: "Levi's Vintage", price: 148, image: UNSPLASH("photo-1541099649105-f69ad21f3246", 400, 500), category: "Bottoms", shopUrl: "#" },
+      { id: "i82", name: "Band Tee (Vintage)", brand: "Procell Vintage", price: 85, image: UNSPLASH("photo-1521572163474-6864f9cf17ab", 400, 500), category: "Tops", shopUrl: "#" },
+      { id: "i83", name: "Oversized Blazer", brand: "Thrift Find", price: 65, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#" },
+      { id: "i84", name: "Platform Loafers", brand: "Prada (Pre-Loved)", price: 420, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+    ],
+  },
 ];
+
+/** Compute how well a look matches a user's Style DNA (0–100). */
+export function computeStyleMatch(look: Look, dna: StyleDNAEntry[]): number {
+  if (dna.length === 0) return 0;
+  const tagToStyle: Record<string, string> = {
+    "Minimalist": "Minimalist", "Office": "Classic", "Romantic": "Romantic",
+    "Evening": "Romantic", "Streetwear": "Streetwear", "Casual": "Streetwear",
+    "Glamour": "Avant-Garde", "Adventure": "Classic", "Utility": "Classic",
+    "Chic": "Minimalist", "Feminine": "Romantic", "Social": "Romantic",
+    "Tailored": "Classic", "Power": "Classic", "Clean": "Minimalist",
+    "Scandi": "Minimalist", "Quiet Luxury": "Classic", "Investment": "Classic",
+    "Tokyo": "Avant-Garde", "Creative": "Avant-Garde", "Statement": "Avant-Garde",
+    "Corporate": "Classic", "Siren": "Avant-Garde", "Coastal": "Classic",
+    "Festival": "Avant-Garde", "Boho": "Romantic", "Vintage": "Romantic",
+    "Sustainable": "Minimalist",
+  };
+  const lookStyles = new Set(look.tags.map((t) => tagToStyle[t.label]).filter(Boolean));
+  let score = 0;
+  for (const entry of dna) {
+    if (lookStyles.has(entry.style)) score += entry.percentage;
+  }
+  return Math.min(100, Math.round(score * 1.2));
+}
 
 export const moodFilters: { id: MoodFilter; label: string; emoji: string }[] = [
   { id: "all", label: "All", emoji: "" },

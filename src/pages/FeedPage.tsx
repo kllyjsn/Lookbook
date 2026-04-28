@@ -5,16 +5,16 @@ import { LookDetail } from "../components/cards/LookDetail";
 import { SearchPage } from "./SearchPage";
 import { Logo } from "../components/ui/Logo";
 import { RefreshCw, Sparkles, Camera } from "lucide-react";
-import { feedLooks, moodFilters } from "../data/mockData";
+import { feedLooks, moodFilters, computeStyleMatch } from "../data/mockData";
 import type { MoodFilter } from "../data/mockData";
 import { useStore } from "../stores/useStore";
+import { QuickSaveSheet } from "../components/cards/QuickSaveSheet";
 
 export function FeedPage() {
   const currentFeedIndex = useStore((s) => s.currentFeedIndex);
   const setCurrentFeedIndex = useStore((s) => s.setCurrentFeedIndex);
   const likeLook = useStore((s) => s.likeLook);
   const passLook = useStore((s) => s.passLook);
-  const addToCollection = useStore((s) => s.addToCollection);
   const showLookDetail = useStore((s) => s.showLookDetail);
   const setShowLookDetail = useStore((s) => s.setShowLookDetail);
   const setActiveTab = useStore((s) => s.setActiveTab);
@@ -23,15 +23,22 @@ export function FeedPage() {
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
   const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
+  const styleDNA = useStore((s) => s.styleDNA);
+  const setQuickSaveLook = useStore((s) => s.setQuickSaveLook);
   const [showSearch, setShowSearch] = useState(false);
 
-  const filteredLooks = useMemo(
-    () =>
+  const filteredLooks = useMemo(() => {
+    const base =
       activeMoodFilter === "all"
         ? feedLooks
-        : feedLooks.filter((l) => l.mood === activeMoodFilter),
-    [activeMoodFilter]
-  );
+        : feedLooks.filter((l) => l.mood === activeMoodFilter);
+    if (styleDNA.length === 0 || styleDNA.every((d) => d.percentage === 0))
+      return base;
+    return [...base].sort(
+      (a, b) =>
+        computeStyleMatch(b, styleDNA) - computeStyleMatch(a, styleDNA)
+    );
+  }, [activeMoodFilter, styleDNA]);
 
   const hasSeenAll = currentFeedIndex >= filteredLooks.length;
 
@@ -77,9 +84,8 @@ export function FeedPage() {
   }, [currentLook, setShowLookDetail]);
 
   const handleButtonSave = useCallback(() => {
-    addToCollection("favorites", currentLook);
-    setActiveTab("profile");
-  }, [currentLook, addToCollection, setActiveTab]);
+    setQuickSaveLook(currentLook);
+  }, [currentLook, setQuickSaveLook]);
 
   const handleMoodFilter = useCallback(
     (mood: MoodFilter) => {
@@ -258,6 +264,9 @@ export function FeedPage() {
           />
         )}
       </AnimatePresence>
+
+      {/* Quick-save bottom sheet */}
+      <QuickSaveSheet />
     </div>
   );
 }

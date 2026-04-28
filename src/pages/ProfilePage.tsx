@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2 } from "lucide-react";
+import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2, TrendingUp, Sparkles, Eye } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
@@ -30,7 +30,16 @@ export function ProfilePage() {
     }
   };
 
+  const passedLooks = useStore((s) => s.passedLooks);
   const currentCollection = collections.find((c) => c.id === selectedCollection);
+
+  const weeklyStats = useMemo(() => {
+    const totalSwiped = likedLooks.length + passedLooks.length;
+    const likeRate = totalSwiped > 0 ? Math.round((likedLooks.length / totalSwiped) * 100) : 0;
+    const totalSaved = collections.reduce((sum, c) => sum + c.looks.length, 0);
+    const topStyle = [...styleDNA].sort((a, b) => b.percentage - a.percentage)[0];
+    return { totalSwiped, likeRate, totalSaved, topStyle };
+  }, [likedLooks, passedLooks, collections, styleDNA]);
 
   return (
     <div className="h-full overflow-y-auto bg-cream pb-24">
@@ -92,6 +101,66 @@ export function ProfilePage() {
               exit={{ opacity: 0, y: -10 }}
             >
               <StyleDNA data={styleDNA} />
+
+              {/* Weekly Style Recap */}
+              <div className="mt-8 mb-8">
+                <div className="flex items-center gap-2 mb-4">
+                  <Sparkles size={16} className="text-gold" />
+                  <h3 className="font-editorial text-lg text-ink">Your Week in Style</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="p-4 rounded-xl bg-ivory"
+                  >
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Eye size={12} className="text-ink-muted" />
+                      <span className="text-[10px] font-inter tracking-[0.1em] uppercase text-ink-muted">Looks Seen</span>
+                    </div>
+                    <p className="font-editorial text-2xl text-ink">{weeklyStats.totalSwiped}</p>
+                  </motion.div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15 }}
+                    className="p-4 rounded-xl bg-ivory"
+                  >
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Heart size={12} className="text-rose" />
+                      <span className="text-[10px] font-inter tracking-[0.1em] uppercase text-ink-muted">Love Rate</span>
+                    </div>
+                    <p className="font-editorial text-2xl text-ink">{weeklyStats.likeRate}%</p>
+                  </motion.div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="p-4 rounded-xl bg-ivory"
+                  >
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Bookmark size={12} className="text-gold" />
+                      <span className="text-[10px] font-inter tracking-[0.1em] uppercase text-ink-muted">Saved</span>
+                    </div>
+                    <p className="font-editorial text-2xl text-ink">{weeklyStats.totalSaved}</p>
+                  </motion.div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.25 }}
+                    className="p-4 rounded-xl bg-ivory"
+                  >
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <TrendingUp size={12} className="text-lavender" />
+                      <span className="text-[10px] font-inter tracking-[0.1em] uppercase text-ink-muted">Top Style</span>
+                    </div>
+                    <p className="font-editorial text-lg text-ink leading-tight">
+                      {weeklyStats.topStyle?.style ?? "—"}
+                    </p>
+                  </motion.div>
+                </div>
+              </div>
 
               {/* Style insights */}
               <div className="mt-8 space-y-4">

@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
+import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp, Lightbulb, Sparkles } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { feedLooks, computeStyleMatch } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
 import { useStore } from "../../stores/useStore";
@@ -21,8 +22,25 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
+  const styleDNA = useStore((s) => s.styleDNA);
+  const setShowLookDetail = useStore((s) => s.setShowLookDetail);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [animatedLikes, setAnimatedLikes] = useState(look.likes);
+
+  const styleMatch = computeStyleMatch(look, styleDNA);
+
+  const relatedLooks = useMemo(() => {
+    if (look.relatedLookIds && look.relatedLookIds.length > 0) {
+      return look.relatedLookIds
+        .map((id) => feedLooks.find((l) => l.id === id))
+        .filter((l): l is Look => l !== undefined)
+        .slice(0, 3);
+    }
+    return feedLooks
+      .filter((l) => l.id !== look.id && l.mood === look.mood)
+      .slice(0, 3);
+  }, [look]);
 
   return (
     <AnimatePresence>
@@ -97,11 +115,17 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               ))}
             </div>
 
-            {/* Engagement stats */}
-            <div className="flex items-center gap-4 mb-5">
+            {/* Style match + engagement stats */}
+            <div className="flex items-center gap-4 mb-5 flex-wrap">
+              {styleMatch > 0 && (
+                <span className="flex items-center gap-1.5 text-sm font-inter font-medium text-gold">
+                  <Sparkles size={14} />
+                  {styleMatch}% match
+                </span>
+              )}
               <span className="flex items-center gap-1.5 text-sm font-inter text-ink-muted">
                 <Heart size={14} className="text-rose" fill="currentColor" />
-                {formatCount(look.likes)} loves
+                {formatCount(animatedLikes)} loves
               </span>
               <span className="text-ink-muted/40">·</span>
               <span className="text-sm font-inter text-ink-muted">
@@ -126,6 +150,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                   if (!liked) {
                     saveLook(look);
                     setLiked(true);
+                    setAnimatedLikes((prev) => prev + 1);
                   }
                 }}
                 className={`flex-1 h-12 rounded-full flex items-center justify-center gap-2 text-sm font-inter font-medium transition-colors ${
@@ -187,6 +212,70 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 ))}
               </div>
             </div>
+
+            {/* Styling Tip */}
+            {look.stylingTip && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mb-10 p-5 rounded-2xl bg-gold/5 border border-gold/15"
+              >
+                <div className="flex items-center gap-2 mb-3">
+                  <Lightbulb size={16} className="text-gold" />
+                  <h3 className="font-editorial text-base text-ink">Styling Tip</h3>
+                </div>
+                <p className="font-subhead text-base text-ink-light leading-relaxed italic">
+                  {look.stylingTip}
+                </p>
+              </motion.div>
+            )}
+
+            {/* Complete the Look — related looks */}
+            {relatedLooks.length > 0 && (
+              <div className="mb-10">
+                <div className="flex items-center gap-2 mb-5">
+                  <Sparkles size={16} className="text-ink" />
+                  <h3 className="font-editorial text-xl text-ink">Complete the Look</h3>
+                </div>
+                <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
+                  {relatedLooks.map((related, i) => (
+                    <motion.div
+                      key={related.id}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => setShowLookDetail(related)}
+                      className="flex-shrink-0 w-36 cursor-pointer group"
+                    >
+                      <div className="relative aspect-[3/4] rounded-xl overflow-hidden mb-2">
+                        <img
+                          src={related.image}
+                          alt={related.title}
+                          className="img-editorial group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-x-0 bottom-0 gradient-bottom p-3">
+                          <p className="text-white text-[11px] font-inter font-medium leading-tight">
+                            {related.title}
+                          </p>
+                        </div>
+                        {computeStyleMatch(related, styleDNA) > 0 && (
+                          <div className="absolute top-2 right-2">
+                            <span className="text-[8px] font-inter font-bold bg-gold/90 text-white rounded-full px-1.5 py-0.5">
+                              {computeStyleMatch(related, styleDNA)}%
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-[10px] font-inter text-ink-muted">
+                        {related.occasion} · {related.priceRange}
+                      </p>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Photographer credit */}
             {look.photographer && (

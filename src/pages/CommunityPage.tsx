@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, BadgeCheck, Sparkles, Clock } from "lucide-react";
+import { Search, BadgeCheck, Sparkles, Clock, TrendingUp, Heart } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { PostCard } from "../components/community/PostCard";
 import { CreatorProfile } from "../components/community/CreatorProfile";
@@ -11,6 +11,7 @@ import { ProductCard } from "../components/cards/ProductCard";
 import { useStore } from "../stores/useStore";
 import { creators, communityPosts, mustHaveLists } from "../data/communityData";
 import type { Creator, CommunityPost, MustHaveList } from "../data/communityData";
+import { feedLooks } from "../data/mockData";
 
 
 type CommunityTab = "forYou" | "following" | "mustHaves";
@@ -230,6 +231,54 @@ export function CommunityPage() {
                       </span>
                     </motion.button>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* Trending Now strip (For You only) */}
+            {activeTab === "forYou" && (
+              <div className="mb-6">
+                <div className="px-6 mb-3 flex items-center gap-2">
+                  <TrendingUp size={14} className="text-rose" />
+                  <h2 className="text-xs font-inter font-semibold tracking-[0.12em] uppercase text-ink-muted">
+                    Trending Now
+                  </h2>
+                </div>
+                <div className="flex gap-3 overflow-x-auto px-6 pb-2" style={{ scrollbarWidth: "none" }}>
+                  {feedLooks
+                    .filter((l) => l.trending)
+                    .slice(0, 6)
+                    .map((look, i) => (
+                      <motion.div
+                        key={look.id}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: i * 0.05 }}
+                        className="flex-shrink-0 w-28 cursor-pointer group"
+                      >
+                        <div className="relative aspect-[3/4] rounded-xl overflow-hidden mb-1.5">
+                          <img
+                            src={look.image}
+                            alt={look.title}
+                            className="img-editorial group-hover:scale-105 transition-transform duration-500"
+                          />
+                          <div className="absolute inset-x-0 bottom-0 gradient-bottom p-2">
+                            <p className="text-white text-[10px] font-inter font-medium leading-tight truncate">
+                              {look.title}
+                            </p>
+                          </div>
+                          <div className="absolute top-1.5 right-1.5">
+                            <span className="flex items-center gap-0.5 text-[8px] font-inter font-bold bg-rose/90 text-white rounded-full px-1.5 py-0.5">
+                              <Heart size={7} fill="currentColor" />
+                              {look.likes >= 1000 ? `${(look.likes / 1000).toFixed(0)}K` : look.likes}
+                            </span>
+                          </div>
+                        </div>
+                        <p className="text-[9px] font-inter text-ink-muted truncate">
+                          {look.tags.map((t) => t.label).join(" · ")}
+                        </p>
+                      </motion.div>
+                    ))}
                 </div>
               </div>
             )}
