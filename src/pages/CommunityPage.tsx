@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, BadgeCheck, Sparkles, Clock } from "lucide-react";
+import { Search, BadgeCheck, Sparkles, Clock, TrendingUp } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { PostCard } from "../components/community/PostCard";
 import { CreatorProfile } from "../components/community/CreatorProfile";
@@ -8,12 +8,13 @@ import { MustHaveCard } from "../components/community/MustHaveCard";
 import { MustHaveDetail } from "../components/community/MustHaveDetail";
 import { FollowButton } from "../components/community/FollowButton";
 import { ProductCard } from "../components/cards/ProductCard";
-import { useStore } from "../stores/useStore";
+import { useStore, getTrendingPieces } from "../stores/useStore";
+import { feedLooks } from "../data/mockData";
 import { creators, communityPosts, mustHaveLists } from "../data/communityData";
 import type { Creator, CommunityPost, MustHaveList } from "../data/communityData";
 
 
-type CommunityTab = "forYou" | "following" | "mustHaves";
+type CommunityTab = "forYou" | "following" | "mustHaves" | "trending";
 
 function PostShopOverlay({
   post,
@@ -72,9 +73,16 @@ export function CommunityPage() {
 
   const followedCreators = useStore((s) => s.followedCreators);
 
+  const likedLooks = useStore((s) => s.likedLooks);
+
   const followingPosts = useMemo(
     () => communityPosts.filter((p) => followedCreators.includes(p.creator.id)),
     [followedCreators]
+  );
+
+  const trendingPieces = useMemo(
+    () => getTrendingPieces(feedLooks, likedLooks).slice(0, 8),
+    [likedLooks]
   );
 
   const displayPosts = activeTab === "following" ? followingPosts : communityPosts;
@@ -119,6 +127,7 @@ export function CommunityPage() {
           {([
             { id: "forYou" as const, label: "For You" },
             { id: "following" as const, label: "Following" },
+            { id: "trending" as const, label: "Hot Pieces" },
             { id: "mustHaves" as const, label: "Must Haves" },
           ]).map((tab) => (
             <motion.button
@@ -323,6 +332,71 @@ export function CommunityPage() {
                 </div>
               </div>
             )}
+          </motion.div>
+        )}
+
+        {/* Trending Pieces tab */}
+        {activeTab === "trending" && (
+          <motion.div
+            key="trending"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="px-6"
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <TrendingUp size={14} className="text-gold" />
+              <span className="text-[10px] font-inter tracking-[0.2em] uppercase text-gold font-semibold">
+                Most Popular Right Now
+              </span>
+            </div>
+            <p className="font-subhead text-sm text-ink-light italic mb-5">
+              The pieces everyone is saving. Ranked by popularity.
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              {trendingPieces.map((item, i) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.06 }}
+                  className="group cursor-pointer"
+                >
+                  <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-ivory mb-3">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="img-editorial group-hover:scale-105 transition-transform duration-500"
+                    />
+                    {i < 3 && (
+                      <div className="absolute top-2 right-2">
+                        <div className="w-6 h-6 rounded-full bg-gold flex items-center justify-center">
+                          <span className="text-[9px] font-inter font-bold text-white">
+                            {i + 1}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    <div className="absolute top-2 left-2">
+                      <span className="text-[9px] font-inter tracking-[0.15em] uppercase bg-cream/90 text-ink-light px-2 py-0.5 rounded-full">
+                        {item.category}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="space-y-0.5">
+                    <p className="text-[11px] font-inter tracking-[0.1em] uppercase text-ink-muted">
+                      {item.brand}
+                    </p>
+                    <p className="text-sm font-inter text-ink leading-snug">
+                      {item.name}
+                    </p>
+                    <p className="text-sm font-inter font-medium text-ink">
+                      ${item.price}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </motion.div>
         )}
 
