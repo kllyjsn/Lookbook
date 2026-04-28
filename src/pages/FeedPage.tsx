@@ -27,20 +27,23 @@ export function FeedPage() {
   const setQuickSaveLook = useStore((s) => s.setQuickSaveLook);
   const [showSearch, setShowSearch] = useState(false);
 
-  // DNA snapshot: stable per filter change + updated once on hydration so
-  // returning users see their personalized sort immediately.
+  // DNA snapshot: stable per filter change so liking looks doesn't reshuffle.
+  // Also updates once on zustand persist hydration (DNA changes from default
+  // to persisted value before any user interaction).
   const [dnaSnapshot, setDnaSnapshot] = useState(styleDNA);
   const lastFilterRef = useRef(activeMoodFilter);
-  const hydratedRef = useRef(false);
+  const userHasSwipedRef = useRef(false);
 
   if (activeMoodFilter !== lastFilterRef.current) {
     setDnaSnapshot(styleDNA);
     lastFilterRef.current = activeMoodFilter;
+    userHasSwipedRef.current = false;
   }
 
   useEffect(() => {
-    if (!hydratedRef.current && styleDNA.length > 0) {
-      hydratedRef.current = true;
+    // Allow DNA updates (e.g. hydration) only before the user starts swiping.
+    // Once they swipe, DNA changes come from likes and should not reshuffle.
+    if (!userHasSwipedRef.current) {
       setDnaSnapshot(styleDNA);
     }
   }, [styleDNA]);
@@ -70,10 +73,12 @@ export function FeedPage() {
   );
 
   const handleSwipeRight = useCallback(() => {
+    userHasSwipedRef.current = true;
     likeLook(currentLook);
   }, [currentLook, likeLook]);
 
   const handleSwipeLeft = useCallback(() => {
+    userHasSwipedRef.current = true;
     passLook(currentLook);
   }, [currentLook, passLook]);
 
@@ -86,14 +91,17 @@ export function FeedPage() {
   }, [currentLook, setShowLookDetail]);
 
   const handleDoubleTap = useCallback(() => {
+    userHasSwipedRef.current = true;
     likeLook(currentLook);
   }, [currentLook, likeLook]);
 
   const handleButtonLike = useCallback(() => {
+    userHasSwipedRef.current = true;
     likeLook(currentLook);
   }, [currentLook, likeLook]);
 
   const handleButtonPass = useCallback(() => {
+    userHasSwipedRef.current = true;
     passLook(currentLook);
   }, [currentLook, passLook]);
 
