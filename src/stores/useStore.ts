@@ -32,6 +32,8 @@ interface AppState {
   // Undo swipe
   lastSwipedLook: Look | null;
   lastSwipeAction: "like" | "pass" | null;
+  preSwipeStreakCount: number;
+  preSwipeStreakDate: string | null;
   undoLastSwipe: () => void;
 
   // Collections
@@ -160,6 +162,8 @@ export const useStore = create<AppState>()(
       passedLooks: [],
       lastSwipedLook: null,
       lastSwipeAction: null,
+      preSwipeStreakCount: 0,
+      preSwipeStreakDate: null,
 
       likeLook: (look) =>
         set((state) => {
@@ -179,6 +183,8 @@ export const useStore = create<AppState>()(
             currentFeedIndex: state.currentFeedIndex + 1,
             lastSwipedLook: look,
             lastSwipeAction: "like" as const,
+            preSwipeStreakCount: state.streakCount,
+            preSwipeStreakDate: state.lastStreakDate,
             styleDNA: computeDNA(newLiked),
             totalSwipes: state.totalSwipes + 1,
             ...streakUpdate,
@@ -192,6 +198,8 @@ export const useStore = create<AppState>()(
           currentFeedIndex: state.currentFeedIndex + 1,
           lastSwipedLook: look,
           lastSwipeAction: "pass" as const,
+          preSwipeStreakCount: state.streakCount,
+          preSwipeStreakDate: state.lastStreakDate,
           totalSwipes: state.totalSwipes + 1,
         })),
       saveLook: (look) =>
@@ -218,6 +226,8 @@ export const useStore = create<AppState>()(
             lastSwipeAction: null,
             styleDNA: computeDNA(newLiked),
             totalSwipes: Math.max(0, state.totalSwipes - 1),
+            streakCount: state.preSwipeStreakCount,
+            lastStreakDate: state.preSwipeStreakDate,
           };
         }),
 
