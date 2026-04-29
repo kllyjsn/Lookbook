@@ -162,9 +162,11 @@ export function LookDetail({ look, onClose, onNavigate }: LookDetailProps) {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => {
-                  addToCollection("favorites", look);
-                  setSaved(true);
-                  showToast("Saved to Favorites", "save");
+                  if (!saved) {
+                    addToCollection("favorites", look);
+                    setSaved(true);
+                    showToast("Saved to Favorites", "save");
+                  }
                 }}
                 className={`w-12 h-12 rounded-full flex items-center justify-center border transition-colors ${
                   saved
