@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, BadgeCheck, Sparkles, Clock } from "lucide-react";
+import { Search, BadgeCheck, Sparkles, Clock, TrendingUp, TrendingDown } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { PostCard } from "../components/community/PostCard";
 import { CreatorProfile } from "../components/community/CreatorProfile";
@@ -11,9 +11,10 @@ import { ProductCard } from "../components/cards/ProductCard";
 import { useStore } from "../stores/useStore";
 import { creators, communityPosts, mustHaveLists } from "../data/communityData";
 import type { Creator, CommunityPost, MustHaveList } from "../data/communityData";
+import { trendReport } from "../data/mockData";
 
 
-type CommunityTab = "forYou" | "following" | "mustHaves";
+type CommunityTab = "forYou" | "following" | "mustHaves" | "trends";
 
 function PostShopOverlay({
   post,
@@ -120,6 +121,7 @@ export function CommunityPage() {
             { id: "forYou" as const, label: "For You" },
             { id: "following" as const, label: "Following" },
             { id: "mustHaves" as const, label: "Must Haves" },
+            { id: "trends" as const, label: "In / Out" },
           ]).map((tab) => (
             <motion.button
               key={tab.id}
@@ -346,6 +348,114 @@ export function CommunityPage() {
                 onTap={handleMustHaveTap}
               />
             ))}
+          </motion.div>
+        )}
+
+        {/* What's In / What's Out Trend Report */}
+        {activeTab === "trends" && (
+          <motion.div
+            key="trends"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="px-6"
+          >
+            <div className="mb-6">
+              <h2 className="font-editorial text-xl text-ink mb-1">The Edit</h2>
+              <p className="font-subhead text-sm text-ink-muted italic">
+                Our editors' definitive take on what's moving fashion right now.
+              </p>
+            </div>
+
+            {/* IN section */}
+            <div className="mb-8">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-6 h-6 rounded-full bg-sage/20 flex items-center justify-center">
+                  <TrendingUp size={12} className="text-sage" />
+                </div>
+                <h3 className="text-xs font-inter font-bold tracking-[0.15em] uppercase text-sage">
+                  What's In
+                </h3>
+              </div>
+              <div className="space-y-3">
+                {trendReport
+                  .filter((t) => t.status === "in")
+                  .map((trend, i) => (
+                    <motion.div
+                      key={trend.label}
+                      initial={{ opacity: 0, x: -15 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.06 }}
+                      className="flex items-start gap-4 p-4 rounded-xl bg-sage/5 border border-sage/10"
+                    >
+                      <div className="flex-1">
+                        <p className="text-sm font-inter font-semibold text-ink">
+                          {trend.label}
+                        </p>
+                        <p className="text-xs font-inter text-ink-muted mt-0.5">
+                          {trend.description}
+                        </p>
+                      </div>
+                      <span className="text-[9px] font-inter font-bold tracking-[0.1em] uppercase text-sage bg-sage/10 px-2 py-1 rounded-full flex-shrink-0">
+                        In
+                      </span>
+                    </motion.div>
+                  ))}
+              </div>
+            </div>
+
+            {/* OUT section */}
+            <div className="mb-8">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-6 h-6 rounded-full bg-rose/20 flex items-center justify-center">
+                  <TrendingDown size={12} className="text-rose" />
+                </div>
+                <h3 className="text-xs font-inter font-bold tracking-[0.15em] uppercase text-rose">
+                  What's Out
+                </h3>
+              </div>
+              <div className="space-y-3">
+                {trendReport
+                  .filter((t) => t.status === "out")
+                  .map((trend, i) => (
+                    <motion.div
+                      key={trend.label}
+                      initial={{ opacity: 0, x: -15 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.2 + i * 0.06 }}
+                      className="flex items-start gap-4 p-4 rounded-xl bg-rose/5 border border-rose/10"
+                    >
+                      <div className="flex-1">
+                        <p className="text-sm font-inter font-semibold text-ink line-through decoration-rose/40">
+                          {trend.label}
+                        </p>
+                        <p className="text-xs font-inter text-ink-muted mt-0.5">
+                          {trend.description}
+                        </p>
+                      </div>
+                      <span className="text-[9px] font-inter font-bold tracking-[0.1em] uppercase text-rose bg-rose/10 px-2 py-1 rounded-full flex-shrink-0">
+                        Out
+                      </span>
+                    </motion.div>
+                  ))}
+              </div>
+            </div>
+
+            {/* Editor's note */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="p-5 rounded-2xl bg-ivory border border-ink/5 mb-8"
+            >
+              <p className="font-subhead text-base text-ink-light italic leading-relaxed">
+                "The biggest shift this season? Dressing for yourself, not the algorithm. 
+                Quality over quantity, fit over flash, personal style over passing trends."
+              </p>
+              <p className="text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted mt-3">
+                — LKBK Editorial Team
+              </p>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

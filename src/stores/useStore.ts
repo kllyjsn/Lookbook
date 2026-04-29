@@ -10,6 +10,12 @@ interface SavedCollection {
   createdAt: number;
 }
 
+interface ToastMessage {
+  id: string;
+  text: string;
+  icon: "save" | "like" | "undo" | "streak";
+}
+
 interface AppState {
   // Feed state
   currentFeedIndex: number;
@@ -58,6 +64,17 @@ interface AppState {
   followedCreators: string[];
   followCreator: (id: string) => void;
   unfollowCreator: (id: string) => void;
+
+  // Swipe streak
+  swipeStreak: number;
+  lastSwipeDate: string | null;
+  totalSwipes: number;
+  recordSwipe: () => void;
+
+  // Toast
+  toasts: ToastMessage[];
+  showToast: (text: string, icon: ToastMessage["icon"]) => void;
+  dismissToast: (id: string) => void;
 
   // UI state
   activeTab: string;
@@ -261,6 +278,37 @@ export const useStore = create<AppState>()(
           followedCreators: state.followedCreators.filter((cid) => cid !== id),
         })),
 
+      swipeStreak: 0,
+      lastSwipeDate: null,
+      totalSwipes: 0,
+      recordSwipe: () =>
+        set((state) => {
+          const today = new Date().toISOString().slice(0, 10);
+          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+          const newStreak =
+            state.lastSwipeDate === today
+              ? state.swipeStreak
+              : state.lastSwipeDate === yesterday
+                ? state.swipeStreak + 1
+                : 1;
+          return {
+            swipeStreak: newStreak,
+            lastSwipeDate: today,
+            totalSwipes: state.totalSwipes + 1,
+          };
+        }),
+
+      toasts: [],
+      showToast: (text, icon) =>
+        set((state) => {
+          const id = `toast-${Date.now()}`;
+          return { toasts: [...state.toasts, { id, text, icon }] };
+        }),
+      dismissToast: (id) =>
+        set((state) => ({
+          toasts: state.toasts.filter((t) => t.id !== id),
+        })),
+
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
       showLookDetail: null,
@@ -280,6 +328,9 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        swipeStreak: state.swipeStreak,
+        lastSwipeDate: state.lastSwipeDate,
+        totalSwipes: state.totalSwipes,
       }),
     }
   )

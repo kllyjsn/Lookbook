@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
+import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp, Tag, ArrowRight } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { dupeMap, feedLooks, priceDrops } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
-import { Tag } from "../ui/Tag";
+import { Tag as TagComponent } from "../ui/Tag";
 import { useStore } from "../../stores/useStore";
 
 function formatCount(n: number): string {
@@ -21,8 +22,28 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
+  const showToast = useStore((s) => s.showToast);
+  const setShowLookDetail = useStore((s) => s.setShowLookDetail);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  const dupes = useMemo(() => {
+    const allDupes = look.items.flatMap((item) => dupeMap[item.id] ?? []);
+    return allDupes.slice(0, 4);
+  }, [look.items]);
+
+  const recommendations = useMemo(() => {
+    return feedLooks
+      .filter((l) => l.id !== look.id && l.mood === look.mood)
+      .slice(0, 3);
+  }, [look]);
+
+  const itemsWithDrops = useMemo(() => {
+    return look.items.map((item) => ({
+      ...item,
+      priceDrop: priceDrops[item.id] ?? null,
+    }));
+  }, [look.items]);
 
   return (
     <AnimatePresence>
@@ -93,7 +114,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 </span>
               )}
               {look.tags.map((tag) => (
-                <Tag key={tag.label} label={tag.label} color={tag.color} />
+                <TagComponent key={tag.label} label={tag.label} color={tag.color} />
               ))}
             </div>
 
@@ -126,6 +147,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                   if (!liked) {
                     saveLook(look);
                     setLiked(true);
+                    showToast("Added to Loved", "like");
                   }
                 }}
                 className={`flex-1 h-12 rounded-full flex items-center justify-center gap-2 text-sm font-inter font-medium transition-colors ${
@@ -142,6 +164,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 onClick={() => {
                   addToCollection("favorites", look);
                   setSaved(true);
+                  showToast("Saved to Favorites", "save");
                 }}
                 className={`w-12 h-12 rounded-full flex items-center justify-center border transition-colors ${
                   saved
@@ -182,11 +205,124 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                {look.items.map((item, i) => (
-                  <ProductCard key={item.id} item={item} index={i} />
+                {itemsWithDrops.map((item, i) => (
+                  <div key={item.id} className="relative">
+                    <ProductCard item={item} index={i} />
+                    {item.priceDrop && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.3 + i * 0.1 }}
+                        className="absolute top-2 right-2 bg-rose text-white text-[9px] font-inter font-bold px-2 py-0.5 rounded-full"
+                      >
+                        -{item.priceDrop.dropPercent}%
+                      </motion.div>
+                    )}
+                  </div>
                 ))}
               </div>
             </div>
+
+            {/* Get the Look for Less — dupe section */}
+            {dupes.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mb-10"
+              >
+                <div className="flex items-center gap-3 mb-6">
+                  <Tag size={18} className="text-sage" />
+                  <h3 className="font-editorial text-xl text-ink">Get the Look for Less</h3>
+                </div>
+                <p className="text-xs font-inter text-ink-muted mb-4 italic">
+                  Editor-approved alternatives at every price point
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  {dupes.map((dupe, i) => (
+                    <motion.div
+                      key={dupe.id}
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.4 + i * 0.08 }}
+                      className="group cursor-pointer"
+                    >
+                      <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-ivory mb-3">
+                        <img
+                          src={dupe.image}
+                          alt={dupe.name}
+                          className="img-editorial group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute top-2 left-2">
+                          <span className="text-[9px] font-inter tracking-[0.15em] uppercase bg-sage/90 text-white px-2 py-0.5 rounded-full">
+                            Save ${dupe.savings}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="space-y-0.5">
+                        <p className="text-[11px] font-inter tracking-[0.1em] uppercase text-ink-muted">
+                          {dupe.brand}
+                        </p>
+                        <p className="text-sm font-inter text-ink leading-snug">{dupe.name}</p>
+                        <p className="text-sm font-inter font-medium text-sage">${dupe.price}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* You Might Also Love */}
+            {recommendations.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="mb-10"
+              >
+                <div className="flex items-center gap-3 mb-6">
+                  <Heart size={18} className="text-rose" />
+                  <h3 className="font-editorial text-xl text-ink">You Might Also Love</h3>
+                </div>
+                <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+                  {recommendations.map((rec, i) => (
+                    <motion.div
+                      key={rec.id}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.6 + i * 0.1 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => setShowLookDetail(rec)}
+                      className="flex-shrink-0 w-40 cursor-pointer group"
+                    >
+                      <div className="relative aspect-[3/4] rounded-xl overflow-hidden mb-2">
+                        <img
+                          src={rec.image}
+                          alt={rec.title}
+                          className="img-editorial group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-x-0 bottom-0 gradient-bottom p-3">
+                          <p className="text-white text-xs font-inter font-medium leading-tight">
+                            {rec.title}
+                          </p>
+                        </div>
+                        {rec.badge && (
+                          <div className="absolute top-2 right-2">
+                            <span className="text-[8px] font-inter font-bold tracking-wider uppercase bg-gold/90 text-white px-2 py-0.5 rounded-full">
+                              {rec.badge === "editors-pick" ? "Editor's Pick" : rec.badge}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-inter text-ink-muted">{rec.priceRange}</span>
+                        <ArrowRight size={10} className="text-ink-muted" />
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
 
             {/* Photographer credit */}
             {look.photographer && (

@@ -1,13 +1,13 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2 } from "lucide-react";
+import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2, Flame, Shuffle, RefreshCw } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
 import { LookDetail } from "../components/cards/LookDetail";
-import type { Look } from "../data/mockData";
+import type { Look, LookItem } from "../data/mockData";
 
-type ProfileSection = "dna" | "liked" | "collections";
+type ProfileSection = "dna" | "liked" | "collections" | "remix";
 
 export function ProfilePage() {
   const styleDNA = useStore((s) => s.styleDNA);
@@ -15,12 +15,15 @@ export function ProfilePage() {
   const collections = useStore((s) => s.collections);
   const createCollection = useStore((s) => s.createCollection);
   const removeFromCollection = useStore((s) => s.removeFromCollection);
+  const swipeStreak = useStore((s) => s.swipeStreak);
+  const totalSwipes = useStore((s) => s.totalSwipes);
   const [activeSection, setActiveSection] = useState<ProfileSection>("dna");
   const [selectedLook, setSelectedLook] = useState<Look | null>(null);
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
   const [isGridView, setIsGridView] = useState(true);
   const [showNewCollection, setShowNewCollection] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState("");
+  const [remixSeed, setRemixSeed] = useState(0);
 
   const handleCreateCollection = () => {
     if (newCollectionName.trim()) {
@@ -31,6 +34,29 @@ export function ProfilePage() {
   };
 
   const currentCollection = collections.find((c) => c.id === selectedCollection);
+
+  const remixOutfit = useMemo(() => {
+    if (likedLooks.length < 2) return null;
+    const allItems = likedLooks.flatMap((l) => l.items);
+    const byCategory: Record<string, LookItem[]> = {};
+    for (const item of allItems) {
+      const cat = item.category;
+      if (!byCategory[cat]) byCategory[cat] = [];
+      if (!byCategory[cat].some((i) => i.id === item.id)) {
+        byCategory[cat].push(item);
+      }
+    }
+    let seed = remixSeed;
+    const pick = (items: LookItem[]) => {
+      seed = (seed * 31 + 7) & 0x7fffffff;
+      return items[seed % items.length];
+    };
+    const outfit: LookItem[] = [];
+    for (const [, items] of Object.entries(byCategory)) {
+      if (items.length > 0) outfit.push(pick(items));
+    }
+    return outfit.slice(0, 5);
+  }, [likedLooks, remixSeed]);
 
   return (
     <div className="h-full overflow-y-auto bg-cream pb-24">
@@ -47,7 +73,7 @@ export function ProfilePage() {
         </div>
 
         {/* Profile avatar & name */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-4 mb-4">
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold to-blush flex items-center justify-center">
             <span className="font-editorial text-xl text-white">Y</span>
           </div>
@@ -59,12 +85,31 @@ export function ProfilePage() {
           </div>
         </div>
 
+        {/* Streak + stats bar */}
+        <div className="flex gap-3 mb-5">
+          <div className="flex-1 flex items-center gap-2 bg-gradient-to-r from-gold/10 to-rose/10 rounded-xl px-4 py-2.5">
+            <Flame size={16} className="text-gold" fill="currentColor" />
+            <div>
+              <p className="text-sm font-inter font-bold text-ink">{swipeStreak}</p>
+              <p className="text-[9px] font-inter text-ink-muted uppercase tracking-wider">Day Streak</p>
+            </div>
+          </div>
+          <div className="flex-1 flex items-center gap-2 bg-ivory rounded-xl px-4 py-2.5">
+            <Heart size={16} className="text-rose" />
+            <div>
+              <p className="text-sm font-inter font-bold text-ink">{totalSwipes}</p>
+              <p className="text-[9px] font-inter text-ink-muted uppercase tracking-wider">Total Swipes</p>
+            </div>
+          </div>
+        </div>
+
         {/* Section tabs */}
         <div className="flex gap-1 bg-ivory rounded-xl p-1">
           {([
             { id: "dna" as const, label: "Style DNA" },
             { id: "liked" as const, label: "Loved" },
             { id: "collections" as const, label: "Collections" },
+            { id: "remix" as const, label: "Remix" },
           ]).map((tab) => (
             <motion.button
               key={tab.id}
@@ -400,6 +445,79 @@ export function ProfilePage() {
                     </motion.div>
                   ))}
                 </div>
+              )}
+            </motion.div>
+          )}
+          {activeSection === "remix" && (
+            <motion.div
+              key="remix"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <Shuffle size={18} className="text-lavender" />
+                <h3 className="font-editorial text-lg text-ink">Outfit Remix</h3>
+              </div>
+              <p className="font-subhead text-sm text-ink-muted italic mb-6">
+                We mix pieces from your loved looks into new outfit combinations.
+              </p>
+
+              {!remixOutfit ? (
+                <div className="flex flex-col items-center py-16">
+                  <Shuffle size={32} className="text-ink/10 mb-3" />
+                  <p className="font-subhead text-base text-ink-muted italic">
+                    Love 2+ looks to unlock remixes
+                  </p>
+                  <p className="text-xs font-inter text-ink-muted mt-1">
+                    We'll mix & match pieces from your favorites
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-3 mb-6">
+                    {remixOutfit.map((item, i) => (
+                      <motion.div
+                        key={`${item.id}-${remixSeed}`}
+                        initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
+                        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                        transition={{ delay: i * 0.08 }}
+                        className="group"
+                      >
+                        <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-ivory mb-2">
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="img-editorial"
+                          />
+                          <div className="absolute top-2 left-2">
+                            <span className="text-[9px] font-inter tracking-[0.15em] uppercase bg-lavender/90 text-white px-2 py-0.5 rounded-full">
+                              {item.category}
+                            </span>
+                          </div>
+                        </div>
+                        <p className="text-[11px] font-inter tracking-[0.1em] uppercase text-ink-muted">
+                          {item.brand}
+                        </p>
+                        <p className="text-sm font-inter text-ink leading-snug">{item.name}</p>
+                        <p className="text-sm font-inter font-medium text-ink">${item.price}</p>
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  <motion.button
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => setRemixSeed((s) => s + 1)}
+                    className="w-full py-3.5 rounded-full bg-ink text-cream font-inter text-sm font-medium flex items-center justify-center gap-2"
+                  >
+                    <RefreshCw size={14} />
+                    Remix Again
+                  </motion.button>
+
+                  <p className="text-center text-[10px] font-inter text-ink-muted mt-3">
+                    Total: ${remixOutfit.reduce((sum, item) => sum + item.price, 0).toLocaleString()}
+                  </p>
+                </>
               )}
             </motion.div>
           )}

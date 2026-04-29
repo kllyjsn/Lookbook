@@ -214,3 +214,17 @@ img {
   0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2); }
   50% { box-shadow: 0 0 0 4px rgba(255, 255, 255, 0); }
 }
+
+/* Trending story ring colors */
+.ring-gold {
+  --tw-ring-color: var(--color-gold);
+}
+.ring-rose {
+  --tw-ring-color: var(--color-rose);
+}
+.ring-lavender {
+  --tw-ring-color: var(--color-lavender);
+}
+.ring-sage {
+  --tw-ring-color: var(--color-sage);
+}

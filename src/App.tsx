@@ -7,6 +7,7 @@ import { StylistPage } from "./pages/StylistPage";
 import { CapsulePage } from "./pages/CapsulePage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { OnboardingPage } from "./pages/OnboardingPage";
+import { ToastContainer } from "./components/ui/Toast";
 
 const pages: Record<string, React.FC> = {
   feed: FeedPage,
@@ -27,6 +28,7 @@ export default function App() {
 
   return (
     <div className="h-full w-full bg-cream flex flex-col max-w-lg mx-auto relative">
+      <ToastContainer />
       <AnimatePresence mode="wait">
         <motion.div
           key={activeTab}
