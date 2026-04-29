@@ -566,3 +566,117 @@ export const styleQuizImages = [
   { id: "q4", image: UNSPLASH("photo-1469334031218-e382a71b716b", 600, 800), style: "Glamour" },
   { id: "q5", image: UNSPLASH("photo-1483985988355-763728e1935b", 600, 800), style: "Classic" },
 ];
+
+/* ── Trending Stories (TikTok-style top carousel) ── */
+export interface TrendingStory {
+  id: string;
+  label: string;
+  image: string;
+  lookId: string;
+  ring: string;
+}
+
+export const trendingStories: TrendingStory[] = [
+  { id: "ts-1", label: "Quiet Lux", image: UNSPLASH("photo-1558618666-fcd25c85f82e", 200, 200), lookId: "look-9", ring: "ring-gold" },
+  { id: "ts-2", label: "Office Siren", image: UNSPLASH("photo-1550614000-4895a10e1bfd", 200, 200), lookId: "look-15", ring: "ring-rose" },
+  { id: "ts-3", label: "Tokyo St.", image: UNSPLASH("photo-1552374196-1ab2a1c593e8", 200, 200), lookId: "look-12", ring: "ring-lavender" },
+  { id: "ts-4", label: "Coastal", image: UNSPLASH("photo-1544957992-20514f595d6f", 200, 200), lookId: "look-14", ring: "ring-sage" },
+  { id: "ts-5", label: "Festival", image: UNSPLASH("photo-1506152983158-b4a74a01c721", 200, 200), lookId: "look-16", ring: "ring-lavender" },
+  { id: "ts-6", label: "Power Suit", image: UNSPLASH("photo-1539109136881-3be0616acf4b", 200, 200), lookId: "look-8", ring: "ring-gold" },
+  { id: "ts-7", label: "Red Carpet", image: UNSPLASH("photo-1519235106695-a1bda50aeb4c", 200, 200), lookId: "look-13", ring: "ring-rose" },
+];
+
+/* ── Daily Style Challenge ── */
+export interface StyleChallenge {
+  id: string;
+  title: string;
+  subtitle: string;
+  hashtag: string;
+  image: string;
+  gradient: string;
+}
+
+const challengePool: StyleChallenge[] = [
+  { id: "ch-1", title: "Monochrome Monday", subtitle: "One color, head to toe", hashtag: "#MonoMonday", image: UNSPLASH("photo-1485968579580-b6d095142e6e", 800, 400), gradient: "from-ink/80 to-charcoal/80" },
+  { id: "ch-2", title: "Texture Play", subtitle: "Mix 3+ textures in one look", hashtag: "#TextureTuesday", image: UNSPLASH("photo-1581044777550-4cfa60707998", 800, 400), gradient: "from-rose/80 to-lavender/80" },
+  { id: "ch-3", title: "Under $150 Outfit", subtitle: "Full look, budget price", hashtag: "#ThriftyChic", image: UNSPLASH("photo-1515886657613-9f3515b0c78f", 800, 400), gradient: "from-sage/80 to-gold/80" },
+  { id: "ch-4", title: "Old + New", subtitle: "Pair a vintage piece with something new", hashtag: "#ThenAndNow", image: UNSPLASH("photo-1529139574466-a303027c1d8b", 800, 400), gradient: "from-gold/80 to-blush/80" },
+  { id: "ch-5", title: "No Pants Party", subtitle: "Dresses & skirts only", hashtag: "#SkirtSeason", image: UNSPLASH("photo-1496747611176-843222e1e57c", 800, 400), gradient: "from-blush/80 to-rose/80" },
+  { id: "ch-6", title: "Statement Shoe", subtitle: "Let the shoes do the talking", hashtag: "#ShoeMoment", image: UNSPLASH("photo-1543163521-1bf539c55dd2", 800, 400), gradient: "from-lavender/80 to-ink/80" },
+  { id: "ch-7", title: "All White Everything", subtitle: "Summer's cleanest look", hashtag: "#WhiteOut", image: UNSPLASH("photo-1519764622345-23439dd774f7", 800, 400), gradient: "from-ivory/80 to-gold/80" },
+];
+
+export function getDailyChallenge(): StyleChallenge {
+  const day = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+  return challengePool[day % challengePool.length];
+}
+
+/* ── Dupe / "Get the Look for Less" data ── */
+export interface DupeItem {
+  id: string;
+  originalItemId: string;
+  name: string;
+  brand: string;
+  price: number;
+  image: string;
+  category: string;
+  shopUrl: string;
+  savings: number;
+}
+
+export const dupeMap: Record<string, DupeItem[]> = {
+  "i1": [
+    { id: "d1", originalItemId: "i1", name: "Tailored Wool-Blend Blazer", brand: "H&M", price: 59, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#", savings: 216 },
+    { id: "d2", originalItemId: "i1", name: "Structured Blazer", brand: "Zara", price: 89, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#", savings: 186 },
+  ],
+  "i3": [
+    { id: "d3", originalItemId: "i3", name: "Wide-Leg Pants", brand: "Uniqlo", price: 49, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#", savings: 276 },
+  ],
+  "i10": [
+    { id: "d4", originalItemId: "i10", name: "Faux Leather Biker Jacket", brand: "Mango", price: 79, image: UNSPLASH("photo-1551028719-00167b16eac5", 400, 500), category: "Outerwear", shopUrl: "#", savings: 420 },
+  ],
+  "i13": [
+    { id: "d5", originalItemId: "i13", name: "Sequin Mini Dress", brand: "& Other Stories", price: 129, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), category: "Dresses", shopUrl: "#", savings: 466 },
+  ],
+  "i33": [
+    { id: "d6", originalItemId: "i33", name: "Cashmere Crew Sweater", brand: "Quince", price: 59, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#", savings: 831 },
+  ],
+  "i49": [
+    { id: "d7", originalItemId: "i49", name: "Draped Satin Maxi", brand: "ASOS", price: 89, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), category: "Dresses", shopUrl: "#", savings: 2801 },
+  ],
+};
+
+/* ── "What's In / What's Out" Trend Report ── */
+export interface TrendItem {
+  label: string;
+  status: "in" | "out";
+  description: string;
+}
+
+export const trendReport: TrendItem[] = [
+  { label: "Quiet Luxury", status: "in", description: "Stealth wealth. Logo-free, impeccable cuts." },
+  { label: "Office Siren", status: "in", description: "Fitted blazers, pencil skirts, powerful energy." },
+  { label: "Cherry Red", status: "in", description: "The new neutral. Head-to-toe crimson." },
+  { label: "Sheer Everything", status: "in", description: "Layered transparency — elegant, not exposed." },
+  { label: "Micro Bags", status: "out", description: "We need to carry actual things. Big bags are back." },
+  { label: "Fast Fashion Hauls", status: "out", description: "Quality investment dressing is the move." },
+  { label: "Matching Sets", status: "out", description: "Intentional mismatching is more interesting." },
+  { label: "Skinny Jeans", status: "out", description: "Wide-leg, barrel, straight — anything but skinny." },
+];
+
+/* ── Price drop indicators ── */
+export interface PriceDrop {
+  itemId: string;
+  originalPrice: number;
+  currentPrice: number;
+  dropPercent: number;
+}
+
+export const priceDrops: Record<string, PriceDrop> = {
+  "i5": { itemId: "i5", originalPrice: 298, currentPrice: 248, dropPercent: 17 },
+  "i9": { itemId: "i9", originalPrice: 78, currentPrice: 58, dropPercent: 26 },
+  "i17": { itemId: "i17", originalPrice: 325, currentPrice: 265, dropPercent: 18 },
+  "i25": { itemId: "i25", originalPrice: 498, currentPrice: 398, dropPercent: 20 },
+  "i37": { itemId: "i37", originalPrice: 225, currentPrice: 175, dropPercent: 22 },
+  "i53": { itemId: "i53", originalPrice: 298, currentPrice: 248, dropPercent: 17 },
+};
