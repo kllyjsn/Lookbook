@@ -48,7 +48,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
       const itemDupes = dupeMap[item.id];
       if (itemDupes && itemDupes.length > 0) {
         original += item.price;
-        dupeTotal += itemDupes.sort((a, b) => a.price - b.price)[0].price;
+        dupeTotal += [...itemDupes].sort((a, b) => a.price - b.price)[0].price;
       }
     }
     return original > 0 ? original - dupeTotal : 0;
