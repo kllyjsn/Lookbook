@@ -59,6 +59,11 @@ interface AppState {
   followCreator: (id: string) => void;
   unfollowCreator: (id: string) => void;
 
+  // Style Streak
+  styleStreak: number;
+  lastStreakDate: string | null;
+  checkInToday: () => void;
+
   // UI state
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -261,6 +266,17 @@ export const useStore = create<AppState>()(
           followedCreators: state.followedCreators.filter((cid) => cid !== id),
         })),
 
+      styleStreak: 0,
+      lastStreakDate: null,
+      checkInToday: () =>
+        set((state) => {
+          const today = new Date().toISOString().slice(0, 10);
+          if (state.lastStreakDate === today) return state;
+          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+          const newStreak = state.lastStreakDate === yesterday ? state.styleStreak + 1 : 1;
+          return { styleStreak: newStreak, lastStreakDate: today };
+        }),
+
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
       showLookDetail: null,
@@ -279,6 +295,8 @@ export const useStore = create<AppState>()(
         capsuleBudget: state.capsuleBudget,
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
+        styleStreak: state.styleStreak,
+        lastStreakDate: state.lastStreakDate,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
       }),
     }

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2 } from "lucide-react";
+import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2, Flame } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
@@ -15,12 +15,18 @@ export function ProfilePage() {
   const collections = useStore((s) => s.collections);
   const createCollection = useStore((s) => s.createCollection);
   const removeFromCollection = useStore((s) => s.removeFromCollection);
+  const styleStreak = useStore((s) => s.styleStreak);
+  const checkInToday = useStore((s) => s.checkInToday);
   const [activeSection, setActiveSection] = useState<ProfileSection>("dna");
   const [selectedLook, setSelectedLook] = useState<Look | null>(null);
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
   const [isGridView, setIsGridView] = useState(true);
   const [showNewCollection, setShowNewCollection] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState("");
+
+  useEffect(() => {
+    checkInToday();
+  }, [checkInToday]);
 
   const handleCreateCollection = () => {
     if (newCollectionName.trim()) {
@@ -45,6 +51,39 @@ export function ProfilePage() {
             <Settings size={16} className="text-ink-muted" />
           </motion.button>
         </div>
+
+        {/* Style Streak */}
+        {styleStreak > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-gold/10 to-rose/10 border border-gold/20"
+          >
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gold to-rose flex items-center justify-center">
+              <Flame size={18} className="text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-inter font-semibold text-ink">
+                {styleStreak} Day Streak
+              </p>
+              <p className="text-[10px] font-inter text-ink-muted">
+                {styleStreak >= 7 ? "Style icon status!" : styleStreak >= 3 ? "You're on fire!" : "Keep the vibe going!"}
+              </p>
+            </div>
+            <div className="flex gap-0.5">
+              {Array.from({ length: Math.min(styleStreak, 7) }).map((_, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: i * 0.05, type: "spring", stiffness: 400 }}
+                  className="w-1.5 h-4 rounded-full bg-gold"
+                  style={{ opacity: 0.4 + (i / 7) * 0.6 }}
+                />
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         {/* Profile avatar & name */}
         <div className="flex items-center gap-4 mb-6">
