@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2 } from "lucide-react";
+import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2, Flame, Zap } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
@@ -13,6 +13,8 @@ export function ProfilePage() {
   const styleDNA = useStore((s) => s.styleDNA);
   const likedLooks = useStore((s) => s.likedLooks);
   const collections = useStore((s) => s.collections);
+  const streakCount = useStore((s) => s.streakCount);
+  const totalSwipes = useStore((s) => s.totalSwipes);
   const createCollection = useStore((s) => s.createCollection);
   const removeFromCollection = useStore((s) => s.removeFromCollection);
   const [activeSection, setActiveSection] = useState<ProfileSection>("dna");
@@ -56,6 +58,25 @@ export function ProfilePage() {
             <p className="text-xs font-inter text-ink-muted">
               {likedLooks.length} looks loved · {collections.reduce((sum, c) => sum + c.looks.length, 0)} saved
             </p>
+          </div>
+        </div>
+
+        {/* Stats row */}
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          <div className="flex flex-col items-center py-3 rounded-xl bg-ivory">
+            <Heart size={14} className="text-rose mb-1" />
+            <span className="font-editorial text-lg text-ink">{likedLooks.length}</span>
+            <span className="text-[9px] font-inter tracking-[0.15em] uppercase text-ink-muted">Loved</span>
+          </div>
+          <div className="flex flex-col items-center py-3 rounded-xl bg-ivory">
+            <Flame size={14} className="text-rose mb-1" />
+            <span className="font-editorial text-lg text-ink">{streakCount}</span>
+            <span className="text-[9px] font-inter tracking-[0.15em] uppercase text-ink-muted">Day Streak</span>
+          </div>
+          <div className="flex flex-col items-center py-3 rounded-xl bg-ivory">
+            <Zap size={14} className="text-gold mb-1" />
+            <span className="font-editorial text-lg text-ink">{totalSwipes}</span>
+            <span className="text-[9px] font-inter tracking-[0.15em] uppercase text-ink-muted">Swipes</span>
           </div>
         </div>
 

@@ -254,13 +254,52 @@ export function CommunityPage() {
                       : "Check back soon for new content"}
                   </p>
                   {activeTab === "following" && (
-                    <motion.button
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setActiveTab("forYou")}
-                      className="mt-4 px-6 py-2.5 rounded-full bg-ink text-cream text-sm font-inter font-medium"
-                    >
-                      Discover Creators
-                    </motion.button>
+                    <>
+                      <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setActiveTab("forYou")}
+                        className="mt-4 px-6 py-2.5 rounded-full bg-ink text-cream text-sm font-inter font-medium"
+                      >
+                        Discover Creators
+                      </motion.button>
+                      <div className="w-full mt-8">
+                        <p className="text-[10px] font-inter font-bold tracking-[0.2em] uppercase text-gold mb-4 text-center">
+                          Suggested For You
+                        </p>
+                        <div className="space-y-2.5">
+                          {creators.slice(0, 4).map((creator, i) => (
+                            <motion.div
+                              key={creator.id}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 0.2 + i * 0.08 }}
+                              className="flex items-center gap-3 p-3 rounded-xl bg-ivory"
+                            >
+                              <motion.div
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => handleCreatorTap(creator.id)}
+                                className="flex items-center gap-3 flex-1 cursor-pointer min-w-0"
+                              >
+                                <img
+                                  src={creator.avatar}
+                                  alt={creator.displayName}
+                                  className="w-10 h-10 rounded-full object-cover ring-2 ring-gold/20"
+                                />
+                                <div className="min-w-0">
+                                  <p className="text-xs font-inter font-semibold text-ink truncate">
+                                    {creator.displayName}
+                                  </p>
+                                  <p className="text-[10px] font-inter text-ink-muted truncate">
+                                    {creator.bio.slice(0, 40)}...
+                                  </p>
+                                </div>
+                              </motion.div>
+                              <FollowButton creatorId={creator.id} />
+                            </motion.div>
+                          ))}
+                        </div>
+                      </div>
+                    </>
                   )}
                 </motion.div>
               ) : (
