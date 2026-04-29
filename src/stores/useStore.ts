@@ -283,8 +283,11 @@ export const useStore = create<AppState>()(
       totalSwipes: 0,
       recordSwipe: () =>
         set((state) => {
-          const today = new Date().toISOString().slice(0, 10);
-          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+          const now = new Date();
+          const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+          const yd = new Date(now);
+          yd.setDate(yd.getDate() - 1);
+          const yesterday = `${yd.getFullYear()}-${String(yd.getMonth() + 1).padStart(2, "0")}-${String(yd.getDate()).padStart(2, "0")}`;
           const newStreak =
             state.lastSwipeDate === today
               ? state.swipeStreak
