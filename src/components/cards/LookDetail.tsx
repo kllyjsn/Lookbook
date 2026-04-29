@@ -245,45 +245,55 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                   TikTok-approved dupes at a fraction of the price
                 </p>
                 <div className="grid grid-cols-2 gap-4">
-                  {look.dupes.map((dupe, i) => (
-                    <motion.div
-                      key={dupe.originalItemId + "-dupe"}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.08, duration: 0.4 }}
-                      className="group cursor-pointer"
-                    >
-                      <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-ivory mb-3">
-                        <img
-                          src={dupe.image}
-                          alt={dupe.name}
-                          className="img-editorial"
-                        />
-                        <div className="absolute top-2 left-2">
-                          <span className="text-[9px] font-inter tracking-[0.15em] uppercase bg-gold/90 text-white px-2 py-0.5 rounded-full">
-                            DUPE
-                          </span>
+                  {look.dupes.map((dupe, i) => {
+                    const originalItem = look.items.find((item) => item.id === dupe.originalItemId);
+                    const savingsPercent = originalItem
+                      ? Math.round((1 - dupe.price / originalItem.price) * 100)
+                      : null;
+                    return (
+                      <motion.div
+                        key={dupe.originalItemId + "-dupe"}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.08, duration: 0.4 }}
+                        className="group cursor-pointer"
+                      >
+                        <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-ivory mb-3">
+                          <img
+                            src={dupe.image}
+                            alt={dupe.name}
+                            className="img-editorial"
+                          />
+                          <div className="absolute top-2 left-2">
+                            <span className="text-[9px] font-inter tracking-[0.15em] uppercase bg-gold/90 text-white px-2 py-0.5 rounded-full">
+                              DUPE
+                            </span>
+                          </div>
+                          {savingsPercent !== null && savingsPercent > 0 && (
+                            <div className="absolute bottom-2 right-2">
+                              <span className="text-[9px] font-inter font-bold bg-green-500/90 text-white px-2 py-0.5 rounded-full">
+                                Save {savingsPercent}%
+                              </span>
+                            </div>
+                          )}
                         </div>
-                        <div className="absolute bottom-2 right-2">
-                          <span className="text-[9px] font-inter font-bold bg-green-500/90 text-white px-2 py-0.5 rounded-full">
-                            Save {Math.round((1 - dupe.price / (look.items.find(i => i.id === dupe.originalItemId)?.price ?? dupe.price)) * 100)}%
-                          </span>
-                        </div>
-                      </div>
-                      <div className="space-y-0.5">
-                        <p className="text-[11px] font-inter tracking-[0.1em] uppercase text-ink-muted">
-                          {dupe.brand}
-                        </p>
-                        <p className="text-sm font-inter text-ink leading-snug">{dupe.name}</p>
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm font-inter font-medium text-green-600">${dupe.price}</p>
-                          <p className="text-xs font-inter text-ink-muted line-through">
-                            ${look.items.find(i => i.id === dupe.originalItemId)?.price}
+                        <div className="space-y-0.5">
+                          <p className="text-[11px] font-inter tracking-[0.1em] uppercase text-ink-muted">
+                            {dupe.brand}
                           </p>
+                          <p className="text-sm font-inter text-ink leading-snug">{dupe.name}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-inter font-medium text-green-600">${dupe.price}</p>
+                            {originalItem && (
+                              <p className="text-xs font-inter text-ink-muted line-through">
+                                ${originalItem.price}
+                              </p>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </motion.div>
-                  ))}
+                      </motion.div>
+                    );
+                  })}
                 </div>
               </motion.div>
             )}
