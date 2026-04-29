@@ -1,19 +1,21 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, BadgeCheck, Sparkles, Clock } from "lucide-react";
+import { Search, BadgeCheck, Sparkles, Clock, Trophy } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { PostCard } from "../components/community/PostCard";
 import { CreatorProfile } from "../components/community/CreatorProfile";
 import { MustHaveCard } from "../components/community/MustHaveCard";
 import { MustHaveDetail } from "../components/community/MustHaveDetail";
 import { FollowButton } from "../components/community/FollowButton";
+import { StyleChallengeCard } from "../components/community/StyleChallenge";
 import { ProductCard } from "../components/cards/ProductCard";
 import { useStore } from "../stores/useStore";
 import { creators, communityPosts, mustHaveLists } from "../data/communityData";
 import type { Creator, CommunityPost, MustHaveList } from "../data/communityData";
+import { styleChallenges } from "../data/trendData";
 
 
-type CommunityTab = "forYou" | "following" | "mustHaves";
+type CommunityTab = "forYou" | "following" | "challenges" | "mustHaves";
 
 function PostShopOverlay({
   post,
@@ -119,6 +121,7 @@ export function CommunityPage() {
           {([
             { id: "forYou" as const, label: "For You" },
             { id: "following" as const, label: "Following" },
+            { id: "challenges" as const, label: "Challenges" },
             { id: "mustHaves" as const, label: "Must Haves" },
           ]).map((tab) => (
             <motion.button
@@ -323,6 +326,31 @@ export function CommunityPage() {
                 </div>
               </div>
             )}
+          </motion.div>
+        )}
+
+        {/* Challenges tab */}
+        {activeTab === "challenges" && (
+          <motion.div
+            key="challenges"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="px-6 space-y-6"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <Trophy size={16} className="text-gold" />
+              <p className="font-subhead text-sm text-ink-light italic">
+                Weekly style challenges. Vote, enter, and get featured.
+              </p>
+            </div>
+            {styleChallenges.map((challenge, i) => (
+              <StyleChallengeCard
+                key={challenge.id}
+                challenge={challenge}
+                index={i}
+              />
+            ))}
           </motion.div>
         )}
 

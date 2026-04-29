@@ -59,6 +59,11 @@ interface AppState {
   followCreator: (id: string) => void;
   unfollowCreator: (id: string) => void;
 
+  // Style Streak
+  styleStreak: number;
+  lastStreakDate: string | null;
+  checkInToday: () => void;
+
   // UI state
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -261,6 +266,20 @@ export const useStore = create<AppState>()(
           followedCreators: state.followedCreators.filter((cid) => cid !== id),
         })),
 
+      styleStreak: 0,
+      lastStreakDate: null,
+      checkInToday: () =>
+        set((state) => {
+          const now = new Date();
+          const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+          if (state.lastStreakDate === today) return state;
+          const yd = new Date(now);
+          yd.setDate(yd.getDate() - 1);
+          const yesterday = `${yd.getFullYear()}-${String(yd.getMonth() + 1).padStart(2, '0')}-${String(yd.getDate()).padStart(2, '0')}`;
+          const newStreak = state.lastStreakDate === yesterday ? state.styleStreak + 1 : 1;
+          return { styleStreak: newStreak, lastStreakDate: today };
+        }),
+
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
       showLookDetail: null,
@@ -279,6 +298,8 @@ export const useStore = create<AppState>()(
         capsuleBudget: state.capsuleBudget,
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
+        styleStreak: state.styleStreak,
+        lastStreakDate: state.lastStreakDate,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
       }),
     }

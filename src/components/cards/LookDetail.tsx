@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
+import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp, Sparkles, Copy, Check } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { feedLooks } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
 import { useStore } from "../../stores/useStore";
@@ -15,14 +16,61 @@ function formatCount(n: number): string {
 interface LookDetailProps {
   look: Look;
   onClose: () => void;
+  onLookTap?: (look: Look) => void;
 }
 
-export function LookDetail({ look, onClose }: LookDetailProps) {
+export function LookDetail({ look, onClose, onLookTap }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
+  const setShowLookDetail = useStore((s) => s.setShowLookDetail);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showShareToast, setShowShareToast] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  const complementaryLooks = useMemo(() => {
+    const currentTags = new Set(look.tags.map((t) => t.label));
+    return feedLooks
+      .filter((l) => l.id !== look.id)
+      .map((l) => ({
+        look: l,
+        score: l.tags.filter((t) => currentTags.has(t.label)).length,
+      }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3)
+      .map((s) => s.look);
+  }, [look]);
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `LKBK — ${look.title}`,
+          text: look.description,
+          url: window.location.href,
+        });
+      } catch (e) {
+        if (e instanceof DOMException && e.name === 'AbortError') return;
+        setShowShareToast(true);
+      }
+    } else {
+      setShowShareToast(true);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setLinkCopied(true);
+    } catch {
+      setLinkCopied(false);
+    }
+    setTimeout(() => {
+      setLinkCopied(false);
+      setShowShareToast(false);
+    }, 1500);
+  };
 
   return (
     <AnimatePresence>
@@ -157,15 +205,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  if (navigator.share) {
-                    navigator.share({
-                      title: `LKBK — ${look.title}`,
-                      text: look.description,
-                      url: window.location.href,
-                    }).catch(() => {});
-                  }
-                }}
+                onClick={handleShare}
                 className="w-12 h-12 rounded-full flex items-center justify-center border border-ink/10 hover:border-ink/30"
               >
                 <Share2 size={18} className="text-ink-muted" />
@@ -188,6 +228,68 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </div>
             </div>
 
+            {/* Complete the Look — editorial recommendations */}
+            {complementaryLooks.length > 0 && (
+              <div className="mb-10">
+                <div className="flex items-center gap-3 mb-6">
+                  <Sparkles size={18} className="text-gold" />
+                  <h3 className="font-editorial text-xl text-ink">Complete the Look</h3>
+                </div>
+                <p className="font-subhead text-sm text-ink-muted italic mb-4">
+                  Pairs beautifully with these edits
+                </p>
+                <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+                  {complementaryLooks.map((cl, i) => (
+                    <motion.button
+                      key={cl.id}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => (onLookTap ?? setShowLookDetail)(cl)}
+                      className="flex-shrink-0 w-36 group"
+                    >
+                      <div className="relative aspect-[3/4] rounded-xl overflow-hidden mb-2">
+                        <img
+                          src={cl.image}
+                          alt={cl.title}
+                          className="img-editorial group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-x-0 bottom-0 gradient-bottom p-2">
+                          <p className="text-white text-[10px] font-inter font-medium truncate">
+                            {cl.title}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-[10px] font-inter text-ink-muted truncate px-0.5">
+                        {cl.priceRange}
+                      </p>
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Cost per wear insight */}
+            <div className="mb-10 p-4 rounded-xl bg-ivory border border-ink/5">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-[10px] font-inter tracking-[0.2em] uppercase text-gold font-semibold">
+                  COST PER WEAR
+                </span>
+              </div>
+              <p className="text-sm font-inter text-ink">
+                At {look.priceRange}, worn 2× per week for a season =
+                <span className="font-semibold text-gold ml-1">
+                  ~${Math.round(
+                    (look.items.reduce((sum, item) => sum + item.price, 0)) / 24
+                  )}/wear
+                </span>
+              </p>
+              <p className="text-xs font-inter text-ink-muted mt-1">
+                Investment dressing at its finest.
+              </p>
+            </div>
+
             {/* Photographer credit */}
             {look.photographer && (
               <p className="text-center text-[10px] font-inter tracking-[0.2em] uppercase text-ink-muted pb-24">
@@ -196,6 +298,39 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
             )}
           </div>
         </div>
+
+        {/* Share toast */}
+        <AnimatePresence>
+          {showShareToast && (
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              className="fixed bottom-24 inset-x-0 z-[70] flex justify-center px-6"
+            >
+              <div className="bg-ink rounded-2xl p-4 shadow-xl w-full max-w-sm">
+                <p className="text-cream text-sm font-inter font-medium mb-3">Share this look</p>
+                <div className="flex gap-2">
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleCopyLink}
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/10 text-cream text-xs font-inter"
+                  >
+                    {linkCopied ? <Check size={14} /> : <Copy size={14} />}
+                    {linkCopied ? "Copied!" : "Copy Link"}
+                  </motion.button>
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setShowShareToast(false)}
+                    className="px-4 py-2.5 rounded-xl bg-white/10 text-cream text-xs font-inter"
+                  >
+                    Done
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
     </AnimatePresence>
   );

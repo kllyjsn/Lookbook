@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
 import { SearchPage } from "./SearchPage";
+import { TrendStories } from "../components/feed/TrendStories";
+import { ThisOrThatOverlay } from "../components/feed/ThisOrThat";
 import { Logo } from "../components/ui/Logo";
 import { RefreshCw, Sparkles, Camera } from "lucide-react";
 import { feedLooks, moodFilters } from "../data/mockData";
@@ -116,6 +118,12 @@ export function FeedPage() {
           )}
         </div>
       </div>
+
+      {/* Trend Stories (Instagram Stories-style) */}
+      <TrendStories />
+
+      {/* This or That banner */}
+      <ThisOrThatOverlay />
 
       {/* Mood filter pills */}
       <div className="px-4 pb-2">
@@ -253,6 +261,7 @@ export function FeedPage() {
       <AnimatePresence>
         {showLookDetail && (
           <LookDetail
+            key={showLookDetail.id}
             look={showLookDetail}
             onClose={() => setShowLookDetail(null)}
           />
