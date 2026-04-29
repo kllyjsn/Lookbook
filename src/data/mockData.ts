@@ -566,3 +566,131 @@ export const styleQuizImages = [
   { id: "q4", image: UNSPLASH("photo-1469334031218-e382a71b716b", 600, 800), style: "Glamour" },
   { id: "q5", image: UNSPLASH("photo-1483985988355-763728e1935b", 600, 800), style: "Classic" },
 ];
+
+export interface StylingTip {
+  rule: string;
+  explanation: string;
+}
+
+export const editorialTips: Record<string, StylingTip[]> = {
+  "look-1": [
+    { rule: "The Rule of Three", explanation: "Three complementary neutrals create depth without clutter. Here: ivory, charcoal, and camel work in perfect harmony." },
+    { rule: "Proportion Play", explanation: "The oversized blazer is balanced by slim-cut trousers \u2014 always pair volume with structure." },
+    { rule: "Investment Anchoring", explanation: "Lead with one hero piece (the blazer) and let everything else support it quietly." },
+  ],
+  "look-2": [
+    { rule: "Warm Undertone Matching", explanation: "The gold necklace picks up the warm tones in the dress fabric \u2014 metal should always echo the palette." },
+    { rule: "The 70/30 Split", explanation: "70% soft (flowing dress) and 30% sharp (structured clutch) creates visual interest." },
+    { rule: "Evening Light Rule", explanation: "Fabrics with movement catch candlelight beautifully. Always consider your lighting when choosing textures." },
+  ],
+  "look-3": [
+    { rule: "High-Low Mix", explanation: "Luxury leather jacket + basic tee = the essence of modern style. Never match price points across every piece." },
+    { rule: "The Sneaker Equation", explanation: "White sneakers are the great equalizer \u2014 they dress down anything and make it wearable." },
+    { rule: "Monochrome Anchoring", explanation: "When mixing casual and luxury, keep the color story tight. Neutrals unify everything." },
+  ],
+  "look-4": [
+    { rule: "Statement Hierarchy", explanation: "One piece commands attention (the column dress). Accessories should enhance, not compete." },
+    { rule: "Sparkle Placement", explanation: "Crystal earrings near the face catch light where it matters most \u2014 frame the face, not the feet." },
+    { rule: "The Power of Column Silhouette", explanation: "Vertical lines elongate the body. Column dresses are universally flattering for evening." },
+  ],
+  "look-5": [
+    { rule: "Earth Tone Harmony", explanation: "Linen, raffia, and suede in warm earth tones create an effortlessly cohesive travel palette." },
+    { rule: "Texture Layering", explanation: "Mix matte (linen) with woven (tote) and smooth (suede) \u2014 texture variety prevents monotony." },
+    { rule: "The Versatility Test", explanation: "Every travel piece should work in 3+ outfits. These four create at least 6 combinations." },
+  ],
+};
+
+export interface TrendForecast {
+  id: string;
+  title: string;
+  subtitle: string;
+  image: string;
+  trend: string;
+  season: string;
+  confidence: number;
+  description: string;
+  keyPieces: string[];
+}
+
+export const trendForecasts: TrendForecast[] = [
+  {
+    id: "tf-1",
+    title: "Butter Yellow",
+    subtitle: "The new neutral",
+    image: UNSPLASH("photo-1529139574466-a303027c1d8b", 600, 800),
+    trend: "Color",
+    season: "Summer 2025",
+    confidence: 94,
+    description: "Soft, warm yellow replaces beige as the go-to neutral. Pair with cream, chocolate, or denim.",
+    keyPieces: ["Butter cashmere cardigan", "Pale yellow linen trousers", "Gold-tone accessories"],
+  },
+  {
+    id: "tf-2",
+    title: "Sheer Layering",
+    subtitle: "See-through sophistication",
+    image: UNSPLASH("photo-1581044777550-4cfa60707998", 600, 800),
+    trend: "Fabric",
+    season: "Fall 2025",
+    confidence: 88,
+    description: "Organza and mesh worn as outer layers over structured basics. It's demure, not daring.",
+    keyPieces: ["Organza trench", "Mesh long-sleeve tee", "Sheer knit vest"],
+  },
+  {
+    id: "tf-3",
+    title: "Quiet Outdoors",
+    subtitle: "Gorpcore grows up",
+    image: UNSPLASH("photo-1483985988355-763728e1935b", 600, 800),
+    trend: "Lifestyle",
+    season: "Fall 2025",
+    confidence: 91,
+    description: "Technical fabrics meet tailored silhouettes. Think waterproof blazers and merino hiking pants.",
+    keyPieces: ["Performance wool blazer", "Gore-Tex trench", "Trail-to-office sneakers"],
+  },
+  {
+    id: "tf-4",
+    title: "Cherry Red",
+    subtitle: "Bold is back",
+    image: UNSPLASH("photo-1519235106695-a1bda50aeb4c", 600, 800),
+    trend: "Color",
+    season: "Winter 2025",
+    confidence: 86,
+    description: "Deep cherry replaces tomato red. Wear head-to-toe or as a single statement piece.",
+    keyPieces: ["Cherry wool coat", "Red patent bag", "Burgundy leather boots"],
+  },
+];
+
+export interface StylePoll {
+  id: string;
+  question: string;
+  optionA: { label: string; image: string };
+  optionB: { label: string; image: string };
+  totalVotes: number;
+  splitA: number;
+}
+
+export const stylePolls: StylePoll[] = [
+  {
+    id: "poll-1",
+    question: "Date night: which energy?",
+    optionA: { label: "Quiet Luxury", image: UNSPLASH("photo-1558618666-fcd25c85f82e", 400, 600) },
+    optionB: { label: "Red Carpet Drama", image: UNSPLASH("photo-1519235106695-a1bda50aeb4c", 400, 600) },
+    totalVotes: 14230,
+    splitA: 62,
+  },
+  {
+    id: "poll-2",
+    question: "Office: power suit or dress?",
+    optionA: { label: "Power Suit", image: UNSPLASH("photo-1539109136881-3be0616acf4b", 400, 600) },
+    optionB: { label: "Statement Dress", image: UNSPLASH("photo-1550614000-4895a10e1bfd", 400, 600) },
+    totalVotes: 18750,
+    splitA: 55,
+  },
+  {
+    id: "poll-3",
+    question: "Sneakers or heels with jeans?",
+    optionA: { label: "Clean Sneakers", image: UNSPLASH("photo-1515886657613-9f3515b0c78f", 400, 600) },
+    optionB: { label: "Kitten Heels", image: UNSPLASH("photo-1509631179647-0177331693ae", 400, 600) },
+    totalVotes: 22100,
+    splitA: 48,
+  },
+];

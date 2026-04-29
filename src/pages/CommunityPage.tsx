@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, BadgeCheck, Sparkles, Clock } from "lucide-react";
+import { Search, BadgeCheck, Sparkles, Clock, Zap } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { PostCard } from "../components/community/PostCard";
 import { CreatorProfile } from "../components/community/CreatorProfile";
@@ -11,6 +11,7 @@ import { ProductCard } from "../components/cards/ProductCard";
 import { useStore } from "../stores/useStore";
 import { creators, communityPosts, mustHaveLists } from "../data/communityData";
 import type { Creator, CommunityPost, MustHaveList } from "../data/communityData";
+import { stylePolls } from "../data/mockData";
 
 
 type CommunityTab = "forYou" | "following" | "mustHaves";
@@ -61,6 +62,81 @@ function PostShopOverlay({
         </div>
       </div>
     </motion.div>
+  );
+}
+
+function ThisOrThatSection() {
+  const pollVotes = useStore((s) => s.pollVotes);
+  const votePoll = useStore((s) => s.votePoll);
+
+  return (
+    <div className="px-6 mb-6">
+      <div className="flex items-center gap-2 mb-3">
+        <Zap size={14} className="text-gold" />
+        <h2 className="text-xs font-inter font-semibold tracking-[0.12em] uppercase text-ink-muted">
+          This or That
+        </h2>
+      </div>
+      <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+        {stylePolls.map((poll) => {
+          const voted = pollVotes[poll.id];
+          return (
+            <div key={poll.id} className="flex-shrink-0 w-[280px] rounded-2xl overflow-hidden bg-ivory border border-ink/5">
+              <p className="px-4 pt-3 pb-2 text-xs font-inter font-medium text-ink">
+                {poll.question}
+              </p>
+              <div className="flex gap-1 px-2 pb-2">
+                {(["a", "b"] as const).map((choice) => {
+                  const option = choice === "a" ? poll.optionA : poll.optionB;
+                  const isVoted = voted === choice;
+                  const pct = choice === "a" ? poll.splitA : 100 - poll.splitA;
+                  return (
+                    <motion.button
+                      key={choice}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => !voted && votePoll(poll.id, choice)}
+                      className={`flex-1 relative rounded-xl overflow-hidden aspect-[3/4] ${isVoted ? "ring-2 ring-gold ring-offset-1 ring-offset-ivory" : ""}`}
+                    >
+                      <img src={option.image} alt={option.label} className="img-editorial" />
+                      <div className="absolute inset-0 bg-black/30" />
+                      <div className="absolute inset-x-0 bottom-0 p-2">
+                        <p className="text-[10px] font-inter font-semibold text-white text-center">
+                          {option.label}
+                        </p>
+                        {voted && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mt-1"
+                          >
+                            <div className="h-1 bg-white/20 rounded-full overflow-hidden">
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${pct}%` }}
+                                transition={{ duration: 0.5 }}
+                                className="h-full bg-gold rounded-full"
+                              />
+                            </div>
+                            <p className="text-[9px] font-inter font-bold text-white/80 text-center mt-0.5">
+                              {pct}%
+                            </p>
+                          </motion.div>
+                        )}
+                      </div>
+                    </motion.button>
+                  );
+                })}
+              </div>
+              {voted && (
+                <p className="text-center text-[9px] font-inter text-ink-muted pb-2">
+                  {poll.totalVotes.toLocaleString()} votes
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -191,6 +267,9 @@ export function CommunityPage() {
                 </motion.div>
               </div>
             )}
+
+            {/* This or That polls (For You only) */}
+            {activeTab === "forYou" && <ThisOrThatSection />}
 
             {/* Featured creators row (For You only) */}
             {activeTab === "forYou" && (
