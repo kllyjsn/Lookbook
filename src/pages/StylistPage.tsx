@@ -2,9 +2,9 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Heart, Gem, Briefcase, Coffee, Sun, Sparkles, Shirt, Music,
-  ArrowLeft, ArrowRight, DollarSign, Palette, ChevronRight,
+  ArrowLeft, ArrowRight, DollarSign, Palette, ChevronRight, TrendingUp,
 } from "lucide-react";
-import { eventTypes, feedLooks } from "../data/mockData";
+import { eventTypes, feedLooks, trendForecasts } from "../data/mockData";
 import type { Look } from "../data/mockData";
 import { LookDetail } from "../components/cards/LookDetail";
 import { Button } from "../components/ui/Button";
@@ -88,6 +88,65 @@ export function StylistPage() {
           {step === "results" && "Your personalized outfit suggestions."}
         </p>
       </div>
+
+      {/* Trend Forecast (events step only) */}
+      {step === "events" && (
+        <div className="px-6 mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <TrendingUp size={14} className="text-gold" />
+            <h2 className="text-xs font-inter font-semibold tracking-[0.12em] uppercase text-ink-muted">
+              Trend Forecast
+            </h2>
+          </div>
+          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+            {trendForecasts.map((forecast, i) => (
+              <motion.div
+                key={forecast.id}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.08 }}
+                className="flex-shrink-0 w-[200px] rounded-2xl overflow-hidden bg-ivory border border-ink/5"
+              >
+                <div className="relative aspect-[4/5]">
+                  <img src={forecast.image} alt={forecast.title} className="img-editorial" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                  <div className="absolute top-2 right-2">
+                    <span className="text-[8px] font-inter font-bold tracking-wider uppercase bg-gold/90 text-white px-2 py-0.5 rounded-full">
+                      {forecast.confidence}% match
+                    </span>
+                  </div>
+                  <div className="absolute inset-x-0 bottom-0 p-3">
+                    <p className="text-[9px] font-inter tracking-wider uppercase text-white/50 mb-0.5">
+                      {forecast.season} · {forecast.trend}
+                    </p>
+                    <p className="text-sm font-editorial text-white leading-tight">
+                      {forecast.title}
+                    </p>
+                    <p className="text-[10px] font-subhead text-white/70 italic mt-0.5">
+                      {forecast.subtitle}
+                    </p>
+                  </div>
+                </div>
+                <div className="p-3">
+                  <p className="text-[10px] font-inter text-ink-muted leading-relaxed mb-2">
+                    {forecast.description}
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {forecast.keyPieces.map((piece) => (
+                      <span
+                        key={piece}
+                        className="text-[8px] font-inter tracking-wider uppercase text-ink-muted bg-cream rounded-full px-2 py-0.5"
+                      >
+                        {piece}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <AnimatePresence mode="wait">
         {step === "events" && (

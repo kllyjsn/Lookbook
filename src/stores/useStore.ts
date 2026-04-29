@@ -59,6 +59,20 @@ interface AppState {
   followCreator: (id: string) => void;
   unfollowCreator: (id: string) => void;
 
+  // Style Streak
+  streakCount: number;
+  lastActiveDate: string | null;
+  recordDailyVisit: () => void;
+
+  // This-or-That polls
+  pollVotes: Record<string, "a" | "b">;
+  votePoll: (pollId: string, choice: "a" | "b") => void;
+
+  // Outfit Remix
+  remixSlots: { top: string | null; bottom: string | null; shoes: string | null; accessory: string | null };
+  setRemixSlot: (slot: "top" | "bottom" | "shoes" | "accessory", itemId: string | null) => void;
+  clearRemix: () => void;
+
   // UI state
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -261,6 +275,34 @@ export const useStore = create<AppState>()(
           followedCreators: state.followedCreators.filter((cid) => cid !== id),
         })),
 
+      streakCount: 0,
+      lastActiveDate: null,
+      recordDailyVisit: () =>
+        set((state) => {
+          const today = new Date().toISOString().slice(0, 10);
+          if (state.lastActiveDate === today) return state;
+          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+          const isConsecutive = state.lastActiveDate === yesterday;
+          return {
+            lastActiveDate: today,
+            streakCount: isConsecutive ? state.streakCount + 1 : 1,
+          };
+        }),
+
+      pollVotes: {},
+      votePoll: (pollId, choice) =>
+        set((state) => ({
+          pollVotes: { ...state.pollVotes, [pollId]: choice },
+        })),
+
+      remixSlots: { top: null, bottom: null, shoes: null, accessory: null },
+      setRemixSlot: (slot, itemId) =>
+        set((state) => ({
+          remixSlots: { ...state.remixSlots, [slot]: itemId },
+        })),
+      clearRemix: () =>
+        set({ remixSlots: { top: null, bottom: null, shoes: null, accessory: null } }),
+
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
       showLookDetail: null,
@@ -280,6 +322,9 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        streakCount: state.streakCount,
+        lastActiveDate: state.lastActiveDate,
+        pollVotes: state.pollVotes,
       }),
     }
   )

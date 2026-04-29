@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
+import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp, Lightbulb, Calculator } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { editorialTips } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
 import { useStore } from "../../stores/useStore";
@@ -23,6 +24,11 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
   const addToCollection = useStore((s) => s.addToCollection);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showTips, setShowTips] = useState(false);
+
+  const tips = editorialTips[look.id];
+  const totalPrice = look.items.reduce((sum, item) => sum + item.price, 0);
+  const costPerWear = Math.round(totalPrice / 120);
 
   return (
     <AnimatePresence>
@@ -33,7 +39,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
         className="fixed inset-0 z-50 bg-cream"
       >
         <div className="h-full overflow-y-auto">
-          {/* Hero image — magazine spread */}
+          {/* Hero image */}
           <div className="relative w-full aspect-[3/4] max-h-[70vh]">
             <img
               src={look.image}
@@ -61,7 +67,6 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </motion.div>
             </div>
 
-            {/* Close button */}
             <motion.button
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -71,7 +76,6 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               <X size={18} className="text-ink" />
             </motion.button>
 
-            {/* Top left — magazine-style issue label */}
             <div className="absolute top-6 left-6">
               <span className="text-masthead text-sm text-white/80">LKBK</span>
             </div>
@@ -97,7 +101,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               ))}
             </div>
 
-            {/* Engagement stats */}
+            {/* Engagement stats + cost-per-wear */}
             <div className="flex items-center gap-4 mb-5">
               <span className="flex items-center gap-1.5 text-sm font-inter text-ink-muted">
                 <Heart size={14} className="text-rose" fill="currentColor" />
@@ -113,10 +117,82 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </span>
             </div>
 
+            {/* Cost-per-wear badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="flex items-center gap-3 p-3 rounded-xl bg-sage/10 border border-sage/20 mb-6"
+            >
+              <Calculator size={16} className="text-sage flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-xs font-inter font-medium text-ink">
+                  ${costPerWear}/wear over 2 seasons
+                </p>
+                <p className="text-[10px] font-inter text-ink-muted">
+                  Total: ${totalPrice.toLocaleString()} across {look.items.length} pieces
+                </p>
+              </div>
+              <span className={`text-[9px] font-inter font-bold tracking-wider uppercase px-2 py-0.5 rounded-full ${
+                costPerWear < 10 ? "bg-sage/20 text-sage" : costPerWear < 20 ? "bg-gold/20 text-gold" : "bg-rose/20 text-rose"
+              }`}>
+                {costPerWear < 10 ? "Great Value" : costPerWear < 20 ? "Worth It" : "Splurge"}
+              </span>
+            </motion.div>
+
             {/* Description */}
             <p className="font-subhead text-xl text-ink-light leading-relaxed mb-8 italic">
               {look.description}
             </p>
+
+            {/* Why It Works - Editorial Styling Breakdown */}
+            {tips && (
+              <div className="mb-8">
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowTips(!showTips)}
+                  className="w-full flex items-center gap-3 p-4 rounded-xl bg-ivory border border-ink/5 mb-3"
+                >
+                  <Lightbulb size={18} className="text-gold" />
+                  <span className="font-editorial text-base text-ink flex-1 text-left">Why It Works</span>
+                  <motion.span
+                    animate={{ rotate: showTips ? 180 : 0 }}
+                    className="text-ink-muted text-sm"
+                  >
+                    ▾
+                  </motion.span>
+                </motion.button>
+                <AnimatePresence>
+                  {showTips && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="space-y-3 pb-2">
+                        {tips.map((tip, i) => (
+                          <motion.div
+                            key={tip.rule}
+                            initial={{ opacity: 0, x: -15 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: i * 0.1 }}
+                            className="p-4 rounded-xl bg-ivory/60 border-l-2 border-gold/40"
+                          >
+                            <p className="text-xs font-inter font-semibold tracking-[0.1em] uppercase text-gold mb-1.5">
+                              {tip.rule}
+                            </p>
+                            <p className="text-sm font-inter text-ink-light leading-relaxed">
+                              {tip.explanation}
+                            </p>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
 
             {/* Action bar */}
             <div className="flex items-center gap-3 mb-10">

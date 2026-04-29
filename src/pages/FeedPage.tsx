@@ -1,13 +1,21 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
 import { SearchPage } from "./SearchPage";
 import { Logo } from "../components/ui/Logo";
-import { RefreshCw, Sparkles, Camera } from "lucide-react";
+import { RefreshCw, Sparkles, Camera, Flame } from "lucide-react";
 import { feedLooks, moodFilters } from "../data/mockData";
 import type { MoodFilter } from "../data/mockData";
 import { useStore } from "../stores/useStore";
+
+function getGreeting(): { line1: string; line2: string } {
+  const h = new Date().getHours();
+  if (h < 12) return { line1: "Good Morning", line2: "Today's edit is ready for you." };
+  if (h < 17) return { line1: "Good Afternoon", line2: "Fresh looks, curated just now." };
+  if (h < 21) return { line1: "Good Evening", line2: "Dress your evening mood." };
+  return { line1: "Late Night Edit", line2: "Can't sleep? Neither can great style." };
+}
 
 export function FeedPage() {
   const currentFeedIndex = useStore((s) => s.currentFeedIndex);
@@ -23,7 +31,13 @@ export function FeedPage() {
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
   const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
+  const streakCount = useStore((s) => s.streakCount);
+  const recordDailyVisit = useStore((s) => s.recordDailyVisit);
   const [showSearch, setShowSearch] = useState(false);
+
+  useEffect(() => {
+    recordDailyVisit();
+  }, [recordDailyVisit]);
 
   const filteredLooks = useMemo(
     () =>
@@ -88,32 +102,51 @@ export function FeedPage() {
     [setActiveMoodFilter]
   );
 
+  const greeting = getGreeting();
+
   return (
     <div className="h-full flex flex-col bg-cream">
-      {/* Header */}
-      <div className="flex items-center justify-between py-3 px-6">
-        <Logo variant="mark" size="sm" />
-        <div className="flex items-center gap-3">
-          <span className="text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted">
-            {Math.min(currentFeedIndex + 1, feedLooks.length)} / {feedLooks.length}
-          </span>
-          <div className="w-16 h-1 bg-ink/10 rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-gold rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${Math.min(((currentFeedIndex + 1) / feedLooks.length) * 100, 100)}%` }}
-              transition={{ duration: 0.3 }}
-            />
+      {/* Header with greeting */}
+      <div className="py-3 px-6">
+        <div className="flex items-center justify-between mb-1">
+          <Logo variant="mark" size="sm" />
+          <div className="flex items-center gap-3">
+            {streakCount > 0 && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-gold/20 to-rose/20 border border-gold/30"
+              >
+                <Flame size={12} className="text-gold" />
+                <span className="text-[10px] font-inter font-bold text-gold">{streakCount}</span>
+              </motion.div>
+            )}
+            <span className="text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted">
+              {Math.min(currentFeedIndex + 1, feedLooks.length)} / {feedLooks.length}
+            </span>
+            <div className="w-16 h-1 bg-ink/10 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-gold rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.min(((currentFeedIndex + 1) / feedLooks.length) * 100, 100)}%` }}
+                transition={{ duration: 0.3 }}
+              />
+            </div>
+            {!hasSeenAll && (
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setShowSearch(true)}
+                className="w-8 h-8 rounded-full bg-ivory border border-ink/10 flex items-center justify-center"
+              >
+                <Camera size={14} className="text-ink" />
+              </motion.button>
+            )}
           </div>
-          {!hasSeenAll && (
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => setShowSearch(true)}
-              className="w-8 h-8 rounded-full bg-ivory border border-ink/10 flex items-center justify-center"
-            >
-              <Camera size={14} className="text-ink" />
-            </motion.button>
-          )}
+        </div>
+        {/* Personalized greeting */}
+        <div className="mb-1">
+          <h1 className="font-editorial text-xl text-ink leading-tight">{greeting.line1}</h1>
+          <p className="font-subhead text-sm text-ink-muted italic">{greeting.line2}</p>
         </div>
       </div>
 
@@ -161,7 +194,17 @@ export function FeedPage() {
                 ? `You loved ${likedLooks.length} look${likedLooks.length > 1 ? "s" : ""}. Great taste.`
                 : "Come back tomorrow for fresh picks."}
             </p>
-            <div className="flex flex-col gap-3 w-full mt-6">
+            {streakCount > 1 && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="text-xs font-inter text-gold font-medium mb-4"
+              >
+                {streakCount}-day streak! Your style eye is sharpening.
+              </motion.p>
+            )}
+            <div className="flex flex-col gap-3 w-full mt-4">
               <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setCurrentFeedIndex(0)}
