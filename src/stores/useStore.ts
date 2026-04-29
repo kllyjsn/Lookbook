@@ -83,6 +83,7 @@ interface AppState {
 
 const tagToStyle: Record<string, string> = {
   "Minimalist": "Minimalist",
+  "Classic": "Classic",
   "Office": "Classic",
   "Romantic": "Romantic",
   "Evening": "Romantic",

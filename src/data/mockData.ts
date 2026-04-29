@@ -621,6 +621,7 @@ export const dupeMap: Record<string, DupeItem[]> = {
 
 export const tagToStyleCategory: Record<string, string> = {
   "Minimalist": "Minimalist",
+  "Classic": "Classic",
   "Office": "Classic",
   "Romantic": "Romantic",
   "Evening": "Romantic",
