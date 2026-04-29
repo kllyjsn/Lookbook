@@ -16,14 +16,14 @@ function formatCount(n: number): string {
 interface LookDetailProps {
   look: Look;
   onClose: () => void;
+  onNavigate?: (look: Look) => void;
 }
 
-export function LookDetail({ look, onClose }: LookDetailProps) {
+export function LookDetail({ look, onClose, onNavigate }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
   const showToast = useStore((s) => s.showToast);
-  const setShowLookDetail = useStore((s) => s.setShowLookDetail);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -292,7 +292,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.6 + i * 0.1 }}
                       whileTap={{ scale: 0.97 }}
-                      onClick={() => setShowLookDetail(rec)}
+                      onClick={() => onNavigate?.(rec)}
                       className="flex-shrink-0 w-40 cursor-pointer group"
                     >
                       <div className="relative aspect-[3/4] rounded-xl overflow-hidden mb-2">
