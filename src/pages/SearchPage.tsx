@@ -397,6 +397,7 @@ export function SearchPage() {
           <LookDetail
             look={selectedLook}
             onClose={() => setSelectedLook(null)}
+            onLookTap={(l) => setSelectedLook(l)}
           />
         )}
       </AnimatePresence>

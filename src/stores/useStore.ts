@@ -270,9 +270,12 @@ export const useStore = create<AppState>()(
       lastStreakDate: null,
       checkInToday: () =>
         set((state) => {
-          const today = new Date().toISOString().slice(0, 10);
+          const now = new Date();
+          const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
           if (state.lastStreakDate === today) return state;
-          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+          const yd = new Date(now);
+          yd.setDate(yd.getDate() - 1);
+          const yesterday = `${yd.getFullYear()}-${String(yd.getMonth() + 1).padStart(2, '0')}-${String(yd.getDate()).padStart(2, '0')}`;
           const newStreak = state.lastStreakDate === yesterday ? state.styleStreak + 1 : 1;
           return { styleStreak: newStreak, lastStreakDate: today };
         }),

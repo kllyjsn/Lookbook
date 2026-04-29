@@ -16,9 +16,10 @@ function formatCount(n: number): string {
 interface LookDetailProps {
   look: Look;
   onClose: () => void;
+  onLookTap?: (look: Look) => void;
 }
 
-export function LookDetail({ look, onClose }: LookDetailProps) {
+export function LookDetail({ look, onClose, onLookTap }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
@@ -49,7 +50,8 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
           text: look.description,
           url: window.location.href,
         });
-      } catch {
+      } catch (e) {
+        if (e instanceof DOMException && e.name === 'AbortError') return;
         setShowShareToast(true);
       }
     } else {
@@ -240,7 +242,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.1 }}
                       whileTap={{ scale: 0.97 }}
-                      onClick={() => setShowLookDetail(cl)}
+                      onClick={() => (onLookTap ?? setShowLookDetail)(cl)}
                       className="flex-shrink-0 w-36 group"
                     >
                       <div className="relative aspect-[3/4] rounded-xl overflow-hidden mb-2">

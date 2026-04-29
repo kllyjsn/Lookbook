@@ -451,6 +451,7 @@ export function ProfilePage() {
           <LookDetail
             look={selectedLook}
             onClose={() => setSelectedLook(null)}
+            onLookTap={(l) => setSelectedLook(l)}
           />
         )}
       </AnimatePresence>
