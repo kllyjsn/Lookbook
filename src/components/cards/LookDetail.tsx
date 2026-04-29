@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
+import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp, Quote, Tag as TagIcon, Sparkles } from "lucide-react";
 import type { Look } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
@@ -113,10 +113,44 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </span>
             </div>
 
+            {/* Aesthetic badge */}
+            {look.aesthetic && (
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="flex items-center gap-2 mb-4"
+              >
+                <TagIcon size={12} className="text-lavender" />
+                <span className="text-[10px] font-inter font-semibold tracking-[0.15em] uppercase text-lavender">
+                  {look.aesthetic} Aesthetic
+                </span>
+              </motion.div>
+            )}
+
             {/* Description */}
-            <p className="font-subhead text-xl text-ink-light leading-relaxed mb-8 italic">
+            <p className="font-subhead text-xl text-ink-light leading-relaxed mb-6 italic">
               {look.description}
             </p>
+
+            {/* Editor's Note */}
+            {look.editorsNote && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mb-8 p-5 rounded-xl bg-ivory border-l-2 border-gold"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <Quote size={14} className="text-gold" />
+                  <span className="text-[10px] font-inter font-semibold tracking-[0.2em] uppercase text-gold">
+                    Editor's Note
+                  </span>
+                </div>
+                <p className="font-subhead text-base text-ink-light italic leading-relaxed">
+                  {look.editorsNote}
+                </p>
+              </motion.div>
+            )}
 
             {/* Action bar */}
             <div className="flex items-center gap-3 mb-10">
@@ -181,12 +215,78 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                   {look.priceRange}
                 </span>
               </div>
+              {look.costPerWearDays && (
+                <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-sage/10 border border-sage/20">
+                  <span className="text-[10px] font-inter font-medium text-sage tracking-wide uppercase">
+                    Cost-Per-Wear Estimate: ~${Math.round(look.items.reduce((s, i) => s + i.price, 0) / look.costPerWearDays)}/wear over {look.costPerWearDays} days
+                  </span>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 {look.items.map((item, i) => (
-                  <ProductCard key={item.id} item={item} index={i} />
+                  <ProductCard key={item.id} item={item} index={i} costPerWearDays={look.costPerWearDays} />
                 ))}
               </div>
             </div>
+
+            {/* Get the Look for Less — Dupes */}
+            {look.dupes && look.dupes.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="mb-10"
+              >
+                <div className="flex items-center gap-3 mb-6">
+                  <Sparkles size={18} className="text-gold" />
+                  <h3 className="font-editorial text-xl text-ink">Get the Look for Less</h3>
+                </div>
+                <p className="text-xs font-inter text-ink-muted mb-4 italic">
+                  TikTok-approved dupes at a fraction of the price
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  {look.dupes.map((dupe, i) => (
+                    <motion.div
+                      key={dupe.originalItemId + "-dupe"}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.08, duration: 0.4 }}
+                      className="group cursor-pointer"
+                    >
+                      <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-ivory mb-3">
+                        <img
+                          src={dupe.image}
+                          alt={dupe.name}
+                          className="img-editorial"
+                        />
+                        <div className="absolute top-2 left-2">
+                          <span className="text-[9px] font-inter tracking-[0.15em] uppercase bg-gold/90 text-white px-2 py-0.5 rounded-full">
+                            DUPE
+                          </span>
+                        </div>
+                        <div className="absolute bottom-2 right-2">
+                          <span className="text-[9px] font-inter font-bold bg-green-500/90 text-white px-2 py-0.5 rounded-full">
+                            Save {Math.round((1 - dupe.price / (look.items.find(i => i.id === dupe.originalItemId)?.price ?? dupe.price)) * 100)}%
+                          </span>
+                        </div>
+                      </div>
+                      <div className="space-y-0.5">
+                        <p className="text-[11px] font-inter tracking-[0.1em] uppercase text-ink-muted">
+                          {dupe.brand}
+                        </p>
+                        <p className="text-sm font-inter text-ink leading-snug">{dupe.name}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-inter font-medium text-green-600">${dupe.price}</p>
+                          <p className="text-xs font-inter text-ink-muted line-through">
+                            ${look.items.find(i => i.id === dupe.originalItemId)?.price}
+                          </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
 
             {/* Photographer credit */}
             {look.photographer && (

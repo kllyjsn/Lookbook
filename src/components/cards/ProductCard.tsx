@@ -6,10 +6,12 @@ import type { LookItem } from "../../data/mockData";
 interface ProductCardProps {
   item: LookItem;
   index: number;
+  costPerWearDays?: number;
 }
 
-export function ProductCard({ item, index }: ProductCardProps) {
+export function ProductCard({ item, index, costPerWearDays }: ProductCardProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
+  const costPerWear = costPerWearDays ? (item.price / costPerWearDays).toFixed(2) : null;
 
   return (
     <motion.div
@@ -42,6 +44,13 @@ export function ProductCard({ item, index }: ProductCardProps) {
             {item.category}
           </span>
         </div>
+        {costPerWear && (
+          <div className="absolute bottom-2 right-2">
+            <span className="text-[9px] font-inter font-medium bg-sage/90 text-white px-2 py-0.5 rounded-full">
+              ${costPerWear}/wear
+            </span>
+          </div>
+        )}
       </div>
       <div className="space-y-0.5">
         <p className="text-[11px] font-inter tracking-[0.1em] uppercase text-ink-muted">
