@@ -4,7 +4,8 @@ import type { Look, StyleDNAEntry, MoodFilter } from "../data/mockData";
 import { defaultStyleDNA } from "../data/mockData";
 
 function getDateKey(): string {
-  return new Date().toISOString().split("T")[0];
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 interface SavedCollection {
@@ -168,7 +169,7 @@ export const useStore = create<AppState>()(
           const today = getDateKey();
           const yesterday = new Date();
           yesterday.setDate(yesterday.getDate() - 1);
-          const yesterdayKey = yesterday.toISOString().split("T")[0];
+          const yesterdayKey = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
           const isConsecutive = state.lastStreakDate === yesterdayKey;
           const streakUpdate = state.lastStreakDate === today
             ? {}
@@ -292,7 +293,7 @@ export const useStore = create<AppState>()(
           if (state.lastStreakDate === today) return state;
           const yesterday = new Date();
           yesterday.setDate(yesterday.getDate() - 1);
-          const yesterdayKey = yesterday.toISOString().split("T")[0];
+          const yesterdayKey = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
           const isConsecutive = state.lastStreakDate === yesterdayKey;
           return {
             streakCount: isConsecutive ? state.streakCount + 1 : 1,
