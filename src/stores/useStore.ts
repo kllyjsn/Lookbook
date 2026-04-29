@@ -3,6 +3,10 @@ import { persist } from "zustand/middleware";
 import type { Look, StyleDNAEntry, MoodFilter } from "../data/mockData";
 import { defaultStyleDNA } from "../data/mockData";
 
+function getDateKey(): string {
+  return new Date().toISOString().split("T")[0];
+}
+
 interface SavedCollection {
   id: string;
   name: string;
@@ -58,6 +62,12 @@ interface AppState {
   followedCreators: string[];
   followCreator: (id: string) => void;
   unfollowCreator: (id: string) => void;
+
+  // Style Streak
+  streakCount: number;
+  lastStreakDate: string | null;
+  totalSwipes: number;
+  recordStreak: () => void;
 
   // UI state
   activeTab: string;
@@ -155,12 +165,22 @@ export const useStore = create<AppState>()(
           const newLiked = state.likedLooks.some((l) => l.id === look.id)
             ? state.likedLooks
             : [...state.likedLooks, look];
+          const today = getDateKey();
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          const yesterdayKey = yesterday.toISOString().split("T")[0];
+          const isConsecutive = state.lastStreakDate === yesterdayKey;
+          const streakUpdate = state.lastStreakDate === today
+            ? {}
+            : { streakCount: isConsecutive ? state.streakCount + 1 : 1, lastStreakDate: today };
           return {
             likedLooks: newLiked,
             currentFeedIndex: state.currentFeedIndex + 1,
             lastSwipedLook: look,
             lastSwipeAction: "like" as const,
             styleDNA: computeDNA(newLiked),
+            totalSwipes: state.totalSwipes + 1,
+            ...streakUpdate,
           };
         }),
       passLook: (look) =>
@@ -171,6 +191,7 @@ export const useStore = create<AppState>()(
           currentFeedIndex: state.currentFeedIndex + 1,
           lastSwipedLook: look,
           lastSwipeAction: "pass" as const,
+          totalSwipes: state.totalSwipes + 1,
         })),
       saveLook: (look) =>
         set((state) => ({
@@ -261,6 +282,23 @@ export const useStore = create<AppState>()(
           followedCreators: state.followedCreators.filter((cid) => cid !== id),
         })),
 
+      streakCount: 0,
+      lastStreakDate: null,
+      totalSwipes: 0,
+      recordStreak: () =>
+        set((state) => {
+          const today = getDateKey();
+          if (state.lastStreakDate === today) return state;
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          const yesterdayKey = yesterday.toISOString().split("T")[0];
+          const isConsecutive = state.lastStreakDate === yesterdayKey;
+          return {
+            streakCount: isConsecutive ? state.streakCount + 1 : 1,
+            lastStreakDate: today,
+          };
+        }),
+
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
       showLookDetail: null,
@@ -280,6 +318,9 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        streakCount: state.streakCount,
+        lastStreakDate: state.lastStreakDate,
+        totalSwipes: state.totalSwipes,
       }),
     }
   )

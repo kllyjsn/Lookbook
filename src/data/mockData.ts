@@ -566,3 +566,131 @@ export const styleQuizImages = [
   { id: "q4", image: UNSPLASH("photo-1469334031218-e382a71b716b", 600, 800), style: "Glamour" },
   { id: "q5", image: UNSPLASH("photo-1483985988355-763728e1935b", 600, 800), style: "Classic" },
 ];
+
+export interface DupeItem {
+  id: string;
+  name: string;
+  brand: string;
+  price: number;
+  image: string;
+  category: string;
+  shopUrl: string;
+  originalItemId: string;
+  savingsPercent: number;
+}
+
+export const dupeMap: Record<string, DupeItem[]> = {
+  i1: [
+    { id: "d1", name: "Oversized Wool Blazer", brand: "Zara", price: 89, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#", originalItemId: "i1", savingsPercent: 68 },
+    { id: "d2", name: "Structured Blazer", brand: "H&M", price: 59, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#", originalItemId: "i1", savingsPercent: 79 },
+  ],
+  i2: [
+    { id: "d3", name: "Satin Camisole", brand: "& Other Stories", price: 49, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#", originalItemId: "i2", savingsPercent: 75 },
+  ],
+  i5: [
+    { id: "d4", name: "Flowy Midi Dress", brand: "ASOS", price: 65, image: UNSPLASH("photo-1595777457583-95e059d581b8", 400, 500), category: "Dresses", shopUrl: "#", originalItemId: "i5", savingsPercent: 74 },
+    { id: "d5", name: "Wrap Midi Dress", brand: "Mango", price: 79, image: UNSPLASH("photo-1595777457583-95e059d581b8", 400, 500), category: "Dresses", shopUrl: "#", originalItemId: "i5", savingsPercent: 68 },
+  ],
+  i10: [
+    { id: "d6", name: "Faux Leather Moto Jacket", brand: "Zara", price: 79, image: UNSPLASH("photo-1551028719-00167b16eac5", 400, 500), category: "Outerwear", shopUrl: "#", originalItemId: "i10", savingsPercent: 84 },
+  ],
+  i12: [
+    { id: "d7", name: "White Leather Sneakers", brand: "Veja", price: 150, image: UNSPLASH("photo-1549298916-b41d501d3772", 400, 500), category: "Shoes", shopUrl: "#", originalItemId: "i12", savingsPercent: 65 },
+    { id: "d8", name: "White Sneakers", brand: "Adidas Stan Smith", price: 95, image: UNSPLASH("photo-1549298916-b41d501d3772", 400, 500), category: "Shoes", shopUrl: "#", originalItemId: "i12", savingsPercent: 78 },
+  ],
+  i13: [
+    { id: "d9", name: "Sequin Column Dress", brand: "Zara", price: 89, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), category: "Dresses", shopUrl: "#", originalItemId: "i13", savingsPercent: 85 },
+  ],
+  i21: [
+    { id: "d10", name: "Merino Turtleneck", brand: "Uniqlo", price: 49, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#", originalItemId: "i21", savingsPercent: 90 },
+  ],
+  i22: [
+    { id: "d11", name: "Wool-Blend Coat", brand: "Mango", price: 149, image: UNSPLASH("photo-1539533018447-63fcce2678e3", 400, 500), category: "Outerwear", shopUrl: "#", originalItemId: "i22", savingsPercent: 83 },
+  ],
+  i29: [
+    { id: "d12", name: "Double-Breasted Blazer", brand: "& Other Stories", price: 149, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#", originalItemId: "i29", savingsPercent: 78 },
+  ],
+  i33: [
+    { id: "d13", name: "Cashmere-Blend Crew", brand: "Quince", price: 89, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#", originalItemId: "i33", savingsPercent: 90 },
+    { id: "d14", name: "Wool Crewneck", brand: "Uniqlo", price: 39, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#", originalItemId: "i33", savingsPercent: 96 },
+  ],
+  i49: [
+    { id: "d15", name: "Draped Satin Gown", brand: "ASOS", price: 120, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), category: "Dresses", shopUrl: "#", originalItemId: "i49", savingsPercent: 96 },
+  ],
+};
+
+export const tagToStyleCategory: Record<string, string> = {
+  "Minimalist": "Minimalist",
+  "Office": "Classic",
+  "Romantic": "Romantic",
+  "Evening": "Romantic",
+  "Streetwear": "Streetwear",
+  "Casual": "Streetwear",
+  "Glamour": "Avant-Garde",
+  "Adventure": "Classic",
+  "Utility": "Classic",
+  "Chic": "Minimalist",
+  "Feminine": "Romantic",
+  "Social": "Romantic",
+  "Tailored": "Classic",
+  "Power": "Classic",
+  "Clean": "Minimalist",
+  "Scandi": "Minimalist",
+  "Quiet Luxury": "Classic",
+  "Investment": "Classic",
+  "Tokyo": "Avant-Garde",
+  "Creative": "Avant-Garde",
+  "Statement": "Avant-Garde",
+  "Corporate": "Classic",
+  "Siren": "Avant-Garde",
+  "Coastal": "Classic",
+  "Festival": "Avant-Garde",
+  "Boho": "Romantic",
+  "Vintage": "Romantic",
+  "Sustainable": "Minimalist",
+};
+
+export function computeStyleMatch(look: Look, styleDNA: StyleDNAEntry[]): number {
+  if (styleDNA.length === 0) return 50;
+  const dnaMap = new Map(styleDNA.map((d) => [d.style, d.percentage]));
+  let matchScore = 0;
+  let tagCount = 0;
+  for (const tag of look.tags) {
+    const category = tagToStyleCategory[tag.label];
+    if (category) {
+      matchScore += dnaMap.get(category) ?? 0;
+      tagCount++;
+    }
+  }
+  if (tagCount === 0) return 50;
+  const raw = matchScore / tagCount;
+  return Math.min(99, Math.max(40, Math.round(raw * 2.2 + 20)));
+}
+
+export function getWhyYoullLoveThis(look: Look, styleDNA: StyleDNAEntry[]): string {
+  if (styleDNA.length === 0) return "A curated look picked just for you.";
+  const dnaMap = new Map(styleDNA.map((d) => [d.style, d.percentage]));
+  const topStyle = [...styleDNA].sort((a, b) => b.percentage - a.percentage)[0];
+
+  const matchingTags = look.tags.filter((t) => {
+    const cat = tagToStyleCategory[t.label];
+    return cat && (dnaMap.get(cat) ?? 0) >= 15;
+  });
+
+  const reasons: Record<string, string[]> = {
+    "Minimalist": ["Plays to your love of clean lines.", "Right in your minimalist sweet spot.", "The restrained palette you gravitate toward."],
+    "Classic": ["Timeless pieces that match your DNA.", "The tailored investment aesthetic you love.", "Classic silhouettes aligned with your taste."],
+    "Romantic": ["The soft, feminine mood you're drawn to.", "Romantic details that suit your style.", "Dreamy textures in your comfort zone."],
+    "Streetwear": ["That effortless edge you're into.", "Urban energy that matches your vibe.", "Street-smart layering you'll reach for."],
+    "Avant-Garde": ["Bold enough for your creative side.", "The statement-making energy you crave.", "Pushes boundaries in the way you like."],
+  };
+
+  if (matchingTags.length > 0) {
+    const cat = tagToStyleCategory[matchingTags[0].label] ?? topStyle.style;
+    const pool = reasons[cat] ?? reasons[topStyle.style] ?? ["Curated to match your style DNA."];
+    const idx = Math.abs(look.id.split("").reduce((a, c) => a + c.charCodeAt(0), 0)) % pool.length;
+    return pool[idx];
+  }
+
+  return `Expanding your ${topStyle.style.toLowerCase()} horizons.`;
+}
