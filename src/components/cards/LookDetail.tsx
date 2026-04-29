@@ -59,9 +59,13 @@ export function LookDetail({ look, onClose, onLookTap }: LookDetailProps) {
     }
   };
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href).catch(() => {});
-    setLinkCopied(true);
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setLinkCopied(true);
+    } catch {
+      setLinkCopied(false);
+    }
     setTimeout(() => {
       setLinkCopied(false);
       setShowShareToast(false);
