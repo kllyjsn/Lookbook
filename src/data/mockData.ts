@@ -13,7 +13,17 @@ export interface LookItem {
   shopUrl: string;
 }
 
-export type MoodFilter = "all" | "minimal" | "romantic" | "street" | "evening" | "classic" | "adventure";
+export type MoodFilter = "all" | "minimal" | "romantic" | "street" | "evening" | "classic" | "adventure" | "trending";
+
+export interface DupeItem {
+  originalItemId: string;
+  name: string;
+  brand: string;
+  price: number;
+  image: string;
+  category: string;
+  shopUrl: string;
+}
 
 export interface Look {
   id: string;
@@ -32,6 +42,10 @@ export interface Look {
   editorsChoice?: boolean;
   mood: MoodFilter;
   badge?: "trending" | "editors-pick" | "new";
+  editorsNote?: string;
+  aesthetic?: string;
+  dupes?: DupeItem[];
+  costPerWearDays?: number;
 }
 
 export interface EventType {
@@ -88,11 +102,19 @@ export const feedLooks: Look[] = [
     trending: true,
     editorsChoice: true,
     mood: "minimal",
+    editorsNote: "This is the outfit that made our entire editorial team rethink their work wardrobe. The COS blazer alone is worth the investment.",
+    aesthetic: "Clean Girl",
+    costPerWearDays: 180,
     items: [
       { id: "i1", name: "Structured Wool Blazer", brand: "COS", price: 275, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#" },
       { id: "i2", name: "Silk Camisole", brand: "Vince", price: 195, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i3", name: "Wide-Leg Trousers", brand: "Theory", price: 325, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
       { id: "i4", name: "Leather Pointed Mules", brand: "Aeyde", price: 345, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+    ],
+    dupes: [
+      { originalItemId: "i1", name: "Structured Blazer", brand: "H&M", price: 59, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#" },
+      { originalItemId: "i2", name: "Satin Cami Top", brand: "Zara", price: 29, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
+      { originalItemId: "i3", name: "Wide-Leg Pants", brand: "Uniqlo", price: 49, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
     ],
   },
   {
@@ -113,6 +135,9 @@ export const feedLooks: Look[] = [
     likes: 9800,
     trending: true,
     mood: "romantic",
+    aesthetic: "Coquette",
+    editorsNote: "Golden hour in a dress. The Reformation midi is doing more work than your entire closet combined.",
+    costPerWearDays: 45,
     items: [
       { id: "i5", name: "Flowing Midi Dress", brand: "Reformation", price: 248, image: UNSPLASH("photo-1595777457583-95e059d581b8", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i6", name: "Strappy Heeled Sandals", brand: "By Far", price: 420, image: UNSPLASH("photo-1603487742131-4160ec999306", 400, 500), category: "Shoes", shopUrl: "#" },
@@ -139,6 +164,8 @@ export const feedLooks: Look[] = [
     likes: 18400,
     trending: true,
     mood: "street",
+    aesthetic: "Gorpcore",
+    costPerWearDays: 200,
     items: [
       { id: "i9", name: "Oversized Cotton Tee", brand: "Aritzia", price: 58, image: UNSPLASH("photo-1521572163474-6864f9cf17ab", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i10", name: "Leather Moto Jacket", brand: "AllSaints", price: 499, image: UNSPLASH("photo-1551028719-00167b16eac5", 400, 500), category: "Outerwear", shopUrl: "#" },
@@ -287,6 +314,9 @@ export const feedLooks: Look[] = [
     likes: 22100,
     trending: true,
     mood: "classic",
+    aesthetic: "Old Money",
+    editorsNote: "The ultimate stealth flex. Everyone will assume you're old money. That's the point.",
+    costPerWearDays: 365,
     items: [
       { id: "i33", name: "Cashmere Crew", brand: "The Row", price: 890, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i34", name: "Wool Palazzo Pants", brand: "Toteme", price: 450, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -467,10 +497,258 @@ export const feedLooks: Look[] = [
       { id: "i64", name: "Layered Necklaces", brand: "Missoma", price: 89, image: UNSPLASH("photo-1599643478518-a784e5dc4c8f", 400, 500), category: "Accessories", shopUrl: "#" },
     ],
   },
+  {
+    id: "look-17",
+    image: UNSPLASH("photo-1544957992-20514f595d6f", 800, 1200),
+    title: "Mob Wife Aesthetic",
+    subtitle: "Fur, gold, attitude",
+    photographer: "Vogue Italia",
+    badge: "trending",
+    tags: [
+      { label: "Glamour", color: "#C5A572" },
+      { label: "Statement", color: "#C4797A" },
+    ],
+    occasion: "Any",
+    priceRange: "$200 – $1,500",
+    season: "Fall/Winter",
+    description:
+      "Leopard print, oversized fur, chunky gold — the Mob Wife aesthetic is unapologetically maximalist. Soprano-coded and proud of it.",
+    likes: 34200,
+    trending: true,
+    mood: "trending",
+    aesthetic: "Mob Wife",
+    editorsNote: "The biggest TikTok aesthetic of the year. Think Carmela Soprano meets modern power dressing. More is more.",
+    costPerWearDays: 90,
+    items: [
+      { id: "i65", name: "Faux Fur Coat", brand: "Stand Studio", price: 595, image: UNSPLASH("photo-1539533018447-63fcce2678e3", 400, 500), category: "Outerwear", shopUrl: "#" },
+      { id: "i66", name: "Leopard Print Dress", brand: "Dolce & Gabbana", price: 1290, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), category: "Dresses", shopUrl: "#" },
+      { id: "i67", name: "Gold Chain Belt", brand: "Chanel", price: 890, image: UNSPLASH("photo-1599643478518-a784e5dc4c8f", 400, 500), category: "Accessories", shopUrl: "#" },
+      { id: "i68", name: "Pointed Leather Boots", brand: "Paris Texas", price: 580, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+    ],
+    dupes: [
+      { originalItemId: "i65", name: "Faux Fur Jacket", brand: "Mango", price: 89, image: UNSPLASH("photo-1539533018447-63fcce2678e3", 400, 500), category: "Outerwear", shopUrl: "#" },
+      { originalItemId: "i66", name: "Leopard Midi Dress", brand: "Zara", price: 49, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), category: "Dresses", shopUrl: "#" },
+      { originalItemId: "i67", name: "Gold Chain Belt", brand: "H&M", price: 19, image: UNSPLASH("photo-1599643478518-a784e5dc4c8f", 400, 500), category: "Accessories", shopUrl: "#" },
+    ],
+  },
+  {
+    id: "look-18",
+    image: UNSPLASH("photo-1529139574466-a303027c1d8b", 800, 1200),
+    title: "Coquette Era",
+    subtitle: "Bows, blush, and ballet flats",
+    photographer: "Vogue Paris",
+    badge: "trending",
+    tags: [
+      { label: "Feminine", color: "#E8D5D0" },
+      { label: "Romantic", color: "#C4797A" },
+    ],
+    occasion: "Date Night",
+    priceRange: "$100 – $600",
+    season: "Spring/Summer",
+    description:
+      "Hyper-feminine, ribbon-wrapped, unapologetically girly. The coquette trend reclaims softness as a power move.",
+    likes: 28900,
+    trending: true,
+    mood: "trending",
+    aesthetic: "Coquette",
+    editorsNote: "Not your grandmother's feminine — this is weaponized softness. The ballet flats are doing heavy lifting.",
+    costPerWearDays: 60,
+    items: [
+      { id: "i69", name: "Bow-Detail Blouse", brand: "Simone Rocha", price: 540, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
+      { id: "i70", name: "Tulle Mini Skirt", brand: "Molly Goddard", price: 380, image: UNSPLASH("photo-1583496661160-fb5886a0aabd", 400, 500), category: "Bottoms", shopUrl: "#" },
+      { id: "i71", name: "Satin Ballet Flats", brand: "Repetto", price: 295, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+      { id: "i72", name: "Pearl Bow Earrings", brand: "Shrimps", price: 165, image: UNSPLASH("photo-1535632066927-ab7c9ab60908", 400, 500), category: "Accessories", shopUrl: "#" },
+    ],
+    dupes: [
+      { originalItemId: "i69", name: "Bow Blouse", brand: "& Other Stories", price: 59, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
+      { originalItemId: "i71", name: "Ballet Flats", brand: "H&M", price: 24, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+    ],
+  },
+  {
+    id: "look-19",
+    image: UNSPLASH("photo-1509631179647-0177331693ae", 800, 1200),
+    title: "Clean Girl",
+    subtitle: "Slick back, glow up",
+    photographer: "The Zoe Report",
+    badge: "trending",
+    tags: [
+      { label: "Minimalist", color: "#1A1A1A" },
+      { label: "Clean", color: "#8A8A8A" },
+    ],
+    occasion: "Any",
+    priceRange: "$50 – $300",
+    season: "All Season",
+    description:
+      "Glazed skin, slicked hair, gold hoops, matching set. The Clean Girl aesthetic is proof that less really is more.",
+    likes: 42100,
+    trending: true,
+    mood: "trending",
+    aesthetic: "Clean Girl",
+    editorsNote: "The most democratic aesthetic on TikTok — achievable at every price point. It's about grooming, not spending.",
+    costPerWearDays: 300,
+    items: [
+      { id: "i73", name: "Ribbed Matching Set", brand: "Skims", price: 96, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
+      { id: "i74", name: "Gold Hoop Earrings", brand: "Mejuri", price: 68, image: UNSPLASH("photo-1535632066927-ab7c9ab60908", 400, 500), category: "Accessories", shopUrl: "#" },
+      { id: "i75", name: "White Leather Sneakers", brand: "Veja", price: 150, image: UNSPLASH("photo-1549298916-b41d501d3772", 400, 500), category: "Shoes", shopUrl: "#" },
+      { id: "i76", name: "Mini Crossbody", brand: "Polene", price: 290, image: UNSPLASH("photo-1548036328-c9fa89d128fa", 400, 500), category: "Bags", shopUrl: "#" },
+    ],
+  },
+  {
+    id: "look-20",
+    image: UNSPLASH("photo-1550614000-4895a10e1bfd", 800, 1200),
+    title: "Corporate Siren",
+    subtitle: "The office is your runway",
+    photographer: "Business of Fashion",
+    badge: "trending",
+    tags: [
+      { label: "Corporate", color: "#1A1A1A" },
+      { label: "Siren", color: "#C4797A" },
+    ],
+    occasion: "Work",
+    priceRange: "$200 – $900",
+    season: "All Season",
+    description:
+      "Pencil skirts with edge, sheer layers, and heels that mean business. The Corporate Siren makes 9-to-5 look like a fashion show.",
+    likes: 31400,
+    trending: true,
+    mood: "trending",
+    aesthetic: "Corporate Siren",
+    editorsNote: "The antidote to quiet luxury. Corporate Siren says 'I'm here, I'm powerful, and I dressed intentionally.' TikTok's #1 workwear trend.",
+    costPerWearDays: 200,
+    items: [
+      { id: "i77", name: "Fitted Blazer", brand: "Mugler", price: 790, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#" },
+      { id: "i78", name: "Sheer Mesh Top", brand: "Wolford", price: 250, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
+      { id: "i79", name: "High-Waist Pencil Skirt", brand: "Saint Laurent", price: 890, image: UNSPLASH("photo-1583496661160-fb5886a0aabd", 400, 500), category: "Bottoms", shopUrl: "#" },
+      { id: "i80", name: "Pointed Stilettos", brand: "Jimmy Choo", price: 650, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+    ],
+    dupes: [
+      { originalItemId: "i77", name: "Fitted Blazer", brand: "Zara", price: 69, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#" },
+      { originalItemId: "i79", name: "Pencil Skirt", brand: "H&M", price: 34, image: UNSPLASH("photo-1583496661160-fb5886a0aabd", 400, 500), category: "Bottoms", shopUrl: "#" },
+    ],
+  },
+  {
+    id: "look-21",
+    image: UNSPLASH("photo-1519764622345-23439dd774f7", 800, 1200),
+    title: "Old Money Summer",
+    subtitle: "Yacht club casual",
+    photographer: "Town & Country",
+    badge: "editors-pick",
+    tags: [
+      { label: "Quiet Luxury", color: "#C5A572" },
+      { label: "Coastal", color: "#A8B5A0" },
+    ],
+    occasion: "Travel",
+    priceRange: "$150 – $800",
+    season: "Spring/Summer",
+    description:
+      "Think Riviera, not runway. Unbranded linen, brown leather, and a tan that says 'I summer as a verb.'",
+    likes: 26800,
+    trending: true,
+    editorsChoice: true,
+    mood: "trending",
+    aesthetic: "Old Money",
+    editorsNote: "The crossover between Quiet Luxury and Coastal Grandmother that nobody asked for but everyone needed. Pure elegance.",
+    costPerWearDays: 120,
+    items: [
+      { id: "i81", name: "Linen Camp Shirt", brand: "Loro Piana", price: 645, image: UNSPLASH("photo-1596755094514-f87e34085b2c", 400, 500), category: "Tops", shopUrl: "#" },
+      { id: "i82", name: "Pleated Linen Shorts", brand: "Brunello Cucinelli", price: 590, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
+      { id: "i83", name: "Leather Slide Sandals", brand: "The Row", price: 790, image: UNSPLASH("photo-1603487742131-4160ec999306", 400, 500), category: "Shoes", shopUrl: "#" },
+      { id: "i84", name: "Woven Leather Belt", brand: "Bottega Veneta", price: 650, image: UNSPLASH("photo-1599643478518-a784e5dc4c8f", 400, 500), category: "Accessories", shopUrl: "#" },
+    ],
+    dupes: [
+      { originalItemId: "i81", name: "Linen Camp Collar Shirt", brand: "Mango", price: 49, image: UNSPLASH("photo-1596755094514-f87e34085b2c", 400, 500), category: "Tops", shopUrl: "#" },
+      { originalItemId: "i82", name: "Linen Shorts", brand: "Uniqlo", price: 29, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
+      { originalItemId: "i83", name: "Leather Slides", brand: "H&M", price: 29, image: UNSPLASH("photo-1603487742131-4160ec999306", 400, 500), category: "Shoes", shopUrl: "#" },
+    ],
+  },
+  {
+    id: "look-22",
+    image: UNSPLASH("photo-1506152983158-b4a74a01c721", 800, 1200),
+    title: "Eclectic Grandpa",
+    subtitle: "Thrift king energy",
+    photographer: "GQ Style",
+    badge: "new",
+    tags: [
+      { label: "Vintage", color: "#8A8A8A" },
+      { label: "Creative", color: "#B8A9C9" },
+    ],
+    occasion: "Weekend",
+    priceRange: "$50 – $400",
+    season: "All Season",
+    description:
+      "Oversized knits, vintage corduroys, New Balance dads, and a coffee-stained novel. The Eclectic Grandpa doesn't try — that's the whole point.",
+    likes: 19700,
+    trending: true,
+    mood: "trending",
+    aesthetic: "Eclectic Grandpa",
+    editorsNote: "Gen Z's most wholesome trend. Raid your grandfather's closet or hit the thrift store. Either way, you'll look effortlessly cool.",
+    costPerWearDays: 250,
+    items: [
+      { id: "i85", name: "Oversized Cardigan", brand: "Corridor", price: 298, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
+      { id: "i86", name: "Corduroy Trousers", brand: "A Kind of Guise", price: 240, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
+      { id: "i87", name: "New Balance 990v6", brand: "New Balance", price: 199, image: UNSPLASH("photo-1549298916-b41d501d3772", 400, 500), category: "Shoes", shopUrl: "#" },
+      { id: "i88", name: "Leather Messenger Bag", brand: "Filson", price: 395, image: UNSPLASH("photo-1548036328-c9fa89d128fa", 400, 500), category: "Bags", shopUrl: "#" },
+    ],
+  },
+];
+
+export const trendingAesthetics = [
+  {
+    id: "aesthetic-1",
+    name: "Mob Wife",
+    description: "Leopard, fur, gold. Unapologetically maximalist.",
+    gradient: "from-amber-900 via-yellow-800 to-amber-700",
+    views: "2.4B",
+    lookIds: ["look-17", "look-4", "look-13"],
+  },
+  {
+    id: "aesthetic-2",
+    name: "Coquette",
+    description: "Bows, ballet flats, weaponized femininity.",
+    gradient: "from-pink-200 via-rose-200 to-pink-100",
+    textDark: true,
+    views: "1.8B",
+    lookIds: ["look-18", "look-2", "look-7"],
+  },
+  {
+    id: "aesthetic-3",
+    name: "Clean Girl",
+    description: "Slicked hair, gold hoops, matching sets.",
+    gradient: "from-stone-200 via-neutral-100 to-stone-50",
+    textDark: true,
+    views: "3.1B",
+    lookIds: ["look-19", "look-1", "look-10"],
+  },
+  {
+    id: "aesthetic-4",
+    name: "Corporate Siren",
+    description: "Office siren energy. Pencil skirts with edge.",
+    gradient: "from-gray-900 via-gray-800 to-red-900",
+    views: "890M",
+    lookIds: ["look-20", "look-15", "look-8"],
+  },
+  {
+    id: "aesthetic-5",
+    name: "Old Money",
+    description: "Unbranded, impeccable, devastatingly expensive-looking.",
+    gradient: "from-amber-100 via-stone-200 to-amber-50",
+    textDark: true,
+    views: "4.2B",
+    lookIds: ["look-21", "look-9", "look-14"],
+  },
+  {
+    id: "aesthetic-6",
+    name: "Eclectic Grandpa",
+    description: "Vintage knits, corduroys, zero effort.",
+    gradient: "from-emerald-800 via-stone-700 to-amber-800",
+    views: "670M",
+    lookIds: ["look-22", "look-3", "look-5"],
+  },
 ];
 
 export const moodFilters: { id: MoodFilter; label: string; emoji: string }[] = [
   { id: "all", label: "All", emoji: "" },
+  { id: "trending", label: "Trending", emoji: "" },
   { id: "minimal", label: "Minimal", emoji: "" },
   { id: "romantic", label: "Romantic", emoji: "" },
   { id: "street", label: "Street", emoji: "" },

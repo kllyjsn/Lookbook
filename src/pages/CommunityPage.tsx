@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, BadgeCheck, Sparkles, Clock } from "lucide-react";
+import { Search, BadgeCheck, Sparkles, Clock, TrendingUp, Eye } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { PostCard } from "../components/community/PostCard";
 import { CreatorProfile } from "../components/community/CreatorProfile";
@@ -11,6 +11,9 @@ import { ProductCard } from "../components/cards/ProductCard";
 import { useStore } from "../stores/useStore";
 import { creators, communityPosts, mustHaveLists } from "../data/communityData";
 import type { Creator, CommunityPost, MustHaveList } from "../data/communityData";
+import { trendingAesthetics, feedLooks } from "../data/mockData";
+import type { Look } from "../data/mockData";
+import { LookDetail } from "../components/cards/LookDetail";
 
 
 type CommunityTab = "forYou" | "following" | "mustHaves";
@@ -69,6 +72,7 @@ export function CommunityPage() {
   const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null);
   const [selectedMustHave, setSelectedMustHave] = useState<MustHaveList | null>(null);
   const [shopPost, setShopPost] = useState<CommunityPost | null>(null);
+  const [selectedLook, setSelectedLook] = useState<Look | null>(null);
 
   const followedCreators = useStore((s) => s.followedCreators);
 
@@ -189,6 +193,51 @@ export function CommunityPage() {
                     </div>
                   </div>
                 </motion.div>
+              </div>
+            )}
+
+            {/* Trending Aesthetics carousel (For You only) */}
+            {activeTab === "forYou" && (
+              <div className="mb-6">
+                <div className="px-6 mb-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp size={14} className="text-rose" />
+                    <h2 className="text-xs font-inter font-semibold tracking-[0.12em] uppercase text-ink-muted">
+                      Trending Aesthetics
+                    </h2>
+                  </div>
+                  <span className="text-[9px] font-inter text-ink-muted tracking-wider uppercase">
+                    On TikTok now
+                  </span>
+                </div>
+                <div className="flex gap-3 overflow-x-auto px-6 pb-2 no-select" style={{ scrollbarWidth: "none" }}>
+                  {trendingAesthetics.map((aesthetic, i) => (
+                    <motion.div
+                      key={aesthetic.id}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.06 }}
+                      className={`flex-shrink-0 w-36 h-24 rounded-xl bg-gradient-to-br ${aesthetic.gradient} p-3 flex flex-col justify-between cursor-pointer`}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => {
+                        const look = feedLooks.find((l) => l.id === aesthetic.lookIds[0]);
+                        if (look) {
+                          setSelectedLook(look);
+                        }
+                      }}
+                    >
+                      <h3 className={`font-editorial text-base leading-tight ${aesthetic.textDark ? "text-ink" : "text-white"}`}>
+                        {aesthetic.name}
+                      </h3>
+                      <div className="flex items-center gap-1">
+                        <Eye size={10} className={aesthetic.textDark ? "text-ink/50" : "text-white/60"} />
+                        <span className={`text-[9px] font-inter font-medium ${aesthetic.textDark ? "text-ink/50" : "text-white/60"}`}>
+                          {aesthetic.views} views
+                        </span>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -388,6 +437,16 @@ export function CommunityPage() {
             key={shopPost.id}
             post={shopPost}
             onClose={() => setShopPost(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {selectedLook && (
+          <LookDetail
+            key={selectedLook.id}
+            look={selectedLook}
+            onClose={() => setSelectedLook(null)}
           />
         )}
       </AnimatePresence>

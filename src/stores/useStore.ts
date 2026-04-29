@@ -17,6 +17,15 @@ interface AppState {
   activeMoodFilter: MoodFilter;
   setActiveMoodFilter: (mood: MoodFilter) => void;
 
+  // Style streak
+  styleStreak: number;
+  lastStreakDate: string | null;
+  checkAndUpdateStreak: () => void;
+
+  // Outfit ratings
+  outfitRatings: Record<string, number>;
+  rateOutfit: (lookId: string, rating: number) => void;
+
   // Liked / passed looks
   likedLooks: Look[];
   passedLooks: Look[];
@@ -144,6 +153,23 @@ export const useStore = create<AppState>()(
       setCurrentFeedIndex: (index) => set({ currentFeedIndex: index }),
       activeMoodFilter: "all" as MoodFilter,
       setActiveMoodFilter: (mood) => set({ activeMoodFilter: mood, currentFeedIndex: 0, lastSwipedLook: null, lastSwipeAction: null }),
+
+      styleStreak: 0,
+      lastStreakDate: null,
+      checkAndUpdateStreak: () =>
+        set((state) => {
+          const today = new Date().toLocaleDateString('en-CA');
+          if (state.lastStreakDate === today) return state;
+          const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-CA');
+          const newStreak = state.lastStreakDate === yesterday ? state.styleStreak + 1 : 1;
+          return { styleStreak: newStreak, lastStreakDate: today };
+        }),
+
+      outfitRatings: {},
+      rateOutfit: (lookId, rating) =>
+        set((state) => ({
+          outfitRatings: { ...state.outfitRatings, [lookId]: rating },
+        })),
 
       likedLooks: [],
       passedLooks: [],
@@ -280,6 +306,9 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        styleStreak: state.styleStreak,
+        lastStreakDate: state.lastStreakDate,
+        outfitRatings: state.outfitRatings,
       }),
     }
   )

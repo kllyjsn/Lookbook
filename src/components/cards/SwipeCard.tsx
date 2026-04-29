@@ -209,7 +209,12 @@ export function SwipeCard({
         {/* Bottom gradient + content */}
         <div className="absolute inset-x-0 bottom-0 gradient-bottom p-6 pb-8">
           <div className="space-y-3">
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
+              {look.aesthetic && (
+                <span className="text-[10px] font-inter font-semibold tracking-[0.15em] uppercase text-white bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
+                  {look.aesthetic}
+                </span>
+              )}
               {look.tags.map((tag) => (
                 <span
                   key={tag.label}
