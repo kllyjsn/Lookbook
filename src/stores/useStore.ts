@@ -158,9 +158,9 @@ export const useStore = create<AppState>()(
       lastStreakDate: null,
       checkAndUpdateStreak: () =>
         set((state) => {
-          const today = new Date().toISOString().slice(0, 10);
+          const today = new Date().toLocaleDateString('en-CA');
           if (state.lastStreakDate === today) return state;
-          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+          const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('en-CA');
           const newStreak = state.lastStreakDate === yesterday ? state.styleStreak + 1 : 1;
           return { styleStreak: newStreak, lastStreakDate: today };
         }),

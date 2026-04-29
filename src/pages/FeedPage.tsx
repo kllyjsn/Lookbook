@@ -127,15 +127,18 @@ export function FeedPage() {
 
   const handleDoubleTap = useCallback(() => {
     likeLook(currentLook);
-  }, [currentLook, likeLook]);
+    if ((currentFeedIndex + 1) % 4 === 0) setShowRating(true);
+  }, [currentLook, likeLook, currentFeedIndex]);
 
   const handleButtonLike = useCallback(() => {
     likeLook(currentLook);
-  }, [currentLook, likeLook]);
+    if ((currentFeedIndex + 1) % 4 === 0) setShowRating(true);
+  }, [currentLook, likeLook, currentFeedIndex]);
 
   const handleButtonPass = useCallback(() => {
     passLook(currentLook);
-  }, [currentLook, passLook]);
+    if ((currentFeedIndex + 1) % 4 === 0) setShowRating(true);
+  }, [currentLook, passLook, currentFeedIndex]);
 
   const handleButtonShop = useCallback(() => {
     setShowLookDetail(currentLook);
