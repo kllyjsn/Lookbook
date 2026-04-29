@@ -12,6 +12,8 @@ import { useStore } from "../stores/useStore";
 import { creators, communityPosts, mustHaveLists } from "../data/communityData";
 import type { Creator, CommunityPost, MustHaveList } from "../data/communityData";
 import { trendingAesthetics, feedLooks } from "../data/mockData";
+import type { Look } from "../data/mockData";
+import { LookDetail } from "../components/cards/LookDetail";
 
 
 type CommunityTab = "forYou" | "following" | "mustHaves";
@@ -70,6 +72,7 @@ export function CommunityPage() {
   const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null);
   const [selectedMustHave, setSelectedMustHave] = useState<MustHaveList | null>(null);
   const [shopPost, setShopPost] = useState<CommunityPost | null>(null);
+  const [selectedLook, setSelectedLook] = useState<Look | null>(null);
 
   const followedCreators = useStore((s) => s.followedCreators);
 
@@ -219,8 +222,7 @@ export function CommunityPage() {
                       onClick={() => {
                         const look = feedLooks.find((l) => l.id === aesthetic.lookIds[0]);
                         if (look) {
-                          const setShowLookDetail = useStore.getState().setShowLookDetail;
-                          setShowLookDetail(look);
+                          setSelectedLook(look);
                         }
                       }}
                     >
@@ -435,6 +437,16 @@ export function CommunityPage() {
             key={shopPost.id}
             post={shopPost}
             onClose={() => setShopPost(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {selectedLook && (
+          <LookDetail
+            key={selectedLook.id}
+            look={selectedLook}
+            onClose={() => setSelectedLook(null)}
           />
         )}
       </AnimatePresence>
