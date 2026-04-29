@@ -105,7 +105,7 @@ export function FeedPage() {
     [currentFeedIndex, filteredLooks]
   );
 
-  const shouldShowRating = currentFeedIndex > 0 && currentFeedIndex % 4 === 0 && !outfitRatings[currentLook?.id];
+  const shouldShowRating = currentFeedIndex > 0 && currentFeedIndex % 4 === 0 && lastSwipedLook && !outfitRatings[lastSwipedLook.id];
 
   const handleSwipeRight = useCallback(() => {
     likeLook(currentLook);
@@ -291,7 +291,7 @@ export function FeedPage() {
               {showRating && shouldShowRating && (
                 <OutfitRatingCard
                   onRate={(rating) => {
-                    rateOutfit(currentLook.id, rating);
+                    if (lastSwipedLook) rateOutfit(lastSwipedLook.id, rating);
                     setShowRating(false);
                   }}
                 />
