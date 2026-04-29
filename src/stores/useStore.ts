@@ -69,6 +69,7 @@ interface AppState {
   swipeStreak: number;
   lastSwipeDate: string | null;
   totalSwipes: number;
+  prevSwipeStats: { swipeStreak: number; lastSwipeDate: string | null; totalSwipes: number } | null;
   recordSwipe: () => void;
 
   // Toast
@@ -212,6 +213,8 @@ export const useStore = create<AppState>()(
             lastSwipedLook: null,
             lastSwipeAction: null,
             styleDNA: computeDNA(newLiked),
+            ...(state.prevSwipeStats ?? {}),
+            prevSwipeStats: null,
           };
         }),
 
@@ -281,6 +284,7 @@ export const useStore = create<AppState>()(
       swipeStreak: 0,
       lastSwipeDate: null,
       totalSwipes: 0,
+      prevSwipeStats: null,
       recordSwipe: () =>
         set((state) => {
           const now = new Date();
@@ -295,6 +299,11 @@ export const useStore = create<AppState>()(
                 ? state.swipeStreak + 1
                 : 1;
           return {
+            prevSwipeStats: {
+              swipeStreak: state.swipeStreak,
+              lastSwipeDate: state.lastSwipeDate,
+              totalSwipes: state.totalSwipes,
+            },
             swipeStreak: newStreak,
             lastSwipeDate: today,
             totalSwipes: state.totalSwipes + 1,

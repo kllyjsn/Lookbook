@@ -90,10 +90,18 @@ export function FeedPage() {
     setShowLookDetail(currentLook);
   }, [currentLook, setShowLookDetail]);
 
+  const collections = useStore((s) => s.collections);
+  const isSaved = useMemo(() => {
+    const fav = collections.find((c) => c.id === "favorites");
+    return fav ? fav.looks.some((l) => l.id === currentLook.id) : false;
+  }, [collections, currentLook]);
+
   const handleButtonSave = useCallback(() => {
-    addToCollection("favorites", currentLook);
-    showToast("Saved to Favorites", "save");
-  }, [currentLook, addToCollection, showToast]);
+    if (!isSaved) {
+      addToCollection("favorites", currentLook);
+      showToast("Saved to Favorites", "save");
+    }
+  }, [currentLook, addToCollection, showToast, isSaved]);
 
   const handleMoodFilter = useCallback(
     (mood: MoodFilter) => {
