@@ -349,6 +349,7 @@ export function StylistPage() {
             key={selectedLook.id}
             look={selectedLook}
             onClose={() => setSelectedLook(null)}
+            onLookTap={(l) => setSelectedLook(l)}
           />
         )}
       </AnimatePresence>
