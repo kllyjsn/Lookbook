@@ -25,6 +25,7 @@ const tagToStyle: Record<string, string> = {
   "Corporate": "Classic",
   "Siren": "Avant-Garde",
   "Coastal": "Classic",
+  "Classic": "Classic",
   "Festival": "Avant-Garde",
   "Boho": "Romantic",
   "Vintage": "Romantic",
