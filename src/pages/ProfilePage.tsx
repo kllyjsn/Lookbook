@@ -1,17 +1,23 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2 } from "lucide-react";
+import { Settings, Heart, Bookmark, ChevronRight, Grid3X3, List, Plus, Trash2, Sun, Gem, Target, Zap, Filter, Sparkles } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
 import { LookDetail } from "../components/cards/LookDetail";
 import type { Look } from "../data/mockData";
+import { generateDynamicInsights } from "../lib/styleUtils";
+
+const insightIconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+  heart: Heart, sun: Sun, gem: Gem, target: Target, zap: Zap, filter: Filter, sparkles: Sparkles, bookmark: Bookmark,
+};
 
 type ProfileSection = "dna" | "liked" | "collections";
 
 export function ProfilePage() {
   const styleDNA = useStore((s) => s.styleDNA);
   const likedLooks = useStore((s) => s.likedLooks);
+  const passedLooks = useStore((s) => s.passedLooks);
   const collections = useStore((s) => s.collections);
   const createCollection = useStore((s) => s.createCollection);
   const removeFromCollection = useStore((s) => s.removeFromCollection);
@@ -21,6 +27,10 @@ export function ProfilePage() {
   const [isGridView, setIsGridView] = useState(true);
   const [showNewCollection, setShowNewCollection] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState("");
+
+  const dynamicInsights = useMemo(() => {
+    return generateDynamicInsights(likedLooks, passedLooks, styleDNA);
+  }, [likedLooks, passedLooks, styleDNA]);
 
   const handleCreateCollection = () => {
     if (newCollectionName.trim()) {
@@ -99,44 +109,31 @@ export function ProfilePage() {
                   Style Insights
                 </h3>
                 <div className="space-y-3">
-                  {[
-                    {
-                      icon: Heart,
-                      title: "You lean toward clean lines",
-                      desc: "Minimalist and classic pieces dominate your preferences",
-                    },
-                    {
-                      icon: Clock,
-                      title: "Seasonal shift detected",
-                      desc: "Your style has been evolving toward warmer tones",
-                    },
-                    {
-                      icon: Bookmark,
-                      title: "Investment pieces",
-                      desc: "You favor quality over quantity — great for capsule building",
-                    },
-                  ].map((insight, i) => (
-                    <motion.div
-                      key={insight.title}
-                      initial={{ opacity: 0, x: -15 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.1 + 0.3 }}
-                      className="flex gap-3 p-4 rounded-xl bg-ivory"
-                    >
-                      <insight.icon
-                        size={18}
-                        className="text-gold flex-shrink-0 mt-0.5"
-                      />
-                      <div>
-                        <p className="text-sm font-inter font-medium text-ink">
-                          {insight.title}
-                        </p>
-                        <p className="text-xs font-inter text-ink-muted mt-0.5">
-                          {insight.desc}
-                        </p>
-                      </div>
-                    </motion.div>
-                  ))}
+                  {dynamicInsights.map((insight, i) => {
+                    const IconComponent = insightIconMap[insight.icon] ?? Heart;
+                    return (
+                      <motion.div
+                        key={insight.title}
+                        initial={{ opacity: 0, x: -15 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.1 + 0.3 }}
+                        className="flex gap-3 p-4 rounded-xl bg-ivory"
+                      >
+                        <IconComponent
+                          size={18}
+                          className="text-gold flex-shrink-0 mt-0.5"
+                        />
+                        <div>
+                          <p className="text-sm font-inter font-medium text-ink">
+                            {insight.title}
+                          </p>
+                          <p className="text-xs font-inter text-ink-muted mt-0.5">
+                            {insight.desc}
+                          </p>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
                 </div>
               </div>
             </motion.div>

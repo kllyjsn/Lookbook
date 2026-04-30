@@ -1,7 +1,9 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion";
-import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2 } from "lucide-react";
+import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2, Fingerprint } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { useStore } from "../../stores/useStore";
+import { computeStyleMatch } from "../../lib/styleUtils";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -23,6 +25,26 @@ interface SwipeCardProps {
   onTap: () => void;
   onDoubleTap: () => void;
   isTop: boolean;
+}
+
+function StyleMatchBadge({ look }: { look: Look }) {
+  const styleDNA = useStore((s) => s.styleDNA);
+  const match = computeStyleMatch(look, styleDNA);
+  const tier = match >= 80 ? "high" : match >= 55 ? "mid" : "low";
+  const tierColors = {
+    high: "from-gold/90 to-gold-light/90 text-white",
+    mid: "from-white/25 to-white/15 text-white",
+    low: "from-white/15 to-white/10 text-white/70",
+  };
+
+  return (
+    <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r ${tierColors[tier]} backdrop-blur-sm`}>
+      <Fingerprint size={10} />
+      <span className="text-[9px] font-inter font-semibold tracking-wider">
+        {match}% MATCH
+      </span>
+    </div>
+  );
 }
 
 export function SwipeCard({
@@ -238,6 +260,9 @@ export function SwipeCard({
               <span className="text-xs font-inter text-white/50">
                 {look.items.length} pieces
               </span>
+            </div>
+            <div className="pt-2">
+              <StyleMatchBadge look={look} />
             </div>
           </div>
         </div>

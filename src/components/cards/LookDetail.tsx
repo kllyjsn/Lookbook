@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
+import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp, Fingerprint, ChevronRight } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { feedLooks } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
 import { useStore } from "../../stores/useStore";
+import { computeStyleMatch, findSimilarLooks } from "../../lib/styleUtils";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -17,12 +19,23 @@ interface LookDetailProps {
   onClose: () => void;
 }
 
+function generateStyleWith(items: Look["items"], currentIndex: number): string[] {
+  return items
+    .filter((_, i) => i !== currentIndex)
+    .slice(0, 2)
+    .map((i) => i.name);
+}
+
 export function LookDetail({ look, onClose }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
+  const setShowLookDetail = useStore((s) => s.setShowLookDetail);
+  const styleDNA = useStore((s) => s.styleDNA);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+  const styleMatch = computeStyleMatch(look, styleDNA);
+  const similarLooks = useMemo(() => findSimilarLooks(look, feedLooks, 4), [look]);
 
   return (
     <AnimatePresence>
@@ -97,7 +110,18 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               ))}
             </div>
 
-            {/* Engagement stats */}
+            {/* Style Match + Engagement stats */}
+            <div className="flex items-center gap-3 mb-3">
+              <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full ${
+                styleMatch >= 80 ? "bg-gold/10 text-gold" : styleMatch >= 55 ? "bg-ink/5 text-ink" : "bg-ink/5 text-ink-muted"
+              }`}>
+                <Fingerprint size={12} />
+                <span className="text-xs font-inter font-semibold">{styleMatch}% Match</span>
+              </div>
+              <span className="text-[10px] font-inter text-ink-muted italic">
+                {styleMatch >= 80 ? "This is so you" : styleMatch >= 55 ? "Worth exploring" : "Something different"}
+              </span>
+            </div>
             <div className="flex items-center gap-4 mb-5">
               <span className="flex items-center gap-1.5 text-sm font-inter text-ink-muted">
                 <Heart size={14} className="text-rose" fill="currentColor" />
@@ -183,10 +207,52 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 {look.items.map((item, i) => (
-                  <ProductCard key={item.id} item={item} index={i} />
+                  <ProductCard
+                    key={item.id}
+                    item={item}
+                    index={i}
+                    showStyleWith={generateStyleWith(look.items, i)}
+                  />
                 ))}
               </div>
             </div>
+
+            {/* You Might Also Love */}
+            {similarLooks.length > 0 && (
+              <div className="mb-10">
+                <div className="flex items-center gap-3 mb-6">
+                  <Heart size={18} className="text-rose" />
+                  <h3 className="font-editorial text-xl text-ink">You Might Also Love</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {similarLooks.map((similar, i) => (
+                    <motion.div
+                      key={similar.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.08 }}
+                      onClick={() => setShowLookDetail(similar)}
+                      className="group cursor-pointer"
+                    >
+                      <div className="relative aspect-[3/4] rounded-xl overflow-hidden">
+                        <img
+                          src={similar.image}
+                          alt={similar.title}
+                          className="img-editorial group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-x-0 bottom-0 gradient-bottom p-3">
+                          <p className="text-white text-xs font-inter font-medium">{similar.title}</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-white/50 text-[10px] font-inter">{similar.occasion}</span>
+                            <ChevronRight size={10} className="text-white/40" />
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Photographer credit */}
             {look.photographer && (

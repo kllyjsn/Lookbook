@@ -2,14 +2,17 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
 import type { LookItem } from "../../data/mockData";
+import { computeCostPerWear } from "../../lib/styleUtils";
 
 interface ProductCardProps {
   item: LookItem;
   index: number;
+  showStyleWith?: string[];
 }
 
-export function ProductCard({ item, index }: ProductCardProps) {
+export function ProductCard({ item, index, showStyleWith }: ProductCardProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
+  const { cpw, wears } = computeCostPerWear(item.price, item.category);
 
   return (
     <motion.div
@@ -44,11 +47,21 @@ export function ProductCard({ item, index }: ProductCardProps) {
         </div>
       </div>
       <div className="space-y-0.5">
-        <p className="text-[11px] font-inter tracking-[0.1em] uppercase text-ink-muted">
+        <p className="text-[11px] font-inter tracking-[0.15em] uppercase text-gold font-semibold">
           {item.brand}
         </p>
         <p className="text-sm font-inter text-ink leading-snug">{item.name}</p>
-        <p className="text-sm font-inter font-medium text-ink">${item.price}</p>
+        <div className="flex items-baseline gap-2">
+          <p className="text-sm font-inter font-medium text-ink">${item.price}</p>
+          <span className="text-[10px] font-inter text-ink-muted">
+            ${cpw}/wear · {wears} wears/yr
+          </span>
+        </div>
+        {showStyleWith && showStyleWith.length > 0 && (
+          <p className="text-[10px] font-inter text-sage italic pt-0.5">
+            Style with: {showStyleWith.join(", ")}
+          </p>
+        )}
       </div>
     </motion.div>
   );
