@@ -25,8 +25,9 @@ export function FeedPage() {
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
   const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
+  const activeTrend = useStore((s) => s.activeTrend);
+  const setActiveTrend = useStore((s) => s.setActiveTrend);
   const [showSearch, setShowSearch] = useState(false);
-  const [activeTrend, setActiveTrend] = useState<TrendStory | null>(null);
 
   const filteredLooks = useMemo(() => {
     if (activeTrend) {
@@ -90,7 +91,7 @@ export function FeedPage() {
       setActiveTrend(null);
       setActiveMoodFilter(mood);
     },
-    [setActiveMoodFilter]
+    [setActiveMoodFilter, setActiveTrend]
   );
 
   const handleTrendTap = useCallback(
@@ -98,7 +99,7 @@ export function FeedPage() {
       setActiveTrend(story);
       setCurrentFeedIndex(0);
     },
-    [setCurrentFeedIndex]
+    [setCurrentFeedIndex, setActiveTrend]
   );
 
   return (

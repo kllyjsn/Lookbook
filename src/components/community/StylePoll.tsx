@@ -20,7 +20,7 @@ export function StylePollCard({ poll }: StylePollCardProps) {
   );
 
   const totalVotes = poll.optionA.votes + poll.optionB.votes;
-  const pctA = Math.round((poll.optionA.votes / totalVotes) * 100);
+  const pctA = totalVotes === 0 ? 50 : Math.round((poll.optionA.votes / totalVotes) * 100);
   const pctB = 100 - pctA;
 
   const handleVote = (choice: "A" | "B") => {

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Look, StyleDNAEntry, MoodFilter } from "../data/mockData";
+import type { Look, StyleDNAEntry, MoodFilter, TrendStory } from "../data/mockData";
 import { defaultStyleDNA } from "../data/mockData";
 
 interface SavedCollection {
@@ -68,6 +68,10 @@ interface AppState {
   // Poll votes
   pollVotes: Record<string, "A" | "B">;
   votePoll: (pollId: string, choice: "A" | "B") => void;
+
+  // Active trend (not persisted — survives tab switches but not page reloads)
+  activeTrend: TrendStory | null;
+  setActiveTrend: (trend: TrendStory | null) => void;
 
   // UI state
   activeTab: string;
@@ -293,6 +297,9 @@ export const useStore = create<AppState>()(
         set((state) => ({
           pollVotes: { ...state.pollVotes, [pollId]: choice },
         })),
+
+      activeTrend: null,
+      setActiveTrend: (trend) => set({ activeTrend: trend }),
 
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
