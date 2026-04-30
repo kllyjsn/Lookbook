@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { StylePoll } from "../../data/mockData";
 import { useStore } from "../../stores/useStore";
@@ -15,9 +14,7 @@ interface StylePollCardProps {
 export function StylePollCard({ poll }: StylePollCardProps) {
   const pollVotes = useStore((s) => s.pollVotes);
   const votePoll = useStore((s) => s.votePoll);
-  const [localVote, setLocalVote] = useState<"A" | "B" | null>(
-    pollVotes[poll.id] ?? null
-  );
+  const localVote = pollVotes[poll.id] ?? null;
 
   const totalVotes = poll.optionA.votes + poll.optionB.votes;
   const pctA = totalVotes === 0 ? 50 : Math.round((poll.optionA.votes / totalVotes) * 100);
@@ -25,7 +22,6 @@ export function StylePollCard({ poll }: StylePollCardProps) {
 
   const handleVote = (choice: "A" | "B") => {
     if (localVote) return;
-    setLocalVote(choice);
     votePoll(poll.id, choice);
   };
 
