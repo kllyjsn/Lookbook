@@ -13,7 +13,7 @@ function MilestoneCelebration({ streak, onDismiss }: { streak: number; onDismiss
   useEffect(() => {
     const timer = setTimeout(onDismiss, 3000);
     return () => clearTimeout(timer);
-  }, [onDismiss]);
+  }, [onDismiss, streak]);
 
   return (
     <motion.div
