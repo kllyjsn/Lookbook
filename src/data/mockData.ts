@@ -666,10 +666,16 @@ export function getWhyThisLook(look: Look, styleDNA: StyleDNAEntry[]): string {
   if (topStyle) {
     const tagToStyle: Record<string, string> = {
       "Minimalist": "Minimalist", "Clean": "Minimalist", "Scandi": "Minimalist", "Chic": "Minimalist",
+      "Sustainable": "Minimalist",
       "Classic": "Classic", "Tailored": "Classic", "Power": "Classic", "Quiet Luxury": "Classic",
+      "Office": "Classic", "Investment": "Classic", "Corporate": "Classic", "Coastal": "Classic",
+      "Adventure": "Classic", "Utility": "Classic",
       "Romantic": "Romantic", "Feminine": "Romantic", "Evening": "Romantic",
-      "Streetwear": "Streetwear", "Casual": "Streetwear", "Tokyo": "Avant-Garde",
-      "Avant-Garde": "Avant-Garde", "Glamour": "Avant-Garde", "Creative": "Avant-Garde",
+      "Social": "Romantic", "Boho": "Romantic", "Vintage": "Romantic",
+      "Streetwear": "Streetwear", "Casual": "Streetwear",
+      "Tokyo": "Avant-Garde", "Avant-Garde": "Avant-Garde", "Glamour": "Avant-Garde",
+      "Creative": "Avant-Garde", "Statement": "Avant-Garde", "Siren": "Avant-Garde",
+      "Festival": "Avant-Garde",
     };
     for (const tag of look.tags) {
       if (tagToStyle[tag.label] === topStyle.style) {

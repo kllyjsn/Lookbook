@@ -213,6 +213,7 @@ export const useStore = create<AppState>()(
             styleDNA: computeDNA(newLiked),
             swipeStreak: Math.max(0, state.swipeStreak - 1),
             totalSwipes: Math.max(0, state.totalSwipes - 1),
+            lastMilestone: 0,
           };
         }),
 
@@ -293,7 +294,7 @@ export const useStore = create<AppState>()(
             swipeStreak: newStreak,
             bestStreak: Math.max(state.bestStreak, newStreak),
             totalSwipes: newTotal,
-            lastMilestone: hitMilestone || state.lastMilestone,
+            lastMilestone: hitMilestone,
           };
         }),
       clearMilestone: () => set({ lastMilestone: 0 }),
