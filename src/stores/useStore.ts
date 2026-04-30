@@ -153,9 +153,13 @@ export const useStore = create<AppState>()(
   persist(
     (set, get) => ({
       currentFeedIndex: 0,
-      setCurrentFeedIndex: (index) => set({ currentFeedIndex: index }),
+      setCurrentFeedIndex: (index) =>
+        set((state) => ({
+          currentFeedIndex: index,
+          swipeStreak: index === 0 ? 0 : state.swipeStreak,
+        })),
       activeMoodFilter: "all" as MoodFilter,
-      setActiveMoodFilter: (mood) => set({ activeMoodFilter: mood, currentFeedIndex: 0, lastSwipedLook: null, lastSwipeAction: null }),
+      setActiveMoodFilter: (mood) => set({ activeMoodFilter: mood, currentFeedIndex: 0, lastSwipedLook: null, lastSwipeAction: null, swipeStreak: 0 }),
 
       likedLooks: [],
       passedLooks: [],
@@ -207,6 +211,8 @@ export const useStore = create<AppState>()(
             lastSwipedLook: null,
             lastSwipeAction: null,
             styleDNA: computeDNA(newLiked),
+            swipeStreak: Math.max(0, state.swipeStreak - 1),
+            totalSwipes: Math.max(0, state.totalSwipes - 1),
           };
         }),
 
