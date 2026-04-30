@@ -15,6 +15,14 @@ export interface LookItem {
 
 export type MoodFilter = "all" | "minimal" | "romantic" | "street" | "evening" | "classic" | "adventure";
 
+export interface DupeItem {
+  original: string;
+  dupe: string;
+  dupeBrand: string;
+  dupePrice: number;
+  savings: number;
+}
+
 export interface Look {
   id: string;
   image: string;
@@ -32,6 +40,11 @@ export interface Look {
   editorsChoice?: boolean;
   mood: MoodFilter;
   badge?: "trending" | "editors-pick" | "new";
+  styleTips?: string[];
+  colorPalette?: string[];
+  dupes?: DupeItem[];
+  savesToday?: number;
+  trendVelocity?: number;
 }
 
 export interface EventType {
@@ -88,6 +101,18 @@ export const feedLooks: Look[] = [
     trending: true,
     editorsChoice: true,
     mood: "minimal",
+    savesToday: 342,
+    trendVelocity: 28,
+    colorPalette: ["#1A1A1A", "#F5F0EB", "#C5A572", "#E8D5D0"],
+    styleTips: [
+      "Layer the blazer over a slip dress for evening",
+      "Roll the sleeves for a more relaxed Friday vibe",
+      "Swap mules for white sneakers on the commute",
+    ],
+    dupes: [
+      { original: "Structured Wool Blazer", dupe: "Oversized Blazer", dupeBrand: "Zara", dupePrice: 89, savings: 186 },
+      { original: "Wide-Leg Trousers", dupe: "Wide Leg Pants", dupeBrand: "H&M", dupePrice: 45, savings: 280 },
+    ],
     items: [
       { id: "i1", name: "Structured Wool Blazer", brand: "COS", price: 275, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#" },
       { id: "i2", name: "Silk Camisole", brand: "Vince", price: 195, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
@@ -113,6 +138,17 @@ export const feedLooks: Look[] = [
     likes: 9800,
     trending: true,
     mood: "romantic",
+    savesToday: 187,
+    trendVelocity: 15,
+    colorPalette: ["#E8D5D0", "#C4797A", "#F5F0EB", "#C5A572"],
+    styleTips: [
+      "Add a fitted blazer to take this from date to dinner party",
+      "Gold jewelry only \u2014 silver kills the warmth",
+      "A messy updo lets the neckline do the talking",
+    ],
+    dupes: [
+      { original: "Flowing Midi Dress", dupe: "Satin Slip Dress", dupeBrand: "Mango", dupePrice: 79, savings: 169 },
+    ],
     items: [
       { id: "i5", name: "Flowing Midi Dress", brand: "Reformation", price: 248, image: UNSPLASH("photo-1595777457583-95e059d581b8", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i6", name: "Strappy Heeled Sandals", brand: "By Far", price: 420, image: UNSPLASH("photo-1603487742131-4160ec999306", 400, 500), category: "Shoes", shopUrl: "#" },
@@ -139,6 +175,18 @@ export const feedLooks: Look[] = [
     likes: 18400,
     trending: true,
     mood: "street",
+    savesToday: 521,
+    trendVelocity: 42,
+    colorPalette: ["#2D2D2D", "#FFFFFF", "#1A1A1A", "#8A8A8A"],
+    styleTips: [
+      "Cuff the jeans above the ankle for a cleaner silhouette",
+      "Layer a hoodie under the moto jacket when the temp drops",
+      "This outfit works best with zero accessories",
+    ],
+    dupes: [
+      { original: "Leather Moto Jacket", dupe: "Faux Leather Biker", dupeBrand: "Topshop", dupePrice: 95, savings: 404 },
+      { original: "White Leather Sneakers", dupe: "Court Sneakers", dupeBrand: "Axel Arigato", dupePrice: 185, savings: 240 },
+    ],
     items: [
       { id: "i9", name: "Oversized Cotton Tee", brand: "Aritzia", price: 58, image: UNSPLASH("photo-1521572163474-6864f9cf17ab", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i10", name: "Leather Moto Jacket", brand: "AllSaints", price: 499, image: UNSPLASH("photo-1551028719-00167b16eac5", 400, 500), category: "Outerwear", shopUrl: "#" },
@@ -163,6 +211,14 @@ export const feedLooks: Look[] = [
       "When the invitation says black tie, answer with conviction. Statement pieces that command every room.",
     likes: 7600,
     mood: "evening",
+    savesToday: 94,
+    trendVelocity: 8,
+    colorPalette: ["#1A1A1A", "#C5A572", "#B8A9C9", "#2D2D2D"],
+    styleTips: [
+      "Red lip, nothing else \u2014 let the dress do the work",
+      "A cashmere wrap for the taxi ride saves the look",
+      "Skip the big earrings if the dress has embellishment",
+    ],
     items: [
       { id: "i13", name: "Sequin Column Dress", brand: "Rotate", price: 595, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i14", name: "Crystal Drop Earrings", brand: "Swarovski", price: 189, image: UNSPLASH("photo-1535632066927-ab7c9ab60908", 400, 500), category: "Accessories", shopUrl: "#" },
@@ -188,6 +244,14 @@ export const feedLooks: Look[] = [
       "Pack less, look more. Versatile silhouettes in earth tones that take you from gallery to rooftop bar.",
     likes: 6200,
     mood: "adventure",
+    savesToday: 156,
+    trendVelocity: 12,
+    colorPalette: ["#A8B5A0", "#E8D5D0", "#C5A572", "#8A8A8A"],
+    styleTips: [
+      "Pack a linen scarf \u2014 it doubles as a beach cover",
+      "Earth tones photograph better in natural light",
+      "Flat sandals by day, the same culottes with heels by night",
+    ],
     items: [
       { id: "i17", name: "Linen Utility Shirt", brand: "Apiece Apart", price: 265, image: UNSPLASH("photo-1596755094514-f87e34085b2c", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i18", name: "Cargo Culottes", brand: "COS", price: 135, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -213,6 +277,14 @@ export const feedLooks: Look[] = [
     likes: 11300,
     trending: true,
     mood: "minimal",
+    savesToday: 278,
+    trendVelocity: 31,
+    colorPalette: ["#1A1A1A", "#2D2D2D", "#4A4A4A", "#1A1A1A"],
+    styleTips: [
+      "Mix textures to keep all-black interesting \u2014 cashmere, wool, leather",
+      "A single gold ring is the only accent you need",
+      "Steam everything; wrinkles ruin the entire proposition",
+    ],
     items: [
       { id: "i21", name: "Cashmere Turtleneck", brand: "Nili Lotan", price: 495, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i22", name: "Tailored Wool Coat", brand: "Max Mara", price: 895, image: UNSPLASH("photo-1539533018447-63fcce2678e3", 400, 500), category: "Outerwear", shopUrl: "#" },
@@ -238,6 +310,14 @@ export const feedLooks: Look[] = [
       "Prints that feel fresh, not fussy. The kind of outfit that makes everyone ask where you got it.",
     likes: 5400,
     mood: "romantic",
+    savesToday: 113,
+    trendVelocity: 9,
+    colorPalette: ["#E8D5D0", "#A8B5A0", "#C4797A", "#F5F0EB"],
+    styleTips: [
+      "Keep hair loose and slightly undone \u2014 polished defeats the point",
+      "A basket bag anchors the look in 'real life'",
+      "Wear this to anything outdoors \u2014 it photographs beautifully",
+    ],
     items: [
       { id: "i25", name: "Printed Wrap Dress", brand: "Diane von Furstenberg", price: 398, image: UNSPLASH("photo-1572804013309-59a88b7e92f1", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i26", name: "Raffia Basket Bag", brand: "Loewe", price: 450, image: UNSPLASH("photo-1590874103328-eac38a683ce7", 400, 500), category: "Bags", shopUrl: "#" },
@@ -262,6 +342,14 @@ export const feedLooks: Look[] = [
       "The modern suit is your armor. Structured enough to command respect, relaxed enough to feel like you.",
     likes: 8900,
     mood: "classic",
+    savesToday: 203,
+    trendVelocity: 18,
+    colorPalette: ["#1A1A1A", "#C5A572", "#F5F0EB", "#4A4A4A"],
+    styleTips: [
+      "Unbutton the blazer for presentations \u2014 buttoned for interviews",
+      "A silk pocket square adds $500 worth of polish for $30",
+      "Match the shoe tone to the bag; never mismatch metals",
+    ],
     items: [
       { id: "i29", name: "Double-Breasted Blazer", brand: "Toteme", price: 690, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#" },
       { id: "i30", name: "High-Waist Trousers", brand: "Toteme", price: 390, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -287,6 +375,17 @@ export const feedLooks: Look[] = [
     likes: 22100,
     trending: true,
     mood: "classic",
+    savesToday: 689,
+    trendVelocity: 55,
+    colorPalette: ["#E8D5D0", "#C5A572", "#F5F0EB", "#1A1A1A"],
+    styleTips: [
+      "The whole point is no visible logos \u2014 let the fabric speak",
+      "Layer the crew over a white shirt collar for depth",
+      "These colors work year-round; buy once, wear forever",
+    ],
+    dupes: [
+      { original: "Cashmere Crew", dupe: "Merino Blend Sweater", dupeBrand: "Uniqlo", dupePrice: 49, savings: 841 },
+    ],
     items: [
       { id: "i33", name: "Cashmere Crew", brand: "The Row", price: 890, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i34", name: "Wool Palazzo Pants", brand: "Toteme", price: 450, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -312,6 +411,14 @@ export const feedLooks: Look[] = [
     likes: 15700,
     trending: true,
     mood: "minimal",
+    savesToday: 445,
+    trendVelocity: 38,
+    colorPalette: ["#E8D5D0", "#F5F0EB", "#8A8A8A", "#1A1A1A"],
+    styleTips: [
+      "Tonal layering is the key — stay within two shades",
+      "Oversized on top means slim or straight on bottom, never both",
+      "A structured bag prevents the whole look from feeling sloppy",
+    ],
     items: [
       { id: "i37", name: "Oversized Wool Shirt", brand: "COS", price: 175, image: UNSPLASH("photo-1596755094514-f87e34085b2c", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i38", name: "Wide-Leg Wool Pants", brand: "Arket", price: 149, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -336,6 +443,14 @@ export const feedLooks: Look[] = [
       "Organza, tulle, and a touch of Victorian drama. For the woman who treats getting dressed like poetry.",
     likes: 8400,
     mood: "romantic",
+    savesToday: 167,
+    trendVelocity: 14,
+    colorPalette: ["#E8D5D0", "#F5F0EB", "#C4797A", "#B8A9C9"],
+    styleTips: [
+      "Organza wrinkles fast — hang it the night before",
+      "Pearl earrings complete this; diamonds would be too much",
+      "A kitten heel keeps it romantic; a stiletto turns it sultry",
+    ],
     items: [
       { id: "i41", name: "Organza Blouse", brand: "Zimmermann", price: 595, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i42", name: "Tulle Midi Skirt", brand: "Simone Rocha", price: 680, image: UNSPLASH("photo-1583496661160-fb5886a0aabd", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -361,6 +476,14 @@ export const feedLooks: Look[] = [
     likes: 19200,
     trending: true,
     mood: "street",
+    savesToday: 612,
+    trendVelocity: 48,
+    colorPalette: ["#2D2D2D", "#B8A9C9", "#8A8A8A", "#1A1A1A"],
+    styleTips: [
+      "Proportion is everything: oversized top, slim cargo, chunky shoe",
+      "A crossbody bag keeps your hands free for photographing fits",
+      "Layer two different textures on top for depth",
+    ],
     items: [
       { id: "i45", name: "Graphic Hoodie", brand: "Sacai", price: 580, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i46", name: "Cargo Pants", brand: "Needles", price: 340, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -386,6 +509,14 @@ export const feedLooks: Look[] = [
     likes: 12600,
     editorsChoice: true,
     mood: "evening",
+    savesToday: 234,
+    trendVelocity: 22,
+    colorPalette: ["#C5A572", "#1A1A1A", "#C4797A", "#B8A9C9"],
+    styleTips: [
+      "One statement piece per outfit — the gown OR the jewelry, never both at full volume",
+      "Platform heels add drama without the pain",
+      "Keep makeup to a bold lip OR a smoky eye, never both",
+    ],
     items: [
       { id: "i49", name: "Draped Gown", brand: "Saint Laurent", price: 2890, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i50", name: "Statement Cuff", brand: "Alexander McQueen", price: 790, image: UNSPLASH("photo-1535632066927-ab7c9ab60908", 400, 500), category: "Accessories", shopUrl: "#" },
@@ -411,6 +542,14 @@ export const feedLooks: Look[] = [
     likes: 16500,
     trending: true,
     mood: "classic",
+    savesToday: 398,
+    trendVelocity: 35,
+    colorPalette: ["#F5F0EB", "#E8D5D0", "#C5A572", "#A8B5A0"],
+    styleTips: [
+      "Everything should look slightly sun-faded and perfectly worn-in",
+      "A cashmere draped over the shoulders is the whole personality",
+      "Espadrilles are non-negotiable — sneakers ruin the fantasy",
+    ],
     items: [
       { id: "i53", name: "Oversized Linen Shirt", brand: "Frank & Eileen", price: 248, image: UNSPLASH("photo-1596755094514-f87e34085b2c", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i54", name: "Wide-Leg Linen Pants", brand: "Jenni Kayne", price: 295, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -435,6 +574,14 @@ export const feedLooks: Look[] = [
       "The girlboss blazer is dead. Long live the office siren — fitted, intentional, and unforgettable.",
     likes: 13800,
     mood: "classic",
+    savesToday: 356,
+    trendVelocity: 26,
+    colorPalette: ["#1A1A1A", "#C4797A", "#4A4A4A", "#E8D5D0"],
+    styleTips: [
+      "The blazer dress is the new power suit — cinch the waist",
+      "Sheer layers underneath add intrigue without vulgarity",
+      "Slingbacks > pumps for the modern office siren",
+    ],
     items: [
       { id: "i57", name: "Fitted Blazer Dress", brand: "Mugler", price: 790, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i58", name: "Sheer Turtleneck", brand: "Wolford", price: 250, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
@@ -460,6 +607,14 @@ export const feedLooks: Look[] = [
     likes: 21300,
     trending: true,
     mood: "adventure",
+    savesToday: 745,
+    trendVelocity: 62,
+    colorPalette: ["#B8A9C9", "#A8B5A0", "#E8D5D0", "#C5A572"],
+    styleTips: [
+      "Forget flower crowns — layered gold necklaces are the move",
+      "Western boots with cutoffs is the only formula you need",
+      "Bring a denim jacket for after dark; it ties around your waist during the day",
+    ],
     items: [
       { id: "i61", name: "Crochet Top", brand: "Cult Gaia", price: 198, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i62", name: "Denim Cutoffs", brand: "RE/DONE", price: 225, image: UNSPLASH("photo-1541099649105-f69ad21f3246", 400, 500), category: "Bottoms", shopUrl: "#" },

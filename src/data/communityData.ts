@@ -1,5 +1,18 @@
 import type { StyleTag, LookItem } from "./mockData";
 
+export interface TrendItem {
+  label: string;
+  status: "in" | "out";
+  description: string;
+}
+
+export interface TrendReport {
+  id: string;
+  title: string;
+  season: string;
+  items: TrendItem[];
+}
+
 export interface Creator {
   id: string;
   username: string;
@@ -461,5 +474,25 @@ export const mustHaveLists: MustHaveList[] = [
     ],
     likes: 11200,
     saves: 6100,
+  },
+];
+
+export const trendReports: TrendReport[] = [
+  {
+    id: "trend-1",
+    title: "Summer 2025",
+    season: "Spring/Summer",
+    items: [
+      { label: "Quiet Luxury", status: "in", description: "Stealth wealth continues to dominate" },
+      { label: "Sheer Layers", status: "in", description: "Organza and mesh over structured pieces" },
+      { label: "Cherry Red", status: "in", description: "The color of the season, head to toe" },
+      { label: "Micro Shorts", status: "in", description: "Leg-baring silhouettes are back" },
+      { label: "Ballet Flats", status: "in", description: "Replacing sneakers for everyday" },
+      { label: "Logo Mania", status: "out", description: "Overt branding feels dated" },
+      { label: "Skinny Jeans", status: "out", description: "Wide and straight legs only" },
+      { label: "Cold Shoulder Tops", status: "out", description: "The cut-out moved to the waist" },
+      { label: "Fast Fashion Dupes", status: "out", description: "Invest in fewer, better pieces" },
+      { label: "Matching Sets", status: "out", description: "Intentional mismatch is the new uniform" },
+    ],
   },
 ];

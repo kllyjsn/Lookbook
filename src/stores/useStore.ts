@@ -59,6 +59,12 @@ interface AppState {
   followCreator: (id: string) => void;
   unfollowCreator: (id: string) => void;
 
+  // Style streak
+  styleStreak: number;
+  lastStreakDate: string | null;
+  totalSwipes: number;
+  checkAndUpdateStreak: () => void;
+
   // UI state
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -161,6 +167,7 @@ export const useStore = create<AppState>()(
             lastSwipedLook: look,
             lastSwipeAction: "like" as const,
             styleDNA: computeDNA(newLiked),
+            totalSwipes: state.totalSwipes + 1,
           };
         }),
       passLook: (look) =>
@@ -171,6 +178,7 @@ export const useStore = create<AppState>()(
           currentFeedIndex: state.currentFeedIndex + 1,
           lastSwipedLook: look,
           lastSwipeAction: "pass" as const,
+          totalSwipes: state.totalSwipes + 1,
         })),
       saveLook: (look) =>
         set((state) => ({
@@ -249,6 +257,18 @@ export const useStore = create<AppState>()(
             : [...state.capsuleSelectedItems, itemId],
         })),
 
+      styleStreak: 0,
+      lastStreakDate: null,
+      totalSwipes: 0,
+      checkAndUpdateStreak: () =>
+        set((state) => {
+          const today = new Date().toISOString().slice(0, 10);
+          if (state.lastStreakDate === today) return state;
+          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+          const newStreak = state.lastStreakDate === yesterday ? state.styleStreak + 1 : 1;
+          return { styleStreak: newStreak, lastStreakDate: today };
+        }),
+
       followedCreators: [],
       followCreator: (id) =>
         set((state) => ({
@@ -280,6 +300,9 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        styleStreak: state.styleStreak,
+        lastStreakDate: state.lastStreakDate,
+        totalSwipes: state.totalSwipes,
       }),
     }
   )
