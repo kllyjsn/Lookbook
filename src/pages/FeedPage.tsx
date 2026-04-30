@@ -223,7 +223,14 @@ export function FeedPage() {
             )}
 
             {/* "Because you loved..." recommendations */}
-            {likedLooks.length > 0 && (
+            {(() => {
+              const likedMoods = new Set(likedLooks.map((ll) => ll.mood));
+              const recommendations = feedLooks
+                .filter((l) => !likedLooks.some((ll) => ll.id === l.id))
+                .filter((l) => likedMoods.has(l.mood))
+                .slice(0, 4);
+              if (recommendations.length === 0) return null;
+              return (
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -235,14 +242,7 @@ export function FeedPage() {
                   <h3 className="font-editorial text-lg text-ink">Because You Loved</h3>
                 </div>
                 <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                  {feedLooks
-                    .filter((l) => !likedLooks.some((ll) => ll.id === l.id))
-                    .filter((l) => {
-                      const likedMoods = new Set(likedLooks.map((ll) => ll.mood));
-                      return likedMoods.has(l.mood);
-                    })
-                    .slice(0, 4)
-                    .map((look, i) => (
+                  {recommendations.map((look, i) => (
                       <motion.div
                         key={look.id}
                         initial={{ opacity: 0, x: 20 }}
@@ -266,7 +266,8 @@ export function FeedPage() {
                     ))}
                 </div>
               </motion.div>
-            )}
+              );
+            })()}
 
             {/* CTAs */}
             <div className="flex flex-col gap-3 w-full mt-8 pb-8">
