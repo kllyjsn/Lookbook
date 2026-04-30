@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, BadgeCheck, Sparkles, Clock } from "lucide-react";
+import { Search, BadgeCheck, Sparkles, Clock, TrendingUp, ChevronRight, Palette } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { PostCard } from "../components/community/PostCard";
 import { CreatorProfile } from "../components/community/CreatorProfile";
@@ -11,6 +11,7 @@ import { ProductCard } from "../components/cards/ProductCard";
 import { useStore } from "../stores/useStore";
 import { creators, communityPosts, mustHaveLists } from "../data/communityData";
 import type { Creator, CommunityPost, MustHaveList } from "../data/communityData";
+import { trendReports, outfitFormulas, currentColorStory } from "../lib/styleUtils";
 
 
 type CommunityTab = "forYou" | "following" | "mustHaves";
@@ -231,6 +232,145 @@ export function CommunityPage() {
                     </motion.button>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Trend Report (For You only) */}
+            {activeTab === "forYou" && (
+              <div className="mb-6">
+                <div className="px-6 mb-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp size={14} className="text-rose" />
+                    <h2 className="text-xs font-inter font-semibold tracking-[0.12em] uppercase text-ink-muted">
+                      Trend Report
+                    </h2>
+                  </div>
+                  <span className="text-[9px] font-inter text-ink-muted tracking-wider uppercase">
+                    {currentColorStory.season} {currentColorStory.year}
+                  </span>
+                </div>
+                <div className="flex gap-3 overflow-x-auto px-6 pb-2" style={{ scrollbarWidth: "none" }}>
+                  {trendReports.map((trend, i) => (
+                    <motion.div
+                      key={trend.id}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.06 }}
+                      className="flex-shrink-0 w-[200px] group cursor-pointer"
+                    >
+                      <div className="relative aspect-[4/3] rounded-xl overflow-hidden mb-2">
+                        <img
+                          src={trend.image}
+                          alt={trend.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent" />
+                        <div className="absolute top-2 left-2">
+                          <span className="text-[8px] font-inter font-bold tracking-[0.15em] uppercase bg-rose/90 text-white px-2 py-0.5 rounded-full">
+                            {trend.category}
+                          </span>
+                        </div>
+                        <div className="absolute bottom-2 left-2 right-2">
+                          <p className="text-white text-xs font-inter font-semibold leading-tight">
+                            {trend.title}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-[10px] font-inter text-ink-muted line-clamp-2 leading-relaxed">
+                        {trend.subtitle}
+                      </p>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Outfit Formulas (For You only) */}
+            {activeTab === "forYou" && (
+              <div className="px-6 mb-6">
+                <div className="mb-3 flex items-center gap-2">
+                  <Sparkles size={14} className="text-gold" />
+                  <h2 className="text-xs font-inter font-semibold tracking-[0.12em] uppercase text-ink-muted">
+                    Outfit Formulas
+                  </h2>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {outfitFormulas.map((formula, i) => (
+                    <motion.div
+                      key={formula.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      className="bg-ivory rounded-xl p-3.5 cursor-pointer hover:bg-ivory/80 transition-colors"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[8px] font-inter font-bold tracking-[0.15em] uppercase text-gold">
+                          {formula.occasion}
+                        </span>
+                        <ChevronRight size={10} className="text-ink-muted" />
+                      </div>
+                      <h3 className="font-editorial text-sm text-ink leading-tight mb-1">
+                        {formula.title}
+                      </h3>
+                      <p className="text-[10px] font-inter text-ink-muted italic mb-2">
+                        {formula.subtitle}
+                      </p>
+                      <div className="space-y-0.5">
+                        {formula.pieces.map((piece, j) => (
+                          <p key={j} className="text-[10px] font-inter text-ink-light flex items-start gap-1.5">
+                            <span className="text-gold mt-0.5">+</span>
+                            {piece}
+                          </p>
+                        ))}
+                      </div>
+                      <p className="text-[9px] font-inter text-sage italic mt-2 leading-relaxed">
+                        {formula.tip}
+                      </p>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Seasonal Color Story (For You only) */}
+            {activeTab === "forYou" && (
+              <div className="px-6 mb-6">
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-gradient-to-br from-ivory to-cream rounded-2xl p-5 border border-ink/5"
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <Palette size={14} className="text-sage" />
+                    <span className="text-[9px] font-inter font-bold tracking-[0.2em] uppercase text-ink-muted">
+                      Colors of the Season
+                    </span>
+                  </div>
+                  <h3 className="font-editorial text-lg text-ink mb-1">
+                    {currentColorStory.title}
+                  </h3>
+                  <p className="text-[11px] font-inter text-ink-muted leading-relaxed mb-4">
+                    {currentColorStory.description}
+                  </p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {currentColorStory.colors.map((color) => (
+                      <div key={color.hex} className="flex items-center gap-2">
+                        <div
+                          className="w-8 h-8 rounded-lg shadow-sm flex-shrink-0"
+                          style={{ backgroundColor: color.hex }}
+                        />
+                        <div className="min-w-0">
+                          <p className="text-[10px] font-inter font-medium text-ink truncate">
+                            {color.name}
+                          </p>
+                          <p className="text-[8px] font-inter text-ink-muted">
+                            {color.pantone}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
               </div>
             )}
 
