@@ -49,7 +49,7 @@ function CostPerWear({ look }: { look: Look }) {
       <div className="mt-3 h-1.5 bg-ink/5 rounded-full overflow-hidden">
         <motion.div
           initial={{ width: 0 }}
-          animate={{ width: `${Math.min(100, (1 - costPerWear / 50) * 100)}%` }}
+          animate={{ width: `${Math.min(100, Math.max(0, (1 - costPerWear / 50) * 100))}%` }}
           transition={{ delay: 0.3, duration: 0.6 }}
           className={`h-full rounded-full ${
             isGreatValue ? "bg-green-400" : isGoodValue ? "bg-gold" : "bg-ink/30"
@@ -116,7 +116,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
             </div>
 
             {/* Style match badge */}
-            {styleMatch > 0 && (
+            {styleMatch >= 70 && (
               <motion.div
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -149,7 +149,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
             </motion.button>
 
             {/* Top left — magazine-style issue label */}
-            {!styleMatch && (
+            {styleMatch < 70 && (
               <div className="absolute top-6 left-6">
                 <span className="text-masthead text-sm text-white/80">LKBK</span>
               </div>
