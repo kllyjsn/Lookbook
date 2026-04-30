@@ -203,6 +203,7 @@ export const useStore = create<AppState>()(
             lastSwipedLook: null,
             lastSwipeAction: null,
             styleDNA: computeDNA(newLiked),
+            totalSwipes: Math.max(0, state.totalSwipes - 1),
           };
         }),
 
