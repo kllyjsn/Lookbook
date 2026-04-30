@@ -10,6 +10,13 @@ interface SavedCollection {
   createdAt: number;
 }
 
+interface OutfitBoard {
+  id: string;
+  name: string;
+  items: { lookId: string; itemId: string; name: string; brand: string; price: number; image: string; category: string }[];
+  createdAt: number;
+}
+
 interface AppState {
   // Feed state
   currentFeedIndex: number;
@@ -35,6 +42,12 @@ interface AppState {
   createCollection: (name: string) => string;
   removeFromCollection: (collectionId: string, lookId: string) => void;
 
+  // Outfit boards (remix)
+  outfitBoards: OutfitBoard[];
+  createOutfitBoard: (name: string) => string;
+  addItemToBoard: (boardId: string, lookId: string, item: { itemId: string; name: string; brand: string; price: number; image: string; category: string }) => void;
+  removeItemFromBoard: (boardId: string, itemId: string) => void;
+
   // Style DNA (computed from swipe behavior)
   styleDNA: StyleDNAEntry[];
   updateStyleDNA: (dna: StyleDNAEntry[]) => void;
@@ -59,6 +72,13 @@ interface AppState {
   followCreator: (id: string) => void;
   unfollowCreator: (id: string) => void;
 
+  // Style streak
+  streakCount: number;
+  lastVisitDate: string | null;
+  longestStreak: number;
+  totalSwipes: number;
+  checkInToday: () => void;
+
   // UI state
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -68,7 +88,7 @@ interface AppState {
   completeOnboarding: () => void;
 }
 
-const tagToStyle: Record<string, string> = {
+export const tagToStyle: Record<string, string> = {
   "Minimalist": "Minimalist",
   "Office": "Classic",
   "Romantic": "Romantic",
@@ -137,6 +157,22 @@ function computeDNA(likedLooks: Look[]): StyleDNAEntry[] {
   }));
 }
 
+export function computeAffinityScore(look: Look, styleDNA: StyleDNAEntry[]): number {
+  let score = 0;
+  for (const tag of look.tags) {
+    const mappedStyle = tagToStyle[tag.label];
+    if (mappedStyle) {
+      const dnaEntry = styleDNA.find((d) => d.style === mappedStyle);
+      if (dnaEntry) score += dnaEntry.percentage;
+    }
+  }
+  return score;
+}
+
+function getTodayString(): string {
+  return new Date().toISOString().split("T")[0];
+}
+
 export const useStore = create<AppState>()(
   persist(
     (set, get) => ({
@@ -161,6 +197,7 @@ export const useStore = create<AppState>()(
             lastSwipedLook: look,
             lastSwipeAction: "like" as const,
             styleDNA: computeDNA(newLiked),
+            totalSwipes: state.totalSwipes + 1,
           };
         }),
       passLook: (look) =>
@@ -171,6 +208,7 @@ export const useStore = create<AppState>()(
           currentFeedIndex: state.currentFeedIndex + 1,
           lastSwipedLook: look,
           lastSwipeAction: "pass" as const,
+          totalSwipes: state.totalSwipes + 1,
         })),
       saveLook: (look) =>
         set((state) => ({
@@ -229,6 +267,34 @@ export const useStore = create<AppState>()(
           ),
         })),
 
+      outfitBoards: [],
+      createOutfitBoard: (name) => {
+        const id = `board-${Date.now()}`;
+        set((state) => ({
+          outfitBoards: [
+            ...state.outfitBoards,
+            { id, name, items: [], createdAt: Date.now() },
+          ],
+        }));
+        return id;
+      },
+      addItemToBoard: (boardId, lookId, item) =>
+        set((state) => ({
+          outfitBoards: state.outfitBoards.map((b) =>
+            b.id === boardId && !b.items.some((i) => i.itemId === item.itemId)
+              ? { ...b, items: [...b.items, { lookId, ...item }] }
+              : b
+          ),
+        })),
+      removeItemFromBoard: (boardId, itemId) =>
+        set((state) => ({
+          outfitBoards: state.outfitBoards.map((b) =>
+            b.id === boardId
+              ? { ...b, items: b.items.filter((i) => i.itemId !== itemId) }
+              : b
+          ),
+        })),
+
       styleDNA: defaultStyleDNA,
       updateStyleDNA: (dna) => set({ styleDNA: dna }),
       computeStyleDNA: () => computeDNA(get().likedLooks),
@@ -261,6 +327,29 @@ export const useStore = create<AppState>()(
           followedCreators: state.followedCreators.filter((cid) => cid !== id),
         })),
 
+      // Style streak
+      streakCount: 0,
+      lastVisitDate: null,
+      longestStreak: 0,
+      totalSwipes: 0,
+      checkInToday: () =>
+        set((state) => {
+          const today = getTodayString();
+          if (state.lastVisitDate === today) return state;
+
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          const yesterdayStr = yesterday.toISOString().split("T")[0];
+
+          const isConsecutive = state.lastVisitDate === yesterdayStr;
+          const newStreak = isConsecutive ? state.streakCount + 1 : 1;
+          return {
+            streakCount: newStreak,
+            lastVisitDate: today,
+            longestStreak: Math.max(state.longestStreak, newStreak),
+          };
+        }),
+
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
       showLookDetail: null,
@@ -274,12 +363,17 @@ export const useStore = create<AppState>()(
         likedLooks: state.likedLooks,
         passedLooks: state.passedLooks,
         collections: state.collections,
+        outfitBoards: state.outfitBoards,
         styleDNA: state.styleDNA,
         budgetPreference: state.budgetPreference,
         capsuleBudget: state.capsuleBudget,
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        streakCount: state.streakCount,
+        lastVisitDate: state.lastVisitDate,
+        longestStreak: state.longestStreak,
+        totalSwipes: state.totalSwipes,
       }),
     }
   )
