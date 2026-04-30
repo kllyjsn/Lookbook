@@ -668,7 +668,7 @@ export function getWhyThisLook(look: Look, styleDNA: StyleDNAEntry[]): string {
       "Minimalist": "Minimalist", "Clean": "Minimalist", "Scandi": "Minimalist", "Chic": "Minimalist",
       "Classic": "Classic", "Tailored": "Classic", "Power": "Classic", "Quiet Luxury": "Classic",
       "Romantic": "Romantic", "Feminine": "Romantic", "Evening": "Romantic",
-      "Streetwear": "Streetwear", "Casual": "Streetwear", "Tokyo": "Streetwear",
+      "Streetwear": "Streetwear", "Casual": "Streetwear", "Tokyo": "Avant-Garde",
       "Avant-Garde": "Avant-Garde", "Glamour": "Avant-Garde", "Creative": "Avant-Garde",
     };
     for (const tag of look.tags) {

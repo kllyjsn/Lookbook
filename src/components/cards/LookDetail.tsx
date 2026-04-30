@@ -15,7 +15,7 @@ function formatCount(n: number): string {
 
 function CostPerWear({ look }: { look: Look }) {
   const totalPrice = look.items.reduce((sum, item) => sum + item.price, 0);
-  const wearFreq = look.wearFrequency ?? 50;
+  const wearFreq = look.wearFrequency || 50;
   const costPerWear = totalPrice / wearFreq;
   const isGreatValue = costPerWear < 10;
   const isGoodValue = costPerWear < 25;
