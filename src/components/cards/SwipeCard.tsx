@@ -2,6 +2,11 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion";
 import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2 } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { lookAesthetics } from "../../data/mockData";
+import { StyleMatchBadge } from "../feed/StyleMatch";
+import { computeStyleMatch } from "../../lib/styleMatch";
+import { SocialProof } from "../feed/SocialProof";
+import { useStore } from "../../stores/useStore";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -34,6 +39,10 @@ export function SwipeCard({
   onDoubleTap,
   isTop,
 }: SwipeCardProps) {
+  const styleDNA = useStore((s) => s.styleDNA);
+  const matchPercent = computeStyleMatch(look, styleDNA);
+  const aesthetics = lookAesthetics[look.id] ?? [];
+
   const [exitDirection, setExitDirection] = useState<"left" | "right" | "up" | null>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [showHeartBurst, setShowHeartBurst] = useState(false);
@@ -208,7 +217,20 @@ export function SwipeCard({
 
         {/* Bottom gradient + content */}
         <div className="absolute inset-x-0 bottom-0 gradient-bottom p-6 pb-8">
-          <div className="space-y-3">
+          <div className="space-y-2.5">
+            {/* Aesthetic sub-labels (TikTok-style) */}
+            {aesthetics.length > 0 && (
+              <div className="flex gap-1.5">
+                {aesthetics.map((a) => (
+                  <span
+                    key={a}
+                    className="text-[8px] font-inter font-semibold tracking-[0.15em] uppercase text-gold bg-gold/15 backdrop-blur-sm rounded-full px-2 py-0.5"
+                  >
+                    #{a.replace(/\s+/g, "")}
+                  </span>
+                ))}
+              </div>
+            )}
             <div className="flex gap-2">
               {look.tags.map((tag) => (
                 <span
@@ -238,6 +260,11 @@ export function SwipeCard({
               <span className="text-xs font-inter text-white/50">
                 {look.items.length} pieces
               </span>
+            </div>
+            {/* Style match + social proof row */}
+            <div className="flex items-center gap-2 pt-1">
+              <StyleMatchBadge matchPercent={matchPercent} />
+              <SocialProof look={look} />
             </div>
           </div>
         </div>

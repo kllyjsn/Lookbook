@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Look, StyleDNAEntry, MoodFilter } from "../data/mockData";
+import type { Look, StyleDNAEntry, MoodFilter, TrendStory } from "../data/mockData";
 import { defaultStyleDNA } from "../data/mockData";
 
 interface SavedCollection {
@@ -58,6 +58,20 @@ interface AppState {
   followedCreators: string[];
   followCreator: (id: string) => void;
   unfollowCreator: (id: string) => void;
+
+  // Daily streak & engagement
+  dailyStreak: number;
+  lastVisitDate: string | null;
+  totalSwipes: number;
+  recordVisit: () => void;
+
+  // Poll votes
+  pollVotes: Record<string, "A" | "B">;
+  votePoll: (pollId: string, choice: "A" | "B") => void;
+
+  // Active trend (not persisted — survives tab switches but not page reloads)
+  activeTrend: TrendStory | null;
+  setActiveTrend: (trend: TrendStory | null) => void;
 
   // UI state
   activeTab: string;
@@ -141,7 +155,7 @@ export const useStore = create<AppState>()(
   persist(
     (set, get) => ({
       currentFeedIndex: 0,
-      setCurrentFeedIndex: (index) => set({ currentFeedIndex: index }),
+      setCurrentFeedIndex: (index) => set({ currentFeedIndex: index, lastSwipedLook: null, lastSwipeAction: null }),
       activeMoodFilter: "all" as MoodFilter,
       setActiveMoodFilter: (mood) => set({ activeMoodFilter: mood, currentFeedIndex: 0, lastSwipedLook: null, lastSwipeAction: null }),
 
@@ -161,6 +175,7 @@ export const useStore = create<AppState>()(
             lastSwipedLook: look,
             lastSwipeAction: "like" as const,
             styleDNA: computeDNA(newLiked),
+            totalSwipes: state.totalSwipes + 1,
           };
         }),
       passLook: (look) =>
@@ -171,6 +186,7 @@ export const useStore = create<AppState>()(
           currentFeedIndex: state.currentFeedIndex + 1,
           lastSwipedLook: look,
           lastSwipeAction: "pass" as const,
+          totalSwipes: state.totalSwipes + 1,
         })),
       saveLook: (look) =>
         set((state) => ({
@@ -195,6 +211,7 @@ export const useStore = create<AppState>()(
             lastSwipedLook: null,
             lastSwipeAction: null,
             styleDNA: computeDNA(newLiked),
+            totalSwipes: Math.max(0, state.totalSwipes - 1),
           };
         }),
 
@@ -261,6 +278,31 @@ export const useStore = create<AppState>()(
           followedCreators: state.followedCreators.filter((cid) => cid !== id),
         })),
 
+      dailyStreak: 1,
+      lastVisitDate: null,
+      totalSwipes: 0,
+      recordVisit: () =>
+        set((state) => {
+          const d = new Date();
+          const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+          if (state.lastVisitDate === today) return state;
+          const yd = new Date(d); yd.setDate(yd.getDate() - 1);
+          const yesterday = `${yd.getFullYear()}-${String(yd.getMonth() + 1).padStart(2, '0')}-${String(yd.getDate()).padStart(2, '0')}`;
+          return {
+            lastVisitDate: today,
+            dailyStreak: state.lastVisitDate === yesterday ? state.dailyStreak + 1 : 1,
+          };
+        }),
+
+      pollVotes: {},
+      votePoll: (pollId, choice) =>
+        set((state) => ({
+          pollVotes: { ...state.pollVotes, [pollId]: choice },
+        })),
+
+      activeTrend: null,
+      setActiveTrend: (trend) => set({ activeTrend: trend }),
+
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
       showLookDetail: null,
@@ -280,6 +322,10 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        dailyStreak: state.dailyStreak,
+        lastVisitDate: state.lastVisitDate,
+        totalSwipes: state.totalSwipes,
+        pollVotes: state.pollVotes,
       }),
     }
   )

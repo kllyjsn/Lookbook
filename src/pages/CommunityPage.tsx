@@ -7,10 +7,12 @@ import { CreatorProfile } from "../components/community/CreatorProfile";
 import { MustHaveCard } from "../components/community/MustHaveCard";
 import { MustHaveDetail } from "../components/community/MustHaveDetail";
 import { FollowButton } from "../components/community/FollowButton";
+import { StylePollCard } from "../components/community/StylePoll";
 import { ProductCard } from "../components/cards/ProductCard";
 import { useStore } from "../stores/useStore";
 import { creators, communityPosts, mustHaveLists } from "../data/communityData";
 import type { Creator, CommunityPost, MustHaveList } from "../data/communityData";
+import { stylePolls } from "../data/mockData";
 
 
 type CommunityTab = "forYou" | "following" | "mustHaves";
@@ -189,6 +191,15 @@ export function CommunityPage() {
                     </div>
                   </div>
                 </motion.div>
+              </div>
+            )}
+
+            {/* This-or-That Polls (For You only) */}
+            {activeTab === "forYou" && (
+              <div className="px-6 mb-5 space-y-4">
+                {stylePolls.slice(0, 2).map((poll) => (
+                  <StylePollCard key={poll.id} poll={poll} />
+                ))}
               </div>
             )}
 
