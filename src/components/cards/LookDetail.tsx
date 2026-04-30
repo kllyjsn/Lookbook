@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
+import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp, Lightbulb, PenTool, Calculator, Sparkles } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { computeStyleMatch } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
 import { useStore } from "../../stores/useStore";
@@ -10,6 +11,53 @@ function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
   if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
   return String(n);
+}
+
+function CostPerWear({ look }: { look: Look }) {
+  const totalPrice = look.items.reduce((sum, item) => sum + item.price, 0);
+  const wearFreq = look.wearFrequency ?? 50;
+  const costPerWear = totalPrice / wearFreq;
+  const isGreatValue = costPerWear < 10;
+  const isGoodValue = costPerWear < 25;
+
+  return (
+    <div className="rounded-2xl bg-ivory p-5 mb-8">
+      <div className="flex items-center gap-2 mb-4">
+        <Calculator size={16} className="text-ink" />
+        <h4 className="font-editorial text-base text-ink">Cost-Per-Wear</h4>
+        <span className={`ml-auto text-[9px] font-inter font-bold tracking-wider uppercase px-2.5 py-1 rounded-full ${
+          isGreatValue
+            ? "bg-green-100 text-green-700"
+            : isGoodValue
+            ? "bg-gold/15 text-gold"
+            : "bg-ink/5 text-ink-muted"
+        }`}>
+          {isGreatValue ? "INCREDIBLE VALUE" : isGoodValue ? "GOOD VALUE" : "INVESTMENT"}
+        </span>
+      </div>
+      <div className="flex items-baseline gap-3 mb-3">
+        <span className="font-editorial text-3xl text-ink">${costPerWear.toFixed(2)}</span>
+        <span className="text-xs font-inter text-ink-muted">per wear</span>
+      </div>
+      <div className="flex items-center gap-4 text-xs font-inter text-ink-muted">
+        <span>Total: ${totalPrice.toLocaleString()}</span>
+        <span className="text-ink-muted/40">·</span>
+        <span>~{wearFreq} wears/year</span>
+        <span className="text-ink-muted/40">·</span>
+        <span>{look.items.length} pieces</span>
+      </div>
+      <div className="mt-3 h-1.5 bg-ink/5 rounded-full overflow-hidden">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${Math.min(100, (1 - costPerWear / 50) * 100)}%` }}
+          transition={{ delay: 0.3, duration: 0.6 }}
+          className={`h-full rounded-full ${
+            isGreatValue ? "bg-green-400" : isGoodValue ? "bg-gold" : "bg-ink/30"
+          }`}
+        />
+      </div>
+    </div>
+  );
 }
 
 interface LookDetailProps {
@@ -21,8 +69,14 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
+  const styleDNA = useStore((s) => s.styleDNA);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  const styleMatch = useMemo(
+    () => computeStyleMatch(look.tags, styleDNA),
+    [look, styleDNA]
+  );
 
   return (
     <AnimatePresence>
@@ -61,6 +115,29 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </motion.div>
             </div>
 
+            {/* Style match badge */}
+            {styleMatch > 0 && (
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.4, type: "spring", stiffness: 300 }}
+                className="absolute top-6 left-6"
+              >
+                <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full backdrop-blur-md ${
+                  styleMatch >= 85
+                    ? "bg-green-400/30 border border-green-400/30"
+                    : styleMatch >= 70
+                    ? "bg-gold/30 border border-gold/30"
+                    : "bg-white/20 border border-white/20"
+                }`}>
+                  <Sparkles size={10} className="text-white" />
+                  <span className="text-[10px] font-inter font-bold text-white tracking-wider">
+                    {styleMatch}% MATCH
+                  </span>
+                </div>
+              </motion.div>
+            )}
+
             {/* Close button */}
             <motion.button
               initial={{ opacity: 0 }}
@@ -72,9 +149,11 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
             </motion.button>
 
             {/* Top left — magazine-style issue label */}
-            <div className="absolute top-6 left-6">
-              <span className="text-masthead text-sm text-white/80">LKBK</span>
-            </div>
+            {!styleMatch && (
+              <div className="absolute top-6 left-6">
+                <span className="text-masthead text-sm text-white/80">LKBK</span>
+              </div>
+            )}
           </div>
 
           {/* Editorial content */}
@@ -117,6 +196,46 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
             <p className="font-subhead text-xl text-ink-light leading-relaxed mb-8 italic">
               {look.description}
             </p>
+
+            {/* Editor's Note */}
+            {look.editorNote && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="rounded-2xl bg-gradient-to-br from-gold/8 to-blush/8 border border-gold/10 p-5 mb-8"
+              >
+                <div className="flex items-center gap-2 mb-3">
+                  <PenTool size={14} className="text-gold" />
+                  <span className="text-[10px] font-inter tracking-[0.2em] uppercase text-gold font-semibold">
+                    Editor's Note
+                  </span>
+                </div>
+                <p className="font-subhead text-base text-ink-light italic leading-relaxed">
+                  {look.editorNote}
+                </p>
+              </motion.div>
+            )}
+
+            {/* Styling Tip */}
+            {look.stylingTip && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="rounded-2xl bg-ivory border border-ink/5 p-5 mb-8"
+              >
+                <div className="flex items-center gap-2 mb-3">
+                  <Lightbulb size={14} className="text-ink" />
+                  <span className="text-[10px] font-inter tracking-[0.2em] uppercase text-ink font-semibold">
+                    How to Wear It
+                  </span>
+                </div>
+                <p className="text-sm font-inter text-ink-light leading-relaxed">
+                  {look.stylingTip}
+                </p>
+              </motion.div>
+            )}
 
             {/* Action bar */}
             <div className="flex items-center gap-3 mb-10">
@@ -171,6 +290,9 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 <Share2 size={18} className="text-ink-muted" />
               </motion.button>
             </div>
+
+            {/* Cost-per-wear */}
+            <CostPerWear look={look} />
 
             {/* Shop the Look section */}
             <div className="mb-10">

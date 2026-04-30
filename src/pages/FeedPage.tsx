@@ -1,13 +1,54 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
 import { SearchPage } from "./SearchPage";
 import { Logo } from "../components/ui/Logo";
-import { RefreshCw, Sparkles, Camera } from "lucide-react";
-import { feedLooks, moodFilters } from "../data/mockData";
+import { RefreshCw, Sparkles, Camera, X, Flame, Trophy, Target } from "lucide-react";
+import { feedLooks, moodFilters, getDailyChallenge, computeStyleMatch, getWhyThisLook } from "../data/mockData";
 import type { MoodFilter } from "../data/mockData";
 import { useStore } from "../stores/useStore";
+
+function MilestoneCelebration({ streak, onDismiss }: { streak: number; onDismiss: () => void }) {
+  useEffect(() => {
+    const timer = setTimeout(onDismiss, 3000);
+    return () => clearTimeout(timer);
+  }, [onDismiss]);
+
+  return (
+    <motion.div
+      initial={{ scale: 0, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      exit={{ scale: 0.5, opacity: 0 }}
+      className="fixed inset-0 z-[60] flex items-center justify-center pointer-events-none"
+    >
+      <motion.div
+        initial={{ y: 50 }}
+        animate={{ y: 0 }}
+        className="bg-ink/90 backdrop-blur-xl rounded-3xl px-8 py-6 text-center pointer-events-auto"
+        onClick={onDismiss}
+      >
+        <motion.div
+          animate={{ rotate: [0, -10, 10, -5, 5, 0], scale: [1, 1.2, 1] }}
+          transition={{ duration: 0.6 }}
+          className="text-5xl mb-3"
+        >
+          {streak >= 50 ? "👑" : streak >= 25 ? "⚡" : streak >= 10 ? "🔥" : "✨"}
+        </motion.div>
+        <p className="font-editorial text-2xl text-cream mb-1">{streak} Streak!</p>
+        <p className="font-subhead text-sm text-cream/60 italic">
+          {streak >= 50
+            ? "Fashion icon status unlocked"
+            : streak >= 25
+            ? "Your taste is *impeccable*"
+            : streak >= 10
+            ? "You're on fire today"
+            : "Great eye — keep going!"}
+        </p>
+      </motion.div>
+    </motion.div>
+  );
+}
 
 export function FeedPage() {
   const currentFeedIndex = useStore((s) => s.currentFeedIndex);
@@ -23,7 +64,20 @@ export function FeedPage() {
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
   const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
+  const passedLooks = useStore((s) => s.passedLooks);
+  const styleDNA = useStore((s) => s.styleDNA);
+  const swipeStreak = useStore((s) => s.swipeStreak);
+  const bestStreak = useStore((s) => s.bestStreak);
+
+  const lastMilestone = useStore((s) => s.lastMilestone);
+  const incrementStreak = useStore((s) => s.incrementStreak);
+  const clearMilestone = useStore((s) => s.clearMilestone);
+  const dismissedChallengeId = useStore((s) => s.dismissedChallengeId);
+  const dismissChallenge = useStore((s) => s.dismissChallenge);
   const [showSearch, setShowSearch] = useState(false);
+
+  const dailyChallenge = useMemo(() => getDailyChallenge(), []);
+  const showChallenge = dismissedChallengeId !== dailyChallenge.id;
 
   const filteredLooks = useMemo(
     () =>
@@ -44,13 +98,25 @@ export function FeedPage() {
     [currentFeedIndex, filteredLooks]
   );
 
+  const styleMatch = useMemo(
+    () => computeStyleMatch(currentLook.tags, styleDNA),
+    [currentLook, styleDNA]
+  );
+
+  const whyThisLook = useMemo(
+    () => getWhyThisLook(currentLook, styleDNA),
+    [currentLook, styleDNA]
+  );
+
   const handleSwipeRight = useCallback(() => {
     likeLook(currentLook);
-  }, [currentLook, likeLook]);
+    incrementStreak();
+  }, [currentLook, likeLook, incrementStreak]);
 
   const handleSwipeLeft = useCallback(() => {
     passLook(currentLook);
-  }, [currentLook, passLook]);
+    incrementStreak();
+  }, [currentLook, passLook, incrementStreak]);
 
   const handleSwipeUp = useCallback(() => {
     setShowLookDetail(currentLook);
@@ -62,15 +128,18 @@ export function FeedPage() {
 
   const handleDoubleTap = useCallback(() => {
     likeLook(currentLook);
-  }, [currentLook, likeLook]);
+    incrementStreak();
+  }, [currentLook, likeLook, incrementStreak]);
 
   const handleButtonLike = useCallback(() => {
     likeLook(currentLook);
-  }, [currentLook, likeLook]);
+    incrementStreak();
+  }, [currentLook, likeLook, incrementStreak]);
 
   const handleButtonPass = useCallback(() => {
     passLook(currentLook);
-  }, [currentLook, passLook]);
+    incrementStreak();
+  }, [currentLook, passLook, incrementStreak]);
 
   const handleButtonShop = useCallback(() => {
     setShowLookDetail(currentLook);
@@ -88,12 +157,28 @@ export function FeedPage() {
     [setActiveMoodFilter]
   );
 
+  const topStyle = useMemo(
+    () => [...styleDNA].sort((a, b) => b.percentage - a.percentage)[0],
+    [styleDNA]
+  );
+
   return (
     <div className="h-full flex flex-col bg-cream">
       {/* Header */}
       <div className="flex items-center justify-between py-3 px-6">
         <Logo variant="mark" size="sm" />
         <div className="flex items-center gap-3">
+          {/* Streak badge */}
+          {swipeStreak > 0 && (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-rose/15 to-gold/15 border border-rose/20"
+            >
+              <Flame size={12} className="text-rose" />
+              <span className="text-[10px] font-inter font-bold text-ink">{swipeStreak}</span>
+            </motion.div>
+          )}
           <span className="text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted">
             {Math.min(currentFeedIndex + 1, feedLooks.length)} / {feedLooks.length}
           </span>
@@ -116,6 +201,37 @@ export function FeedPage() {
           )}
         </div>
       </div>
+
+      {/* Daily Challenge Banner */}
+      <AnimatePresence>
+        {showChallenge && !hasSeenAll && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="px-4 pb-2 overflow-hidden"
+          >
+            <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-gradient-to-r from-gold/10 via-blush/10 to-lavender/10 border border-gold/15">
+              <span className="text-lg">{dailyChallenge.emoji}</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-[9px] font-inter tracking-[0.2em] uppercase text-gold font-semibold">
+                  {dailyChallenge.tag}
+                </p>
+                <p className="text-xs font-inter text-ink truncate">
+                  {dailyChallenge.prompt}
+                </p>
+              </div>
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => dismissChallenge(dailyChallenge.id)}
+                className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-ink/5"
+              >
+                <X size={12} className="text-ink-muted" />
+              </motion.button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Mood filter pills */}
       <div className="px-4 pb-2">
@@ -156,12 +272,37 @@ export function FeedPage() {
             <h2 className="font-editorial text-2xl text-ink text-center mb-2">
               You've seen today's edit.
             </h2>
-            <p className="font-subhead text-base text-ink-muted italic text-center mb-2">
-              {likedLooks.length > 0
-                ? `You loved ${likedLooks.length} look${likedLooks.length > 1 ? "s" : ""}. Great taste.`
-                : "Come back tomorrow for fresh picks."}
-            </p>
-            <div className="flex flex-col gap-3 w-full mt-6">
+
+            {/* Session stats */}
+            <div className="flex items-center gap-4 mb-4">
+              {likedLooks.length > 0 && (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose/10 border border-rose/15">
+                  <span className="text-xs font-inter font-semibold text-rose">{likedLooks.length}</span>
+                  <span className="text-[10px] font-inter text-rose/70">loved</span>
+                </div>
+              )}
+              {passedLooks.length > 0 && (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-ink/5 border border-ink/10">
+                  <span className="text-xs font-inter font-semibold text-ink-muted">{passedLooks.length}</span>
+                  <span className="text-[10px] font-inter text-ink-muted/70">passed</span>
+                </div>
+              )}
+              {bestStreak > 0 && (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold/10 border border-gold/15">
+                  <Trophy size={10} className="text-gold" />
+                  <span className="text-xs font-inter font-semibold text-gold">{bestStreak}</span>
+                  <span className="text-[10px] font-inter text-gold/70">best streak</span>
+                </div>
+              )}
+            </div>
+
+            {topStyle && (
+              <p className="font-subhead text-base text-ink-muted italic text-center mb-2">
+                Your taste leans {topStyle.style.toLowerCase()} today. Great eye.
+              </p>
+            )}
+
+            <div className="flex flex-col gap-3 w-full mt-4">
               <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setCurrentFeedIndex(0)}
@@ -176,6 +317,14 @@ export function FeedPage() {
                 className="w-full py-3.5 rounded-full border border-ink/15 text-ink font-inter text-sm font-medium"
               >
                 Explore Community
+              </motion.button>
+              <motion.button
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setActiveTab("capsule")}
+                className="w-full py-3.5 rounded-full border border-ink/15 text-ink font-inter text-sm font-medium flex items-center justify-center gap-2"
+              >
+                <Target size={14} />
+                Build Your Capsule
               </motion.button>
             </div>
           </motion.div>
@@ -203,6 +352,8 @@ export function FeedPage() {
                 onTap={handleTap}
                 onDoubleTap={handleDoubleTap}
                 isTop={true}
+                styleMatch={styleMatch}
+                whyLabel={whyThisLook}
               />
             </AnimatePresence>
           </div>
@@ -225,6 +376,16 @@ export function FeedPage() {
           </p>
         </div>
       )}
+
+      {/* Milestone celebration overlay */}
+      <AnimatePresence>
+        {lastMilestone > 0 && (
+          <MilestoneCelebration
+            streak={lastMilestone}
+            onDismiss={clearMilestone}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Search overlay */}
       <AnimatePresence>
