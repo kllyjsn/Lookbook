@@ -38,6 +38,7 @@ export function FeedPage() {
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
   const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
+  const passedLooks = useStore((s) => s.passedLooks);
   const styleDNA = useStore((s) => s.styleDNA);
   const checkInToday = useStore((s) => s.checkInToday);
   const streakCount = useStore((s) => s.streakCount);
@@ -94,12 +95,12 @@ export function FeedPage() {
   const recommendedLooks = useMemo(() => {
     if (likedLooks.length === 0) return [];
     const likedIds = new Set(likedLooks.map((l) => l.id));
-    const passedIds = new Set(useStore.getState().passedLooks.map((l) => l.id));
+    const passedIds = new Set(passedLooks.map((l) => l.id));
     return feedLooks
       .filter((l) => !likedIds.has(l.id) && !passedIds.has(l.id))
       .sort((a, b) => computeAffinityScore(b, styleDNA) - computeAffinityScore(a, styleDNA))
       .slice(0, 4);
-  }, [likedLooks, styleDNA]);
+  }, [likedLooks, passedLooks, styleDNA]);
 
   const handleSwipeRight = useCallback(() => {
     likeLook(currentLook);
