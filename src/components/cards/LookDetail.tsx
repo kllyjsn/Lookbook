@@ -17,6 +17,7 @@ function formatCount(n: number): string {
 interface LookDetailProps {
   look: Look;
   onClose: () => void;
+  onNavigate?: (look: Look) => void;
 }
 
 function generateStyleWith(items: Look["items"], currentIndex: number): string[] {
@@ -26,11 +27,10 @@ function generateStyleWith(items: Look["items"], currentIndex: number): string[]
     .map((i) => i.name);
 }
 
-export function LookDetail({ look, onClose }: LookDetailProps) {
+export function LookDetail({ look, onClose, onNavigate }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
-  const setShowLookDetail = useStore((s) => s.setShowLookDetail);
   const styleDNA = useStore((s) => s.styleDNA);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -231,7 +231,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.08 }}
-                      onClick={() => setShowLookDetail(similar)}
+                      onClick={() => onNavigate?.(similar)}
                       className="group cursor-pointer"
                     >
                       <div className="relative aspect-[3/4] rounded-xl overflow-hidden">
