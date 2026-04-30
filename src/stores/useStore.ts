@@ -59,6 +59,18 @@ interface AppState {
   followCreator: (id: string) => void;
   unfollowCreator: (id: string) => void;
 
+  // Swipe streak
+  swipeStreak: number;
+  bestStreak: number;
+  totalSwipes: number;
+  lastMilestone: number;
+  incrementStreak: () => void;
+  clearMilestone: () => void;
+
+  // Daily challenge
+  dismissedChallengeId: string | null;
+  dismissChallenge: (id: string) => void;
+
   // UI state
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -141,9 +153,13 @@ export const useStore = create<AppState>()(
   persist(
     (set, get) => ({
       currentFeedIndex: 0,
-      setCurrentFeedIndex: (index) => set({ currentFeedIndex: index }),
+      setCurrentFeedIndex: (index) =>
+        set((state) => ({
+          currentFeedIndex: index,
+          swipeStreak: index === 0 ? 0 : state.swipeStreak,
+        })),
       activeMoodFilter: "all" as MoodFilter,
-      setActiveMoodFilter: (mood) => set({ activeMoodFilter: mood, currentFeedIndex: 0, lastSwipedLook: null, lastSwipeAction: null }),
+      setActiveMoodFilter: (mood) => set({ activeMoodFilter: mood, currentFeedIndex: 0, lastSwipedLook: null, lastSwipeAction: null, swipeStreak: 0 }),
 
       likedLooks: [],
       passedLooks: [],
@@ -195,6 +211,9 @@ export const useStore = create<AppState>()(
             lastSwipedLook: null,
             lastSwipeAction: null,
             styleDNA: computeDNA(newLiked),
+            swipeStreak: Math.max(0, state.swipeStreak - 1),
+            totalSwipes: Math.max(0, state.totalSwipes - 1),
+            lastMilestone: 0,
           };
         }),
 
@@ -261,6 +280,28 @@ export const useStore = create<AppState>()(
           followedCreators: state.followedCreators.filter((cid) => cid !== id),
         })),
 
+      swipeStreak: 0,
+      bestStreak: 0,
+      totalSwipes: 0,
+      lastMilestone: 0,
+      incrementStreak: () =>
+        set((state) => {
+          const newStreak = state.swipeStreak + 1;
+          const newTotal = state.totalSwipes + 1;
+          const milestones = [5, 10, 25, 50, 100];
+          const hitMilestone = milestones.includes(newStreak) ? newStreak : 0;
+          return {
+            swipeStreak: newStreak,
+            bestStreak: Math.max(state.bestStreak, newStreak),
+            totalSwipes: newTotal,
+            lastMilestone: hitMilestone,
+          };
+        }),
+      clearMilestone: () => set({ lastMilestone: 0 }),
+
+      dismissedChallengeId: null,
+      dismissChallenge: (id) => set({ dismissedChallengeId: id }),
+
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
       showLookDetail: null,
@@ -280,6 +321,10 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        swipeStreak: state.swipeStreak,
+        bestStreak: state.bestStreak,
+        totalSwipes: state.totalSwipes,
+        dismissedChallengeId: state.dismissedChallengeId,
       }),
     }
   )

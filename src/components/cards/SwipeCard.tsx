@@ -23,6 +23,8 @@ interface SwipeCardProps {
   onTap: () => void;
   onDoubleTap: () => void;
   isTop: boolean;
+  styleMatch?: number;
+  whyLabel?: string;
 }
 
 export function SwipeCard({
@@ -33,6 +35,8 @@ export function SwipeCard({
   onTap,
   onDoubleTap,
   isTop,
+  styleMatch,
+  whyLabel,
 }: SwipeCardProps) {
   const [exitDirection, setExitDirection] = useState<"left" | "right" | "up" | null>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
@@ -209,6 +213,27 @@ export function SwipeCard({
         {/* Bottom gradient + content */}
         <div className="absolute inset-x-0 bottom-0 gradient-bottom p-6 pb-8">
           <div className="space-y-3">
+            {/* "Why this look" + Style match */}
+            {isTop && (styleMatch || whyLabel) && (
+              <div className="flex items-center gap-2">
+                {whyLabel && (
+                  <span className="text-[9px] font-inter tracking-[0.1em] uppercase text-white/80 bg-white/15 backdrop-blur-sm rounded-full px-3 py-1">
+                    {whyLabel}
+                  </span>
+                )}
+                {styleMatch !== undefined && styleMatch > 0 && (
+                  <span className={`text-[9px] font-inter font-bold tracking-wider rounded-full px-2.5 py-1 backdrop-blur-sm ${
+                    styleMatch >= 85
+                      ? "bg-green-400/25 text-green-300"
+                      : styleMatch >= 70
+                      ? "bg-gold/25 text-gold-light"
+                      : "bg-white/15 text-white/70"
+                  }`}>
+                    {styleMatch}% MATCH
+                  </span>
+                )}
+              </div>
+            )}
             <div className="flex gap-2">
               {look.tags.map((tag) => (
                 <span
