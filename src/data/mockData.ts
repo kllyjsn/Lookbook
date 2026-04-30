@@ -566,3 +566,141 @@ export const styleQuizImages = [
   { id: "q4", image: UNSPLASH("photo-1469334031218-e382a71b716b", 600, 800), style: "Glamour" },
   { id: "q5", image: UNSPLASH("photo-1483985988355-763728e1935b", 600, 800), style: "Classic" },
 ];
+
+/* ── Trend Stories (TikTok-style trend narratives) ── */
+
+export interface TrendStory {
+  id: string;
+  name: string;
+  tagline: string;
+  image: string;
+  gradient: string;
+  lookIds: string[];
+  viewCount: number;
+}
+
+export const trendStories: TrendStory[] = [
+  {
+    id: "trend-quiet-luxury",
+    name: "Quiet Luxury",
+    tagline: "IYKYK",
+    image: UNSPLASH("photo-1558618666-fcd25c85f82e", 400, 600),
+    gradient: "from-amber-900/80 to-stone-900/80",
+    lookIds: ["look-9", "look-8", "look-10"],
+    viewCount: 2400000,
+  },
+  {
+    id: "trend-mob-wife",
+    name: "Mob Wife",
+    tagline: "Fur, gold, attitude",
+    image: UNSPLASH("photo-1469334031218-e382a71b716b", 400, 600),
+    gradient: "from-red-900/80 to-stone-900/80",
+    lookIds: ["look-4", "look-13", "look-15"],
+    viewCount: 5100000,
+  },
+  {
+    id: "trend-clean-girl",
+    name: "Clean Girl",
+    tagline: "Less product, more glow",
+    image: UNSPLASH("photo-1519764622345-23439dd774f7", 400, 600),
+    gradient: "from-neutral-600/80 to-stone-900/80",
+    lookIds: ["look-1", "look-6", "look-10"],
+    viewCount: 8300000,
+  },
+  {
+    id: "trend-coquette",
+    name: "Coquette",
+    tagline: "Bows, blush, and ballet",
+    image: UNSPLASH("photo-1529139574466-a303027c1d8b", 400, 600),
+    gradient: "from-pink-800/80 to-rose-900/80",
+    lookIds: ["look-2", "look-7", "look-11"],
+    viewCount: 6700000,
+  },
+  {
+    id: "trend-office-siren",
+    name: "Office Siren",
+    tagline: "Corporate but make it hot",
+    image: UNSPLASH("photo-1550614000-4895a10e1bfd", 400, 600),
+    gradient: "from-slate-800/80 to-black/80",
+    lookIds: ["look-1", "look-8", "look-15"],
+    viewCount: 3900000,
+  },
+];
+
+/* ── Aesthetic sub-labels (TikTok-style) ── */
+
+export const lookAesthetics: Record<string, string[]> = {
+  "look-1": ["Clean Girl", "That Girl"],
+  "look-2": ["Coquette", "Soft Girl"],
+  "look-3": ["Gorpcore", "Off-Duty Model"],
+  "look-4": ["Mob Wife", "Dark Femme"],
+  "look-5": ["Coastal Granddaughter", "Wanderlust"],
+  "look-6": ["Old Money", "Stealth Wealth"],
+  "look-7": ["Cottagecore", "Princesscore"],
+  "look-8": ["Office Siren", "Boss Babe"],
+  "look-9": ["Quiet Luxury", "Stealth Wealth"],
+  "look-10": ["Scandi Minimal", "Clean Girl"],
+  "look-11": ["Balletcore", "Coquette"],
+  "look-12": ["Techwear", "Harajuku"],
+  "look-13": ["Glamcore", "Red Carpet"],
+  "look-14": ["Coastal Grandmother", "Quiet Luxury"],
+  "look-15": ["Office Siren", "Corporate Core"],
+  "look-16": ["Festivalcore", "Boho Luxe"],
+};
+
+/* ── "Get the Look for Less" dupes ── */
+
+export interface DupeItem {
+  id: string;
+  name: string;
+  brand: string;
+  originalPrice: number;
+  dupePrice: number;
+  image: string;
+  savingsPercent: number;
+}
+
+export const lookDupes: Record<string, DupeItem[]> = {
+  "look-1": [
+    { id: "d1", name: "Structured Blazer", brand: "Zara", originalPrice: 275, dupePrice: 89, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), savingsPercent: 68 },
+    { id: "d2", name: "Satin Cami", brand: "H&M", originalPrice: 195, dupePrice: 29, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), savingsPercent: 85 },
+  ],
+  "look-3": [
+    { id: "d3", name: "Oversized Tee", brand: "Uniqlo", originalPrice: 58, dupePrice: 15, image: UNSPLASH("photo-1521572163474-6864f9cf17ab", 400, 500), savingsPercent: 74 },
+    { id: "d4", name: "Faux Leather Jacket", brand: "Mango", originalPrice: 499, dupePrice: 79, image: UNSPLASH("photo-1551028719-00167b16eac5", 400, 500), savingsPercent: 84 },
+  ],
+  "look-9": [
+    { id: "d5", name: "Cashmere-Blend Crew", brand: "Uniqlo", originalPrice: 890, dupePrice: 49, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), savingsPercent: 94 },
+    { id: "d6", name: "Wide Leg Trousers", brand: "& Other Stories", originalPrice: 450, dupePrice: 89, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), savingsPercent: 80 },
+  ],
+};
+
+/* ── This-or-That Polls ── */
+
+export interface StylePoll {
+  id: string;
+  question: string;
+  optionA: { label: string; image: string; votes: number };
+  optionB: { label: string; image: string; votes: number };
+}
+
+export const stylePolls: StylePoll[] = [
+  {
+    id: "poll-1",
+    question: "Date night energy?",
+    optionA: { label: "Little Black Dress", image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 600), votes: 4230 },
+    optionB: { label: "Power Suit", image: UNSPLASH("photo-1539109136881-3be0616acf4b", 400, 600), votes: 3870 },
+  },
+  {
+    id: "poll-2",
+    question: "Summer staple?",
+    optionA: { label: "Linen Everything", image: UNSPLASH("photo-1544957992-20514f595d6f", 400, 600), votes: 5670 },
+    optionB: { label: "Flowy Midi Dress", image: UNSPLASH("photo-1496747611176-843222e1e57c", 400, 600), votes: 6120 },
+  },
+  {
+    id: "poll-3",
+    question: "Everyday bag?",
+    optionA: { label: "Structured Tote", image: UNSPLASH("photo-1584917865442-de89df76afd3", 400, 600), votes: 3450 },
+    optionB: { label: "Crossbody Mini", image: UNSPLASH("photo-1548036328-c9fa89d128fa", 400, 600), votes: 4210 },
+  },
+];

@@ -59,6 +59,16 @@ interface AppState {
   followCreator: (id: string) => void;
   unfollowCreator: (id: string) => void;
 
+  // Daily streak & engagement
+  dailyStreak: number;
+  lastVisitDate: string | null;
+  totalSwipes: number;
+  recordVisit: () => void;
+
+  // Poll votes
+  pollVotes: Record<string, "A" | "B">;
+  votePoll: (pollId: string, choice: "A" | "B") => void;
+
   // UI state
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -161,6 +171,7 @@ export const useStore = create<AppState>()(
             lastSwipedLook: look,
             lastSwipeAction: "like" as const,
             styleDNA: computeDNA(newLiked),
+            totalSwipes: state.totalSwipes + 1,
           };
         }),
       passLook: (look) =>
@@ -171,6 +182,7 @@ export const useStore = create<AppState>()(
           currentFeedIndex: state.currentFeedIndex + 1,
           lastSwipedLook: look,
           lastSwipeAction: "pass" as const,
+          totalSwipes: state.totalSwipes + 1,
         })),
       saveLook: (look) =>
         set((state) => ({
@@ -261,6 +273,26 @@ export const useStore = create<AppState>()(
           followedCreators: state.followedCreators.filter((cid) => cid !== id),
         })),
 
+      dailyStreak: 1,
+      lastVisitDate: null,
+      totalSwipes: 0,
+      recordVisit: () =>
+        set((state) => {
+          const today = new Date().toISOString().slice(0, 10);
+          if (state.lastVisitDate === today) return state;
+          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+          return {
+            lastVisitDate: today,
+            dailyStreak: state.lastVisitDate === yesterday ? state.dailyStreak + 1 : 1,
+          };
+        }),
+
+      pollVotes: {},
+      votePoll: (pollId, choice) =>
+        set((state) => ({
+          pollVotes: { ...state.pollVotes, [pollId]: choice },
+        })),
+
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
       showLookDetail: null,
@@ -280,6 +312,10 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        dailyStreak: state.dailyStreak,
+        lastVisitDate: state.lastVisitDate,
+        totalSwipes: state.totalSwipes,
+        pollVotes: state.pollVotes,
       }),
     }
   )

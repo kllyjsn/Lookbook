@@ -4,9 +4,11 @@ import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
 import { SearchPage } from "./SearchPage";
 import { Logo } from "../components/ui/Logo";
+import { TrendStories } from "../components/feed/TrendStories";
+import { DailyStreak } from "../components/feed/DailyStreak";
 import { RefreshCw, Sparkles, Camera } from "lucide-react";
 import { feedLooks, moodFilters } from "../data/mockData";
-import type { MoodFilter } from "../data/mockData";
+import type { MoodFilter, TrendStory } from "../data/mockData";
 import { useStore } from "../stores/useStore";
 
 export function FeedPage() {
@@ -24,14 +26,16 @@ export function FeedPage() {
   const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
   const [showSearch, setShowSearch] = useState(false);
+  const [activeTrend, setActiveTrend] = useState<TrendStory | null>(null);
 
-  const filteredLooks = useMemo(
-    () =>
-      activeMoodFilter === "all"
-        ? feedLooks
-        : feedLooks.filter((l) => l.mood === activeMoodFilter),
-    [activeMoodFilter]
-  );
+  const filteredLooks = useMemo(() => {
+    if (activeTrend) {
+      return feedLooks.filter((l) => activeTrend.lookIds.includes(l.id));
+    }
+    return activeMoodFilter === "all"
+      ? feedLooks
+      : feedLooks.filter((l) => l.mood === activeMoodFilter);
+  }, [activeMoodFilter, activeTrend]);
 
   const hasSeenAll = currentFeedIndex >= filteredLooks.length;
 
@@ -83,25 +87,37 @@ export function FeedPage() {
 
   const handleMoodFilter = useCallback(
     (mood: MoodFilter) => {
+      setActiveTrend(null);
       setActiveMoodFilter(mood);
     },
     [setActiveMoodFilter]
+  );
+
+  const handleTrendTap = useCallback(
+    (story: TrendStory) => {
+      setActiveTrend(story);
+      setCurrentFeedIndex(0);
+    },
+    [setCurrentFeedIndex]
   );
 
   return (
     <div className="h-full flex flex-col bg-cream">
       {/* Header */}
       <div className="flex items-center justify-between py-3 px-6">
-        <Logo variant="mark" size="sm" />
+        <div className="flex items-center gap-3">
+          <Logo variant="mark" size="sm" />
+          <DailyStreak />
+        </div>
         <div className="flex items-center gap-3">
           <span className="text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted">
-            {Math.min(currentFeedIndex + 1, feedLooks.length)} / {feedLooks.length}
+            {Math.min(currentFeedIndex + 1, filteredLooks.length)} / {filteredLooks.length}
           </span>
           <div className="w-16 h-1 bg-ink/10 rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-gold rounded-full"
               initial={{ width: 0 }}
-              animate={{ width: `${Math.min(((currentFeedIndex + 1) / feedLooks.length) * 100, 100)}%` }}
+              animate={{ width: `${Math.min(((currentFeedIndex + 1) / filteredLooks.length) * 100, 100)}%` }}
               transition={{ duration: 0.3 }}
             />
           </div>
@@ -116,6 +132,34 @@ export function FeedPage() {
           )}
         </div>
       </div>
+
+      {/* Trend Stories carousel */}
+      <TrendStories onTrendTap={handleTrendTap} />
+
+      {/* Active trend banner */}
+      <AnimatePresence>
+        {activeTrend && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="px-4 pb-2"
+          >
+            <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-ink text-cream">
+              <span className="text-xs font-inter font-medium">
+                Browsing: {activeTrend.name}
+              </span>
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => { setActiveTrend(null); setCurrentFeedIndex(0); }}
+                className="text-[10px] font-inter text-cream/60 underline"
+              >
+                Clear
+              </motion.button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Mood filter pills */}
       <div className="px-4 pb-2">

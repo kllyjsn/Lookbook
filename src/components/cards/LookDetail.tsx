@@ -2,9 +2,12 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { lookAesthetics } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
+import { DupeSection } from "./DupeSection";
 import { Tag } from "../ui/Tag";
 import { useStore } from "../../stores/useStore";
+import { computeStyleMatch } from "../../lib/styleMatch";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -21,8 +24,11 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
+  const styleDNA = useStore((s) => s.styleDNA);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+  const matchPercent = computeStyleMatch(look, styleDNA);
+  const aesthetics = lookAesthetics[look.id] ?? [];
 
   return (
     <AnimatePresence>
@@ -80,7 +86,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
           {/* Editorial content */}
           <div className="px-6 py-8 max-w-2xl mx-auto">
             {/* Tags + badges */}
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="flex flex-wrap gap-2 mb-3">
               {look.trending && (
                 <span className="flex items-center gap-1 text-[10px] font-inter font-semibold tracking-[0.1em] uppercase text-white bg-ink rounded-full px-3 py-1.5">
                   <TrendingUp size={10} />
@@ -92,10 +98,27 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                   Editor's Pick
                 </span>
               )}
+              <span className="text-[10px] font-inter font-bold tracking-[0.1em] uppercase text-gold bg-gold/10 rounded-full px-3 py-1.5 border border-gold/20">
+                {matchPercent}% your vibe
+              </span>
               {look.tags.map((tag) => (
                 <Tag key={tag.label} label={tag.label} color={tag.color} />
               ))}
             </div>
+
+            {/* Aesthetic labels */}
+            {aesthetics.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-4">
+                {aesthetics.map((a) => (
+                  <span
+                    key={a}
+                    className="text-[9px] font-inter font-semibold tracking-[0.12em] uppercase text-ink-muted bg-ivory rounded-full px-2.5 py-1 border border-ink/5"
+                  >
+                    #{a.replace(/\s+/g, "")}
+                  </span>
+                ))}
+              </div>
+            )}
 
             {/* Engagement stats */}
             <div className="flex items-center gap-4 mb-5">
@@ -188,9 +211,12 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </div>
             </div>
 
+            {/* Get the Look for Less */}
+            <DupeSection lookId={look.id} />
+
             {/* Photographer credit */}
             {look.photographer && (
-              <p className="text-center text-[10px] font-inter tracking-[0.2em] uppercase text-ink-muted pb-24">
+              <p className="text-center text-[10px] font-inter tracking-[0.2em] uppercase text-ink-muted mt-10 pb-24">
                 Photography by {look.photographer}
               </p>
             )}
