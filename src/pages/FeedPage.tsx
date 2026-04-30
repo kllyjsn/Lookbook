@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState, useEffect } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
@@ -9,19 +9,29 @@ import { feedLooks, moodFilters } from "../data/mockData";
 import type { MoodFilter } from "../data/mockData";
 import { useStore, computeAffinityScore } from "../stores/useStore";
 
+function seedFromId(id: string): number {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = ((h << 5) - h + id.charCodeAt(i)) | 0;
+  return 40 + (Math.abs(h) % 160);
+}
+
 function useSimulatedViewers(lookId: string): number {
-  const [count, setCount] = useState(() => 40 + Math.floor(Math.random() * 160));
+  const [state, setState] = useState({ lookId, count: seedFromId(lookId) });
+
+  if (state.lookId !== lookId) {
+    setState({ lookId, count: seedFromId(lookId) });
+  }
+
   useEffect(() => {
-    setCount(40 + Math.floor(Math.random() * 160));
     const interval = setInterval(() => {
-      setCount((prev) => {
-        const delta = Math.floor(Math.random() * 7) - 3;
-        return Math.max(12, prev + delta);
-      });
+      setState((prev) => ({
+        ...prev,
+        count: Math.max(12, prev.count + Math.floor(Math.random() * 7) - 3),
+      }));
     }, 3000 + Math.random() * 2000);
     return () => clearInterval(interval);
   }, [lookId]);
-  return count;
+  return state.count;
 }
 
 export function FeedPage() {
@@ -48,27 +58,17 @@ export function FeedPage() {
     checkInToday();
   }, [checkInToday]);
 
-  const dnaSnapshotRef = useRef(styleDNA);
-  const likedCountSnapshotRef = useRef(likedLooks.length);
-
-  useEffect(() => {
-    dnaSnapshotRef.current = styleDNA;
-    likedCountSnapshotRef.current = likedLooks.length;
-  }, [activeMoodFilter, styleDNA, likedLooks.length]);
-
   const filteredLooks = useMemo(() => {
     const base = activeMoodFilter === "all"
       ? feedLooks
       : feedLooks.filter((l) => l.mood === activeMoodFilter);
 
-    const snappedDNA = dnaSnapshotRef.current;
-    if (likedCountSnapshotRef.current < 2) return base;
+    const { styleDNA: dna, likedLooks: liked } = useStore.getState();
+    if (liked.length < 2) return base;
 
-    return [...base].sort((a, b) => {
-      const scoreA = computeAffinityScore(a, snappedDNA);
-      const scoreB = computeAffinityScore(b, snappedDNA);
-      return scoreB - scoreA;
-    });
+    return [...base].sort((a, b) =>
+      computeAffinityScore(b, dna) - computeAffinityScore(a, dna)
+    );
   }, [activeMoodFilter]);
 
   const hasSeenAll = currentFeedIndex >= filteredLooks.length;

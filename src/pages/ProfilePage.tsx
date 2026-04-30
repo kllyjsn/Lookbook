@@ -14,25 +14,22 @@ type ProfileSection = "dna" | "liked" | "collections" | "remix";
 
 function ShareStyleCard({ styleDNA, likedCount, streakCount }: { styleDNA: { style: string; percentage: number; color: string }[]; likedCount: number; streakCount: number }) {
   const topStyle = [...styleDNA].sort((a, b) => b.percentage - a.percentage)[0];
-  const [shared, setShared] = useState(false);
+  const [shareLabel, setShareLabel] = useState<string | null>(null);
 
   const handleShare = async () => {
     const text = `My Style DNA on LKBK:\n${styleDNA.map((d) => `${d.style}: ${d.percentage}%`).join("\n")}\n\nI'm ${topStyle?.percentage ?? 0}% ${topStyle?.style ?? "Unique"}. What's yours?`;
-    let didShare = false;
     if (navigator.share) {
       try {
         await navigator.share({ title: "My LKBK Style DNA", text, url: window.location.href });
-        didShare = true;
+        setShareLabel("Shared!");
+        setTimeout(() => setShareLabel(null), 2000);
       } catch { /* user cancelled */ }
     } else if (navigator.clipboard) {
       try {
         await navigator.clipboard.writeText(text);
-        didShare = true;
+        setShareLabel("Copied!");
+        setTimeout(() => setShareLabel(null), 2000);
       } catch { /* clipboard blocked */ }
-    }
-    if (didShare) {
-      setShared(true);
-      setTimeout(() => setShared(false), 2000);
     }
   };
 
@@ -78,7 +75,7 @@ function ShareStyleCard({ styleDNA, likedCount, streakCount }: { styleDNA: { sty
           className="w-full py-3 rounded-full bg-cream/10 border border-cream/20 text-cream text-xs font-inter font-medium flex items-center justify-center gap-2 hover:bg-cream/15 transition-colors"
         >
           <Share2 size={12} />
-          {shared ? "Link copied!" : "Share My Style DNA"}
+          {shareLabel ?? "Share My Style DNA"}
         </motion.button>
       </div>
     </motion.div>

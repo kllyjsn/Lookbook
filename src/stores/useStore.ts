@@ -170,7 +170,8 @@ export function computeAffinityScore(look: Look, styleDNA: StyleDNAEntry[]): num
 }
 
 function getTodayString(): string {
-  return new Date().toISOString().split("T")[0];
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 export const useStore = create<AppState>()(
@@ -340,7 +341,7 @@ export const useStore = create<AppState>()(
 
           const yesterday = new Date();
           yesterday.setDate(yesterday.getDate() - 1);
-          const yesterdayStr = yesterday.toISOString().split("T")[0];
+          const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, "0")}-${String(yesterday.getDate()).padStart(2, "0")}`;
 
           const isConsecutive = state.lastVisitDate === yesterdayStr;
           const newStreak = isConsecutive ? state.streakCount + 1 : 1;
