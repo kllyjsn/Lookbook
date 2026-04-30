@@ -247,7 +247,7 @@ export function generateDynamicInsights(
   }
 
   const avgPrice = likedLooks.reduce((sum, l) => {
-    const avg = l.items.reduce((s, i) => s + i.price, 0) / l.items.length;
+    const avg = l.items.length > 0 ? l.items.reduce((s, i) => s + i.price, 0) / l.items.length : 0;
     return sum + avg;
   }, 0) / likedLooks.length;
 
