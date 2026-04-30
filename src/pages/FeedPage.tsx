@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, useEffect } from "react";
+import { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
@@ -12,6 +12,7 @@ import { useStore, computeAffinityScore } from "../stores/useStore";
 function useSimulatedViewers(lookId: string): number {
   const [count, setCount] = useState(() => 40 + Math.floor(Math.random() * 160));
   useEffect(() => {
+    setCount(40 + Math.floor(Math.random() * 160));
     const interval = setInterval(() => {
       setCount((prev) => {
         const delta = Math.floor(Math.random() * 7) - 3;
@@ -46,19 +47,28 @@ export function FeedPage() {
     checkInToday();
   }, [checkInToday]);
 
+  const dnaSnapshotRef = useRef(styleDNA);
+  const likedCountSnapshotRef = useRef(likedLooks.length);
+
+  useEffect(() => {
+    dnaSnapshotRef.current = styleDNA;
+    likedCountSnapshotRef.current = likedLooks.length;
+  }, [activeMoodFilter, styleDNA, likedLooks.length]);
+
   const filteredLooks = useMemo(() => {
     const base = activeMoodFilter === "all"
       ? feedLooks
       : feedLooks.filter((l) => l.mood === activeMoodFilter);
 
-    if (likedLooks.length < 2) return base;
+    const snappedDNA = dnaSnapshotRef.current;
+    if (likedCountSnapshotRef.current < 2) return base;
 
     return [...base].sort((a, b) => {
-      const scoreA = computeAffinityScore(a, styleDNA);
-      const scoreB = computeAffinityScore(b, styleDNA);
+      const scoreA = computeAffinityScore(a, snappedDNA);
+      const scoreB = computeAffinityScore(b, snappedDNA);
       return scoreB - scoreA;
     });
-  }, [activeMoodFilter, styleDNA, likedLooks.length]);
+  }, [activeMoodFilter]);
 
   const hasSeenAll = currentFeedIndex >= filteredLooks.length;
 

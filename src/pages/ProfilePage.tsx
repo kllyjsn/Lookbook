@@ -16,13 +16,24 @@ function ShareStyleCard({ styleDNA, likedCount, streakCount }: { styleDNA: { sty
   const topStyle = [...styleDNA].sort((a, b) => b.percentage - a.percentage)[0];
   const [shared, setShared] = useState(false);
 
-  const handleShare = () => {
+  const handleShare = async () => {
     const text = `My Style DNA on LKBK:\n${styleDNA.map((d) => `${d.style}: ${d.percentage}%`).join("\n")}\n\nI'm ${topStyle?.percentage ?? 0}% ${topStyle?.style ?? "Unique"}. What's yours?`;
+    let didShare = false;
     if (navigator.share) {
-      navigator.share({ title: "My LKBK Style DNA", text, url: window.location.href }).catch(() => {});
+      try {
+        await navigator.share({ title: "My LKBK Style DNA", text, url: window.location.href });
+        didShare = true;
+      } catch { /* user cancelled */ }
+    } else if (navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(text);
+        didShare = true;
+      } catch { /* clipboard blocked */ }
     }
-    setShared(true);
-    setTimeout(() => setShared(false), 2000);
+    if (didShare) {
+      setShared(true);
+      setTimeout(() => setShared(false), 2000);
+    }
   };
 
   return (
