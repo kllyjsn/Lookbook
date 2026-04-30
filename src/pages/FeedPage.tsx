@@ -1,13 +1,38 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
 import { SearchPage } from "./SearchPage";
 import { Logo } from "../components/ui/Logo";
-import { RefreshCw, Sparkles, Camera } from "lucide-react";
+import { RefreshCw, Sparkles, Camera, Flame, TrendingUp, Eye } from "lucide-react";
 import { feedLooks, moodFilters } from "../data/mockData";
 import type { MoodFilter } from "../data/mockData";
-import { useStore } from "../stores/useStore";
+import { useStore, computeAffinityScore } from "../stores/useStore";
+
+function seedFromId(id: string): number {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = ((h << 5) - h + id.charCodeAt(i)) | 0;
+  return 40 + (Math.abs(h) % 160);
+}
+
+function useSimulatedViewers(lookId: string): number {
+  const [state, setState] = useState({ lookId, count: seedFromId(lookId) });
+
+  if (state.lookId !== lookId) {
+    setState({ lookId, count: seedFromId(lookId) });
+  }
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setState((prev) => ({
+        ...prev,
+        count: Math.max(12, prev.count + Math.floor(Math.random() * 7) - 3),
+      }));
+    }, 3000 + Math.random() * 2000);
+    return () => clearInterval(interval);
+  }, [lookId]);
+  return state.count;
+}
 
 export function FeedPage() {
   const currentFeedIndex = useStore((s) => s.currentFeedIndex);
@@ -23,15 +48,28 @@ export function FeedPage() {
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
   const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
+  const passedLooks = useStore((s) => s.passedLooks);
+  const styleDNA = useStore((s) => s.styleDNA);
+  const checkInToday = useStore((s) => s.checkInToday);
+  const streakCount = useStore((s) => s.streakCount);
   const [showSearch, setShowSearch] = useState(false);
 
-  const filteredLooks = useMemo(
-    () =>
-      activeMoodFilter === "all"
-        ? feedLooks
-        : feedLooks.filter((l) => l.mood === activeMoodFilter),
-    [activeMoodFilter]
-  );
+  useEffect(() => {
+    checkInToday();
+  }, [checkInToday]);
+
+  const filteredLooks = useMemo(() => {
+    const base = activeMoodFilter === "all"
+      ? feedLooks
+      : feedLooks.filter((l) => l.mood === activeMoodFilter);
+
+    const { styleDNA: dna, likedLooks: liked } = useStore.getState();
+    if (liked.length < 2) return base;
+
+    return [...base].sort((a, b) =>
+      computeAffinityScore(b, dna) - computeAffinityScore(a, dna)
+    );
+  }, [activeMoodFilter]);
 
   const hasSeenAll = currentFeedIndex >= filteredLooks.length;
 
@@ -43,6 +81,26 @@ export function FeedPage() {
     () => filteredLooks[(currentFeedIndex + 1) % filteredLooks.length],
     [currentFeedIndex, filteredLooks]
   );
+
+  const viewerCount = useSimulatedViewers(currentLook.id);
+
+  const affinityMatch = useMemo(() => {
+    if (likedLooks.length < 2) return null;
+    const score = computeAffinityScore(currentLook, styleDNA);
+    if (score >= 80) return "Perfect Match";
+    if (score >= 50) return "Great Match";
+    return null;
+  }, [currentLook, styleDNA, likedLooks.length]);
+
+  const recommendedLooks = useMemo(() => {
+    if (likedLooks.length === 0) return [];
+    const likedIds = new Set(likedLooks.map((l) => l.id));
+    const passedIds = new Set(passedLooks.map((l) => l.id));
+    return feedLooks
+      .filter((l) => !likedIds.has(l.id) && !passedIds.has(l.id))
+      .sort((a, b) => computeAffinityScore(b, styleDNA) - computeAffinityScore(a, styleDNA))
+      .slice(0, 4);
+  }, [likedLooks, passedLooks, styleDNA]);
 
   const handleSwipeRight = useCallback(() => {
     likeLook(currentLook);
@@ -92,7 +150,19 @@ export function FeedPage() {
     <div className="h-full flex flex-col bg-cream">
       {/* Header */}
       <div className="flex items-center justify-between py-3 px-6">
-        <Logo variant="mark" size="sm" />
+        <div className="flex items-center gap-2">
+          <Logo variant="mark" size="sm" />
+          {streakCount > 1 && (
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-gold/20 to-rose/20"
+            >
+              <Flame size={10} className="text-gold" />
+              <span className="text-[9px] font-inter font-bold text-gold">{streakCount}</span>
+            </motion.div>
+          )}
+        </div>
         <div className="flex items-center gap-3">
           <span className="text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted">
             {Math.min(currentFeedIndex + 1, feedLooks.length)} / {feedLooks.length}
@@ -143,25 +213,66 @@ export function FeedPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full h-full flex flex-col items-center justify-center px-8"
+            className="w-full h-full flex flex-col items-center justify-center px-6 overflow-y-auto"
           >
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 200, damping: 15 }}
-              className="w-20 h-20 rounded-full bg-gradient-to-br from-gold/20 to-blush/20 flex items-center justify-center mb-6"
+              className="w-20 h-20 rounded-full bg-gradient-to-br from-gold/20 to-blush/20 flex items-center justify-center mb-4"
             >
               <Sparkles size={32} className="text-gold" />
             </motion.div>
-            <h2 className="font-editorial text-2xl text-ink text-center mb-2">
+            <h2 className="font-editorial text-2xl text-ink text-center mb-1">
               You've seen today's edit.
             </h2>
-            <p className="font-subhead text-base text-ink-muted italic text-center mb-2">
+            <p className="font-subhead text-base text-ink-muted italic text-center mb-1">
               {likedLooks.length > 0
-                ? `You loved ${likedLooks.length} look${likedLooks.length > 1 ? "s" : ""}. Great taste.`
-                : "Come back tomorrow for fresh picks."}
+                ? `You loved ${likedLooks.length} look${likedLooks.length > 1 ? "s" : ""}. Impeccable taste.`
+                : "Tomorrow brings a fresh curation."}
             </p>
-            <div className="flex flex-col gap-3 w-full mt-6">
+            {streakCount > 1 && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-gold/10 to-rose/10 border border-gold/20 mb-4"
+              >
+                <Flame size={14} className="text-gold" />
+                <span className="text-xs font-inter font-medium text-ink">
+                  {streakCount}-day style streak
+                </span>
+              </motion.div>
+            )}
+
+            {/* Personalized recommendations */}
+            {recommendedLooks.length > 0 && (
+              <div className="w-full mt-4 mb-4">
+                <p className="text-[10px] font-inter tracking-[0.2em] uppercase text-ink-muted mb-3 text-center">
+                  Because you loved {likedLooks[likedLooks.length - 1]?.title ?? "it"}
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {recommendedLooks.slice(0, 2).map((look, i) => (
+                    <motion.div
+                      key={look.id}
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.4 + i * 0.1 }}
+                      onClick={() => setShowLookDetail(look)}
+                      className="relative aspect-[3/4] rounded-xl overflow-hidden cursor-pointer group"
+                    >
+                      <img src={look.image} alt={look.title} className="img-editorial group-hover:scale-105 transition-transform duration-500" />
+                      <div className="absolute inset-x-0 bottom-0 gradient-bottom p-3">
+                        <p className="text-white text-xs font-inter font-medium">{look.title}</p>
+                        <p className="text-white/50 text-[10px] font-inter">{look.priceRange}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex flex-col gap-3 w-full mt-2">
               <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setCurrentFeedIndex(0)}
@@ -181,6 +292,31 @@ export function FeedPage() {
           </motion.div>
         ) : (
           <div className="relative w-full h-full max-w-md mx-auto">
+            {/* Social proof + affinity badge */}
+            <div className="absolute -top-0.5 left-0 right-0 z-20 flex items-center justify-between px-1 pb-1">
+              <motion.div
+                key={`viewers-${currentLook.id}`}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cream/80 backdrop-blur-sm border border-ink/5"
+              >
+                <Eye size={10} className="text-ink-muted" />
+                <span className="text-[9px] font-inter text-ink-muted">
+                  {viewerCount} exploring
+                </span>
+              </motion.div>
+              {affinityMatch && (
+                <motion.div
+                  key={`match-${currentLook.id}`}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-gold/15 to-rose/15 border border-gold/20"
+                >
+                  <TrendingUp size={10} className="text-gold" />
+                  <span className="text-[9px] font-inter font-semibold text-gold">{affinityMatch}</span>
+                </motion.div>
+              )}
+            </div>
             <AnimatePresence>
               {/* Background card (next) */}
               <SwipeCard
