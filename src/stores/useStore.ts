@@ -151,7 +151,7 @@ export const useStore = create<AppState>()(
   persist(
     (set, get) => ({
       currentFeedIndex: 0,
-      setCurrentFeedIndex: (index) => set({ currentFeedIndex: index }),
+      setCurrentFeedIndex: (index) => set({ currentFeedIndex: index, lastSwipedLook: null, lastSwipeAction: null }),
       activeMoodFilter: "all" as MoodFilter,
       setActiveMoodFilter: (mood) => set({ activeMoodFilter: mood, currentFeedIndex: 0, lastSwipedLook: null, lastSwipeAction: null }),
 
