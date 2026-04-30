@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, BadgeCheck, Sparkles, Clock } from "lucide-react";
+import { Search, BadgeCheck, Sparkles, Clock, ArrowUp, ArrowDown } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { PostCard } from "../components/community/PostCard";
 import { CreatorProfile } from "../components/community/CreatorProfile";
@@ -9,11 +9,11 @@ import { MustHaveDetail } from "../components/community/MustHaveDetail";
 import { FollowButton } from "../components/community/FollowButton";
 import { ProductCard } from "../components/cards/ProductCard";
 import { useStore } from "../stores/useStore";
-import { creators, communityPosts, mustHaveLists } from "../data/communityData";
+import { creators, communityPosts, mustHaveLists, trendReports } from "../data/communityData";
 import type { Creator, CommunityPost, MustHaveList } from "../data/communityData";
 
 
-type CommunityTab = "forYou" | "following" | "mustHaves";
+type CommunityTab = "forYou" | "following" | "mustHaves" | "trends";
 
 function PostShopOverlay({
   post,
@@ -120,6 +120,7 @@ export function CommunityPage() {
             { id: "forYou" as const, label: "For You" },
             { id: "following" as const, label: "Following" },
             { id: "mustHaves" as const, label: "Must Haves" },
+            { id: "trends" as const, label: "In / Out" },
           ]).map((tab) => (
             <motion.button
               key={tab.id}
@@ -345,6 +346,74 @@ export function CommunityPage() {
                 index={i}
                 onTap={handleMustHaveTap}
               />
+            ))}
+          </motion.div>
+        )}
+
+        {/* In / Out Trends tab */}
+        {activeTab === "trends" && (
+          <motion.div
+            key="trends"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="px-6"
+          >
+            {trendReports.map((report) => (
+              <div key={report.id}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles size={14} className="text-gold" />
+                  <span className="text-[10px] font-inter tracking-[0.2em] uppercase text-gold">
+                    Trend Report
+                  </span>
+                </div>
+                <h2 className="font-editorial text-2xl text-ink mb-1">{report.title}</h2>
+                <p className="font-subhead text-sm text-ink-muted italic mb-6">{report.season}</p>
+
+                <div className="space-y-2.5 mb-6">
+                  {report.items
+                    .filter((item) => item.status === "in")
+                    .map((item, i) => (
+                      <motion.div
+                        key={item.label}
+                        initial={{ opacity: 0, x: -15 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.06 }}
+                        className="flex items-center gap-3 p-3.5 rounded-xl bg-ivory"
+                      >
+                        <div className="w-7 h-7 rounded-full bg-sage/20 flex items-center justify-center flex-shrink-0">
+                          <ArrowUp size={14} className="text-sage" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-inter font-semibold text-ink">{item.label}</p>
+                          <p className="text-[11px] font-inter text-ink-muted">{item.description}</p>
+                        </div>
+                      </motion.div>
+                    ))}
+                </div>
+
+                <div className="space-y-2.5 mb-8">
+                  {report.items
+                    .filter((item) => item.status === "out")
+                    .map((item, i) => (
+                      <motion.div
+                        key={item.label}
+                        initial={{ opacity: 0, x: -15 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3 + i * 0.06 }}
+                        className="flex items-center gap-3 p-3.5 rounded-xl bg-ivory"
+                      >
+                        <div className="w-7 h-7 rounded-full bg-rose/10 flex items-center justify-center flex-shrink-0">
+                          <ArrowDown size={14} className="text-rose" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-inter font-semibold text-ink line-through decoration-rose/40">{item.label}</p>
+                          <p className="text-[11px] font-inter text-ink-muted">{item.description}</p>
+                        </div>
+                      </motion.div>
+                    ))}
+                </div>
+              </div>
             ))}
           </motion.div>
         )}

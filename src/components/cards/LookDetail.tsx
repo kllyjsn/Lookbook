@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
+import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp, Lightbulb, Palette, ArrowDownRight, Flame } from "lucide-react";
 import type { Look } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
@@ -23,6 +23,9 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
   const addToCollection = useStore((s) => s.addToCollection);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  const totalPrice = look.items.reduce((sum, item) => sum + item.price, 0);
+  const costPerWear = Math.round(totalPrice / 30);
 
   return (
     <AnimatePresence>
@@ -103,13 +106,18 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 <Heart size={14} className="text-rose" fill="currentColor" />
                 {formatCount(look.likes)} loves
               </span>
+              {!!look.savesToday && (
+                <>
+                  <span className="text-ink-muted/40">·</span>
+                  <span className="flex items-center gap-1 text-sm font-inter text-ink-muted">
+                    <Flame size={12} className="text-gold" />
+                    {look.savesToday} saved today
+                  </span>
+                </>
+              )}
               <span className="text-ink-muted/40">·</span>
               <span className="text-sm font-inter text-ink-muted">
                 {look.items.length} pieces
-              </span>
-              <span className="text-ink-muted/40">·</span>
-              <span className="text-sm font-inter text-ink-muted">
-                {look.priceRange}
               </span>
             </div>
 
@@ -117,6 +125,56 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
             <p className="font-subhead text-xl text-ink-light leading-relaxed mb-8 italic">
               {look.description}
             </p>
+
+            {/* Color Palette */}
+            {look.colorPalette && look.colorPalette.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mb-8"
+              >
+                <div className="flex items-center gap-2 mb-3">
+                  <Palette size={14} className="text-ink" />
+                  <h3 className="text-[10px] font-inter tracking-[0.2em] uppercase text-ink-muted">
+                    Color Story
+                  </h3>
+                </div>
+                <div className="flex gap-2">
+                  {look.colorPalette.map((color, i) => (
+                    <motion.div
+                      key={color + i}
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.4 + i * 0.08, type: "spring", stiffness: 300 }}
+                      className="w-12 h-12 rounded-xl border border-ink/10"
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Outfit Math */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35 }}
+              className="grid grid-cols-3 gap-3 mb-8"
+            >
+              <div className="bg-ivory rounded-xl p-3 text-center">
+                <p className="font-editorial text-lg text-ink">${totalPrice.toLocaleString()}</p>
+                <p className="text-[9px] font-inter tracking-[0.15em] uppercase text-ink-muted mt-0.5">Total</p>
+              </div>
+              <div className="bg-ivory rounded-xl p-3 text-center">
+                <p className="font-editorial text-lg text-gold">${costPerWear}</p>
+                <p className="text-[9px] font-inter tracking-[0.15em] uppercase text-ink-muted mt-0.5">Cost/Wear</p>
+              </div>
+              <div className="bg-ivory rounded-xl p-3 text-center">
+                <p className="font-editorial text-lg text-ink">{look.items.length}</p>
+                <p className="text-[9px] font-inter tracking-[0.15em] uppercase text-ink-muted mt-0.5">Pieces</p>
+              </div>
+            </motion.div>
 
             {/* Action bar */}
             <div className="flex items-center gap-3 mb-10">
@@ -172,6 +230,35 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </motion.button>
             </div>
 
+            {/* Style Tips */}
+            {look.styleTips && look.styleTips.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="mb-10"
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <Lightbulb size={16} className="text-gold" />
+                  <h3 className="font-editorial text-lg text-ink">How to Wear It</h3>
+                </div>
+                <div className="space-y-2.5">
+                  {look.styleTips.map((tip, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.5 + i * 0.08 }}
+                      className="flex gap-3 p-3.5 rounded-xl bg-ivory"
+                    >
+                      <span className="text-[10px] font-inter font-bold text-gold mt-0.5">{String(i + 1).padStart(2, "0")}</span>
+                      <p className="text-sm font-inter text-ink leading-relaxed">{tip}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
             {/* Shop the Look section */}
             <div className="mb-10">
               <div className="flex items-center gap-3 mb-6">
@@ -187,6 +274,49 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 ))}
               </div>
             </div>
+
+            {/* Get the Look for Less — Dupes */}
+            {look.dupes && look.dupes.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="mb-10"
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <ArrowDownRight size={16} className="text-sage" />
+                  <h3 className="font-editorial text-lg text-ink">Get the Look for Less</h3>
+                </div>
+                <div className="space-y-2.5">
+                  {look.dupes.map((dupe, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.6 + i * 0.08 }}
+                      className="flex items-center justify-between p-3.5 rounded-xl bg-ivory"
+                    >
+                      <div className="flex-1">
+                        <p className="text-xs font-inter text-ink-muted line-through">
+                          {dupe.original}
+                        </p>
+                        <p className="text-sm font-inter font-medium text-ink">
+                          {dupe.dupe} — {dupe.dupeBrand}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-inter font-semibold text-sage">
+                          ${dupe.dupePrice}
+                        </p>
+                        <p className="text-[10px] font-inter text-ink-muted">
+                          Save ${dupe.savings}
+                        </p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
 
             {/* Photographer credit */}
             {look.photographer && (

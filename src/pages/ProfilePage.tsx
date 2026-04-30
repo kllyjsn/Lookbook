@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2 } from "lucide-react";
+import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2, Flame, Zap } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
@@ -13,6 +13,8 @@ export function ProfilePage() {
   const styleDNA = useStore((s) => s.styleDNA);
   const likedLooks = useStore((s) => s.likedLooks);
   const collections = useStore((s) => s.collections);
+  const styleStreak = useStore((s) => s.styleStreak);
+  const totalSwipes = useStore((s) => s.totalSwipes);
   const createCollection = useStore((s) => s.createCollection);
   const removeFromCollection = useStore((s) => s.removeFromCollection);
   const [activeSection, setActiveSection] = useState<ProfileSection>("dna");
@@ -56,6 +58,31 @@ export function ProfilePage() {
             <p className="text-xs font-inter text-ink-muted">
               {likedLooks.length} looks loved · {collections.reduce((sum, c) => sum + c.looks.length, 0)} saved
             </p>
+          </div>
+        </div>
+
+        {/* Style Streak + Stats */}
+        <div className="grid grid-cols-3 gap-2 mb-6">
+          <div className="bg-ivory rounded-xl p-3 text-center">
+            <div className="flex items-center justify-center gap-1 mb-1">
+              <Flame size={14} className="text-gold" />
+            </div>
+            <p className="font-editorial text-lg text-ink">{styleStreak}</p>
+            <p className="text-[9px] font-inter tracking-[0.12em] uppercase text-ink-muted">Day Streak</p>
+          </div>
+          <div className="bg-ivory rounded-xl p-3 text-center">
+            <div className="flex items-center justify-center gap-1 mb-1">
+              <Zap size={14} className="text-gold" />
+            </div>
+            <p className="font-editorial text-lg text-ink">{totalSwipes}</p>
+            <p className="text-[9px] font-inter tracking-[0.12em] uppercase text-ink-muted">Swipes</p>
+          </div>
+          <div className="bg-ivory rounded-xl p-3 text-center">
+            <div className="flex items-center justify-center gap-1 mb-1">
+              <Heart size={14} className="text-rose" />
+            </div>
+            <p className="font-editorial text-lg text-ink">{likedLooks.length}</p>
+            <p className="text-[9px] font-inter tracking-[0.12em] uppercase text-ink-muted">Loved</p>
           </div>
         </div>
 
