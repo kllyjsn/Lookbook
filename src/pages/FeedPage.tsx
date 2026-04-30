@@ -256,7 +256,7 @@ export function FeedPage() {
                           <div className="absolute inset-x-0 bottom-0 gradient-bottom p-2">
                             <p className="text-white text-[11px] font-inter font-medium leading-tight">{look.title}</p>
                           </div>
-                          {look.trendVelocity && look.trendVelocity > 20 && (
+                          {(look.trendVelocity ?? 0) > 20 && (
                             <div className="absolute top-1.5 right-1.5">
                               <TrendingUp size={10} className="text-gold" />
                             </div>

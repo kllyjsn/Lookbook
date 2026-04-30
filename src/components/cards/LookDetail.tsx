@@ -106,7 +106,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 <Heart size={14} className="text-rose" fill="currentColor" />
                 {formatCount(look.likes)} loves
               </span>
-              {look.savesToday && (
+              {!!look.savesToday && (
                 <>
                   <span className="text-ink-muted/40">·</span>
                   <span className="flex items-center gap-1 text-sm font-inter text-ink-muted">

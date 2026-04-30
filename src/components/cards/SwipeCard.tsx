@@ -230,7 +230,7 @@ export function SwipeCard({
                 <Heart size={12} fill="currentColor" />
                 {formatCount(look.likes)}
               </span>
-              {look.savesToday && (
+              {!!look.savesToday && (
                 <>
                   <span className="text-white/30">·</span>
                   <span className="flex items-center gap-1 text-xs font-inter text-white/50">
@@ -243,7 +243,7 @@ export function SwipeCard({
                 {look.priceRange}
               </span>
             </div>
-            {look.trendVelocity && look.trendVelocity > 20 && (
+            {(look.trendVelocity ?? 0) > 20 && (
               <div className="flex items-center gap-1.5 mt-2">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold/60" />
