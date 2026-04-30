@@ -639,7 +639,7 @@ export function computeStyleMatch(lookTags: { label: string }[], styleDNA: Style
     "Tokyo": "Avant-Garde", "Creative": "Avant-Garde", "Statement": "Avant-Garde",
     "Corporate": "Classic", "Siren": "Avant-Garde", "Coastal": "Classic",
     "Festival": "Avant-Garde", "Boho": "Romantic", "Vintage": "Romantic",
-    "Sustainable": "Minimalist",
+    "Sustainable": "Minimalist", "Classic": "Classic", "Avant-Garde": "Avant-Garde",
   };
 
   let matchScore = 0;
