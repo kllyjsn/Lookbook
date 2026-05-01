@@ -273,11 +273,13 @@ export const useStore = create<AppState>()(
           };
         }),
       saveLook: (look) =>
-        set((state) => ({
-          likedLooks: state.likedLooks.some((l) => l.id === look.id)
+        set((state) => {
+          const newLiked = state.likedLooks.some((l) => l.id === look.id)
             ? state.likedLooks
-            : [...state.likedLooks, look],
-        })),
+            : [...state.likedLooks, look];
+          const badges = computeBadges(newLiked.length, state.collections, state.streak, state.followedCreators, state.capsuleSelectedItems, state.exploredMoods, state.badges);
+          return { likedLooks: newLiked, badges };
+        }),
 
       undoLastSwipe: () =>
         set((state) => {
