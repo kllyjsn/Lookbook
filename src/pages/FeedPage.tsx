@@ -1,9 +1,12 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
 import { SearchPage } from "./SearchPage";
 import { Logo } from "../components/ui/Logo";
+import { TodaysPick } from "../components/feed/TodaysPick";
+import { StreakBadge } from "../components/feed/StreakBadge";
+import { TrendingTicker } from "../components/feed/TrendingTicker";
 import { RefreshCw, Sparkles, Camera } from "lucide-react";
 import { feedLooks, moodFilters } from "../data/mockData";
 import type { MoodFilter } from "../data/mockData";
@@ -23,7 +26,14 @@ export function FeedPage() {
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
   const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
+  const recordActivity = useStore((s) => s.recordActivity);
+  const styleDNA = useStore((s) => s.styleDNA);
   const [showSearch, setShowSearch] = useState(false);
+  const [showTodaysPick, setShowTodaysPick] = useState(true);
+
+  useEffect(() => {
+    recordActivity();
+  }, [recordActivity]);
 
   const filteredLooks = useMemo(
     () =>
@@ -88,11 +98,24 @@ export function FeedPage() {
     [setActiveMoodFilter]
   );
 
+  const [dailySeed] = useState(() => Math.floor(Date.now() / 86400000));
+
+  const todaysPickLook = useMemo(() => {
+    const topStyle = styleDNA.length > 0 ? styleDNA[0].style : "";
+    const matched = feedLooks.find((l) =>
+      l.tags.some((t) => t.label.toLowerCase().includes(topStyle.toLowerCase()))
+    );
+    return matched ?? feedLooks[dailySeed % feedLooks.length];
+  }, [styleDNA, dailySeed]);
+
   return (
     <div className="h-full flex flex-col bg-cream">
       {/* Header */}
       <div className="flex items-center justify-between py-3 px-6">
-        <Logo variant="mark" size="sm" />
+        <div className="flex items-center gap-2">
+          <Logo variant="mark" size="sm" />
+          <StreakBadge />
+        </div>
         <div className="flex items-center gap-3">
           <span className="text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted">
             {Math.min(currentFeedIndex + 1, feedLooks.length)} / {feedLooks.length}
@@ -116,6 +139,20 @@ export function FeedPage() {
           )}
         </div>
       </div>
+
+      {/* Trending Ticker */}
+      {!hasSeenAll && currentFeedIndex === 0 && <TrendingTicker />}
+
+      {/* Today's Pick */}
+      {showTodaysPick && !hasSeenAll && currentFeedIndex < 2 && (
+        <TodaysPick
+          look={todaysPickLook}
+          onTap={(look) => {
+            setShowLookDetail(look);
+            setShowTodaysPick(false);
+          }}
+        />
+      )}
 
       {/* Mood filter pills */}
       <div className="px-4 pb-2">

@@ -3,6 +3,7 @@ import { useStore } from "./stores/useStore";
 import { TabBar } from "./components/layout/TabBar";
 import { FeedPage } from "./pages/FeedPage";
 import { CommunityPage } from "./pages/CommunityPage";
+import { MixerPage } from "./pages/MixerPage";
 import { StylistPage } from "./pages/StylistPage";
 import { CapsulePage } from "./pages/CapsulePage";
 import { ProfilePage } from "./pages/ProfilePage";
@@ -11,6 +12,7 @@ import { OnboardingPage } from "./pages/OnboardingPage";
 const pages: Record<string, React.FC> = {
   feed: FeedPage,
   community: CommunityPage,
+  mixer: MixerPage,
   stylist: StylistPage,
   capsule: CapsulePage,
   profile: ProfilePage,
