@@ -290,9 +290,7 @@ export const useStore = create<AppState>()(
           const newPassed = state.lastSwipeAction === "pass"
             ? (() => { const idx = state.passedLooks.findLastIndex((l) => l.id === state.lastSwipedLook!.id); return idx >= 0 ? [...state.passedLooks.slice(0, idx), ...state.passedLooks.slice(idx + 1)] : state.passedLooks; })()
             : state.passedLooks;
-          const revertedSwipes = Math.max(0, state.totalSwipes - 1);
-          const revertedLevel = Math.min(10, 1 + Math.floor(revertedSwipes / 15));
-          const revertedBadges = computeBadges(newLiked.length, state.collections, state.streak, state.followedCreators, state.capsuleSelectedItems, state.exploredMoods, state.badges);
+          const badges = computeBadges(newLiked.length, state.collections, state.streak, state.followedCreators, state.capsuleSelectedItems, state.exploredMoods, state.badges);
           return {
             likedLooks: newLiked,
             passedLooks: newPassed,
@@ -300,9 +298,7 @@ export const useStore = create<AppState>()(
             lastSwipedLook: null,
             lastSwipeAction: null,
             styleDNA: computeDNA(newLiked),
-            totalSwipes: revertedSwipes,
-            styleLevel: revertedLevel,
-            badges: revertedBadges,
+            badges,
           };
         }),
 
