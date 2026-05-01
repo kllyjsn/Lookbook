@@ -248,8 +248,12 @@ export const useStore = create<AppState>()(
         }),
       passLook: (look) =>
         set((state) => {
+          const today = new Date().toISOString().slice(0, 10);
+          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+          const newStreak = state.lastActiveDate === today ? state.streak : (state.lastActiveDate === yesterday ? state.streak + 1 : 1);
           const newSwipes = state.totalSwipes + 1;
           const newLevel = Math.min(10, 1 + Math.floor(newSwipes / 15));
+          const badges = computeBadges(state.likedLooks.length, state.collections, newStreak, state.followedCreators, state.capsuleSelectedItems, state.exploredMoods);
           return {
             passedLooks: state.passedLooks.some((l) => l.id === look.id)
               ? state.passedLooks
@@ -259,6 +263,9 @@ export const useStore = create<AppState>()(
             lastSwipeAction: "pass" as const,
             totalSwipes: newSwipes,
             styleLevel: newLevel,
+            streak: newStreak,
+            lastActiveDate: today,
+            badges,
           };
         }),
       saveLook: (look) =>
@@ -277,6 +284,9 @@ export const useStore = create<AppState>()(
           const newPassed = state.lastSwipeAction === "pass"
             ? (() => { const idx = state.passedLooks.findLastIndex((l) => l.id === state.lastSwipedLook!.id); return idx >= 0 ? [...state.passedLooks.slice(0, idx), ...state.passedLooks.slice(idx + 1)] : state.passedLooks; })()
             : state.passedLooks;
+          const revertedSwipes = Math.max(0, state.totalSwipes - 1);
+          const revertedLevel = Math.min(10, 1 + Math.floor(revertedSwipes / 15));
+          const revertedBadges = computeBadges(newLiked.length, state.collections, state.streak, state.followedCreators, state.capsuleSelectedItems, state.exploredMoods);
           return {
             likedLooks: newLiked,
             passedLooks: newPassed,
@@ -284,6 +294,9 @@ export const useStore = create<AppState>()(
             lastSwipedLook: null,
             lastSwipeAction: null,
             styleDNA: computeDNA(newLiked),
+            totalSwipes: revertedSwipes,
+            styleLevel: revertedLevel,
+            badges: revertedBadges,
           };
         }),
 
@@ -371,10 +384,8 @@ export const useStore = create<AppState>()(
           if (state.lastActiveDate === today) return state;
           const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
           const newStreak = state.lastActiveDate === yesterday ? state.streak + 1 : 1;
-          const newSwipes = state.totalSwipes + 1;
-          const newLevel = Math.min(10, 1 + Math.floor(newSwipes / 15));
           const badges = computeBadges(state.likedLooks.length, state.collections, newStreak, state.followedCreators, state.capsuleSelectedItems, state.exploredMoods);
-          return { streak: newStreak, lastActiveDate: today, totalSwipes: newSwipes, styleLevel: newLevel, badges };
+          return { streak: newStreak, lastActiveDate: today, badges };
         }),
 
       activeTab: "feed",
