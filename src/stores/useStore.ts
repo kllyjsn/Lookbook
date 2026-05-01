@@ -361,9 +361,11 @@ export const useStore = create<AppState>()(
           return { followedCreators: newFollowed, badges };
         }),
       unfollowCreator: (id) =>
-        set((state) => ({
-          followedCreators: state.followedCreators.filter((cid) => cid !== id),
-        })),
+        set((state) => {
+          const newFollowed = state.followedCreators.filter((cid) => cid !== id);
+          const badges = computeBadges(state.likedLooks.length, state.collections, state.streak, newFollowed, state.capsuleSelectedItems, state.exploredMoods);
+          return { followedCreators: newFollowed, badges };
+        }),
 
       streak: 0,
       lastActiveDate: null,

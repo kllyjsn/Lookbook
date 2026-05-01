@@ -156,12 +156,12 @@ export function ProfilePage() {
               <div className="mt-6 p-4 rounded-xl bg-ivory">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-inter font-medium text-ink">Style Level {styleLevel}</span>
-                  <span className="text-[10px] font-inter text-ink-muted">{totalSwipes % 15}/15 to next</span>
+                  <span className="text-[10px] font-inter text-ink-muted">{styleLevel >= 10 ? "Max level!" : `${totalSwipes % 15}/15 to next`}</span>
                 </div>
                 <div className="h-2 bg-ink/5 rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
-                    animate={{ width: `${((totalSwipes % 15) / 15) * 100}%` }}
+                    animate={{ width: `${styleLevel >= 10 ? 100 : ((totalSwipes % 15) / 15) * 100}%` }}
                     transition={{ duration: 0.6, ease: "easeOut" }}
                     className="h-full rounded-full bg-gradient-to-r from-gold to-blush"
                   />
