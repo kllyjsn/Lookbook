@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
+import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp, Wand2, Sparkles } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { feedLooks } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
 import { useStore } from "../../stores/useStore";
+import { computeStyleMatchScore } from "../../lib/styleMatch";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -21,8 +23,17 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
+  const styleDNA = useStore((s) => s.styleDNA);
+  const setShowLookDetail = useStore((s) => s.setShowLookDetail);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+  const matchScore = computeStyleMatchScore(look, styleDNA);
+
+  const similarLooks = feedLooks
+    .filter((l) => l.id !== look.id)
+    .map((l) => ({ look: l, score: computeStyleMatchScore(l, styleDNA) }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3);
 
   return (
     <AnimatePresence>
@@ -81,6 +92,12 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
           <div className="px-6 py-8 max-w-2xl mx-auto">
             {/* Tags + badges */}
             <div className="flex flex-wrap gap-2 mb-4">
+              {matchScore >= 60 && (
+                <span className="flex items-center gap-1 text-[10px] font-inter font-semibold tracking-[0.1em] uppercase text-cream bg-gradient-to-r from-gold to-rose rounded-full px-3 py-1.5">
+                  <Sparkles size={10} />
+                  {matchScore}% Match
+                </span>
+              )}
               {look.trending && (
                 <span className="flex items-center gap-1 text-[10px] font-inter font-semibold tracking-[0.1em] uppercase text-white bg-ink rounded-full px-3 py-1.5">
                   <TrendingUp size={10} />
@@ -158,12 +175,15 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => {
+                  const shareText = `${look.title} — ${look.subtitle}\n\n${look.description}\n\n${look.tags.map((t) => `#${t.label.replace(/\s+/g, "")}`).join(" ")} #LKBK`;
                   if (navigator.share) {
                     navigator.share({
                       title: `LKBK — ${look.title}`,
-                      text: look.description,
+                      text: shareText,
                       url: window.location.href,
                     }).catch(() => {});
+                  } else {
+                    navigator.clipboard.writeText(shareText).catch(() => {});
                   }
                 }}
                 className="w-12 h-12 rounded-full flex items-center justify-center border border-ink/10 hover:border-ink/30"
@@ -187,6 +207,49 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 ))}
               </div>
             </div>
+
+            {/* You Might Also Love */}
+            {similarLooks.length > 0 && (
+              <div className="mb-10">
+                <div className="flex items-center gap-3 mb-4">
+                  <Wand2 size={16} className="text-lavender" />
+                  <h3 className="font-editorial text-xl text-ink">You Might Also Love</h3>
+                </div>
+                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                  {similarLooks.map(({ look: similar, score }) => (
+                    <motion.div
+                      key={similar.id}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => setShowLookDetail(similar)}
+                      className="flex-shrink-0 w-36 cursor-pointer"
+                    >
+                      <div className="relative aspect-[3/4] rounded-xl overflow-hidden mb-2">
+                        <img
+                          src={similar.image}
+                          alt={similar.title}
+                          className="img-editorial"
+                        />
+                        <div className="absolute inset-x-0 bottom-0 gradient-bottom p-3">
+                          <p className="font-editorial text-xs text-white leading-tight">
+                            {similar.title}
+                          </p>
+                        </div>
+                        {score >= 60 && (
+                          <div className="absolute top-2 right-2">
+                            <span className="text-[8px] font-inter font-bold bg-gold/90 text-white rounded-full px-1.5 py-0.5">
+                              {score}%
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-[10px] font-inter text-ink-muted truncate">
+                        {similar.tags.map((t) => t.label).join(" · ")}
+                      </p>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Photographer credit */}
             {look.photographer && (

@@ -8,6 +8,8 @@ import { RefreshCw, Sparkles, Camera } from "lucide-react";
 import { feedLooks, moodFilters } from "../data/mockData";
 import type { MoodFilter } from "../data/mockData";
 import { useStore } from "../stores/useStore";
+import { TrendingTicker } from "../components/ui/TrendingTicker";
+import { DailyChallenge } from "../components/ui/DailyChallenge";
 
 export function FeedPage() {
   const currentFeedIndex = useStore((s) => s.currentFeedIndex);
@@ -116,6 +118,12 @@ export function FeedPage() {
           )}
         </div>
       </div>
+
+      {/* Trending ticker */}
+      <TrendingTicker />
+
+      {/* Daily style challenge */}
+      <DailyChallenge />
 
       {/* Mood filter pills */}
       <div className="px-4 pb-2">

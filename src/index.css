@@ -214,3 +214,60 @@ img {
   0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2); }
   50% { box-shadow: 0 0 0 4px rgba(255, 255, 255, 0); }
 }
+
+/* Match badge glow */
+@keyframes matchGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(197, 165, 114, 0.3); }
+  50% { box-shadow: 0 0 8px 2px rgba(197, 165, 114, 0.15); }
+}
+
+.match-glow {
+  animation: matchGlow 2s ease-in-out infinite;
+}
+
+/* Battle card hover lift */
+.battle-card {
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.battle-card:active {
+  transform: scale(0.97);
+}
+
+/* Ticker scroll animation */
+@keyframes tickerSlide {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.ticker-scroll {
+  animation: tickerSlide 30s linear infinite;
+}
+
+/* Cost-per-wear badge */
+.cpw-badge {
+  transition: opacity 0.3s ease;
+}
+
+/* Enhanced glass morphism */
+.glass-gold {
+  background: linear-gradient(135deg, rgba(197, 165, 114, 0.1), rgba(232, 213, 208, 0.1));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Smooth page transitions */
+.page-enter {
+  animation: pageSlideIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes pageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
