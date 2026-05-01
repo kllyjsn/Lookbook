@@ -11,6 +11,7 @@ import { ProductCard } from "../components/cards/ProductCard";
 import { useStore } from "../stores/useStore";
 import { creators, communityPosts, mustHaveLists } from "../data/communityData";
 import type { Creator, CommunityPost, MustHaveList } from "../data/communityData";
+import { StyleBattle } from "../components/ui/StyleBattle";
 
 
 type CommunityTab = "forYou" | "following" | "mustHaves";
@@ -189,6 +190,13 @@ export function CommunityPage() {
                     </div>
                   </div>
                 </motion.div>
+              </div>
+            )}
+
+            {/* Style Battle (For You only) */}
+            {activeTab === "forYou" && (
+              <div className="px-6 mb-4">
+                <StyleBattle />
               </div>
             )}
 

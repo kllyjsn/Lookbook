@@ -59,6 +59,17 @@ interface AppState {
   followCreator: (id: string) => void;
   unfollowCreator: (id: string) => void;
 
+  // Daily challenge
+  challengeStreak: number;
+  lastChallengeDate: string | null;
+  challengeDismissed: boolean;
+  acceptChallenge: () => void;
+  dismissChallenge: () => void;
+
+  // Style Battle
+  battleVotes: Record<string, string>;
+  voteBattle: (battleId: string, lookId: string) => void;
+
   // UI state
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -93,6 +104,7 @@ const tagToStyle: Record<string, string> = {
   "Corporate": "Classic",
   "Siren": "Avant-Garde",
   "Coastal": "Classic",
+  "Classic": "Classic",
   "Festival": "Avant-Garde",
   "Boho": "Romantic",
   "Vintage": "Romantic",
@@ -261,6 +273,29 @@ export const useStore = create<AppState>()(
           followedCreators: state.followedCreators.filter((cid) => cid !== id),
         })),
 
+      challengeStreak: 0,
+      lastChallengeDate: null,
+      challengeDismissed: false,
+      acceptChallenge: () =>
+        set((state) => {
+          const today = new Date().toDateString();
+          if (state.lastChallengeDate === today) return state;
+          const yesterday = new Date(Date.now() - 86400000).toDateString();
+          const isConsecutive = state.lastChallengeDate === yesterday;
+          return {
+            lastChallengeDate: today,
+            challengeStreak: isConsecutive ? state.challengeStreak + 1 : 1,
+            challengeDismissed: false,
+          };
+        }),
+      dismissChallenge: () => set({ challengeDismissed: true }),
+
+      battleVotes: {},
+      voteBattle: (battleId, lookId) =>
+        set((state) => ({
+          battleVotes: { ...state.battleVotes, [battleId]: lookId },
+        })),
+
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
       showLookDetail: null,
@@ -280,6 +315,9 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        challengeStreak: state.challengeStreak,
+        lastChallengeDate: state.lastChallengeDate,
+        battleVotes: state.battleVotes,
       }),
     }
   )

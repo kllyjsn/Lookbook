@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2 } from "lucide-react";
+import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2, Flame } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
+import { TrendReport } from "../components/ui/TrendReport";
 import { LookDetail } from "../components/cards/LookDetail";
 import type { Look } from "../data/mockData";
 
@@ -13,6 +14,7 @@ export function ProfilePage() {
   const styleDNA = useStore((s) => s.styleDNA);
   const likedLooks = useStore((s) => s.likedLooks);
   const collections = useStore((s) => s.collections);
+  const challengeStreak = useStore((s) => s.challengeStreak);
   const createCollection = useStore((s) => s.createCollection);
   const removeFromCollection = useStore((s) => s.removeFromCollection);
   const [activeSection, setActiveSection] = useState<ProfileSection>("dna");
@@ -139,6 +141,30 @@ export function ProfilePage() {
                   ))}
                 </div>
               </div>
+
+              {/* Challenge streak */}
+              {challengeStreak > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-6 p-4 rounded-xl bg-gradient-to-r from-rose/10 to-gold/10 border border-rose/10"
+                >
+                  <div className="flex items-center gap-3">
+                    <Flame size={20} className="text-rose" />
+                    <div>
+                      <p className="text-sm font-inter font-semibold text-ink">
+                        {challengeStreak} Day Streak
+                      </p>
+                      <p className="text-xs font-inter text-ink-muted">
+                        Keep accepting daily challenges to build your streak
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Trend Report */}
+              <TrendReport likedLooks={likedLooks} />
             </motion.div>
           )}
 
@@ -410,8 +436,10 @@ export function ProfilePage() {
       <AnimatePresence>
         {selectedLook && (
           <LookDetail
+            key={selectedLook.id}
             look={selectedLook}
             onClose={() => setSelectedLook(null)}
+            onNavigateToLook={(look) => setSelectedLook(look)}
           />
         )}
       </AnimatePresence>
