@@ -214,3 +214,13 @@ img {
   0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2); }
   50% { box-shadow: 0 0 0 4px rgba(255, 255, 255, 0); }
 }
+
+/* Streak glow */
+@keyframes streakGlow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.2); }
+}
+
+.streak-glow {
+  animation: streakGlow 2s ease-in-out infinite;
+}

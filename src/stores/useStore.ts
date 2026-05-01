@@ -11,6 +11,11 @@ interface SavedCollection {
 }
 
 interface AppState {
+  // Engagement streak
+  dailyStreak: number;
+  lastActiveDate: string | null;
+  recordActivity: () => void;
+
   // Feed state
   currentFeedIndex: number;
   setCurrentFeedIndex: (index: number) => void;
@@ -140,6 +145,17 @@ function computeDNA(likedLooks: Look[]): StyleDNAEntry[] {
 export const useStore = create<AppState>()(
   persist(
     (set, get) => ({
+      dailyStreak: 0,
+      lastActiveDate: null,
+      recordActivity: () => {
+        const today = new Date().toISOString().slice(0, 10);
+        const { lastActiveDate, dailyStreak } = get();
+        if (lastActiveDate === today) return;
+        const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+        const newStreak = lastActiveDate === yesterday ? dailyStreak + 1 : 1;
+        set({ dailyStreak: newStreak, lastActiveDate: today });
+      },
+
       currentFeedIndex: 0,
       setCurrentFeedIndex: (index) => set({ currentFeedIndex: index }),
       activeMoodFilter: "all" as MoodFilter,
@@ -280,6 +296,8 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        dailyStreak: state.dailyStreak,
+        lastActiveDate: state.lastActiveDate,
       }),
     }
   )

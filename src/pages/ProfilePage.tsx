@@ -4,6 +4,7 @@ import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Tr
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
+import { ColorStory } from "../components/profile/ColorStory";
 import { LookDetail } from "../components/cards/LookDetail";
 import type { Look } from "../data/mockData";
 
@@ -93,6 +94,9 @@ export function ProfilePage() {
             >
               <StyleDNA data={styleDNA} />
 
+              {/* Color Story */}
+              <ColorStory />
+
               {/* Style insights */}
               <div className="mt-8 space-y-4">
                 <h3 className="font-editorial text-lg text-ink">
@@ -138,6 +142,28 @@ export function ProfilePage() {
                     </motion.div>
                   ))}
                 </div>
+              </div>
+
+              {/* Quick Access */}
+              <div className="mt-8 space-y-3">
+                <h3 className="font-editorial text-lg text-ink">Tools</h3>
+                {[
+                  { label: "Capsule Wardrobe", desc: "Build your perfect minimal closet", tab: "capsule" },
+                  { label: "Event Stylist", desc: "Get dressed for any occasion", tab: "stylist" },
+                ].map((tool) => (
+                  <motion.button
+                    key={tool.tab}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => useStore.getState().setActiveTab(tool.tab)}
+                    className="w-full flex items-center justify-between p-4 rounded-xl bg-ivory border border-ink/5 text-left"
+                  >
+                    <div>
+                      <p className="text-sm font-inter font-medium text-ink">{tool.label}</p>
+                      <p className="text-xs font-inter text-ink-muted mt-0.5">{tool.desc}</p>
+                    </div>
+                    <ChevronRight size={16} className="text-ink-muted" />
+                  </motion.button>
+                ))}
               </div>
             </motion.div>
           )}

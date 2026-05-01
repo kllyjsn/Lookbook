@@ -278,18 +278,38 @@ export function SwipeCard({
           </div>
         </motion.div>
 
-        {/* Double-tap heart burst animation */}
+        {/* Double-tap heart burst with confetti */}
         <AnimatePresence>
           {showHeartBurst && (
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 1.5, opacity: 0 }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
-              className="absolute inset-0 flex items-center justify-center pointer-events-none z-20"
-            >
-              <Heart size={80} className="text-white drop-shadow-lg" fill="white" strokeWidth={0} />
-            </motion.div>
+            <>
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 1.5, opacity: 0 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="absolute inset-0 flex items-center justify-center pointer-events-none z-20"
+              >
+                <Heart size={80} className="text-white drop-shadow-lg" fill="white" strokeWidth={0} />
+              </motion.div>
+              {/* Confetti particles */}
+              {Array.from({ length: 8 }).map((_, i) => (
+                <motion.div
+                  key={`confetti-${i}`}
+                  initial={{ scale: 0, opacity: 1 }}
+                  animate={{
+                    scale: [0, 1.2, 0.6],
+                    x: Math.cos((i * Math.PI) / 4) * 100,
+                    y: Math.sin((i * Math.PI) / 4) * 100,
+                    opacity: [0, 1, 0],
+                  }}
+                  transition={{ duration: 0.7, delay: i * 0.03 }}
+                  className="absolute left-1/2 top-1/2 w-2 h-2 rounded-full pointer-events-none z-20 -ml-1 -mt-1"
+                  style={{
+                    backgroundColor: ["#C5A572", "#C4797A", "#E8D5D0", "#B8A9C9", "#A8B5A0", "#FAF9F6", "#1A1A1A", "#C5A572"][i],
+                  }}
+                />
+              ))}
+            </>
           )}
         </AnimatePresence>
       </div>
