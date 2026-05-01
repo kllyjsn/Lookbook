@@ -31,6 +31,20 @@ export function FeedPage() {
   const [showSearch, setShowSearch] = useState(false);
   const [showOOTD, setShowOOTD] = useState(true);
 
+  // Reset stale streak on mount (if user skipped a day)
+  const lastSwipeDate = useStore((s) => s.lastSwipeDate);
+  useEffect(() => {
+    if (!lastSwipeDate) return;
+    const d = new Date();
+    const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const yd = new Date(d);
+    yd.setDate(yd.getDate() - 1);
+    const yesterday = `${yd.getFullYear()}-${String(yd.getMonth() + 1).padStart(2, "0")}-${String(yd.getDate()).padStart(2, "0")}`;
+    if (lastSwipeDate !== today && lastSwipeDate !== yesterday) {
+      useStore.setState({ swipeStreak: 0 });
+    }
+  }, [lastSwipeDate]);
+
   // Update streak on first swipe of the day
   useEffect(() => {
     if (currentFeedIndex > 0) updateStreak();
