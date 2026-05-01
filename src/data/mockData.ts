@@ -566,3 +566,164 @@ export const styleQuizImages = [
   { id: "q4", image: UNSPLASH("photo-1469334031218-e382a71b716b", 600, 800), style: "Glamour" },
   { id: "q5", image: UNSPLASH("photo-1483985988355-763728e1935b", 600, 800), style: "Classic" },
 ];
+
+export interface TrendingAesthetic {
+  id: string;
+  label: string;
+  subtitle: string;
+  image: string;
+  views: number;
+  mood: MoodFilter;
+  color: string;
+}
+
+export const trendingAesthetics: TrendingAesthetic[] = [
+  {
+    id: "ta-1",
+    label: "Quiet Luxury",
+    subtitle: "Stealth wealth",
+    image: UNSPLASH("photo-1558618666-fcd25c85f82e", 300, 400),
+    views: 2400000,
+    mood: "classic",
+    color: "#C5A572",
+  },
+  {
+    id: "ta-2",
+    label: "Clean Girl",
+    subtitle: "Less is more",
+    image: UNSPLASH("photo-1509631179647-0177331693ae", 300, 400),
+    views: 5100000,
+    mood: "minimal",
+    color: "#1A1A1A",
+  },
+  {
+    id: "ta-3",
+    label: "Mob Wife",
+    subtitle: "Fur & gold",
+    image: UNSPLASH("photo-1469334031218-e382a71b716b", 300, 400),
+    views: 1800000,
+    mood: "evening",
+    color: "#C4797A",
+  },
+  {
+    id: "ta-4",
+    label: "Coastal Grandma",
+    subtitle: "Linen & ease",
+    image: UNSPLASH("photo-1544957992-20514f595d6f", 300, 400),
+    views: 3200000,
+    mood: "classic",
+    color: "#A8B5A0",
+  },
+  {
+    id: "ta-5",
+    label: "Dark Academia",
+    subtitle: "Scholarly edge",
+    image: UNSPLASH("photo-1485968579580-b6d095142e6e", 300, 400),
+    views: 4700000,
+    mood: "minimal",
+    color: "#4A4A4A",
+  },
+  {
+    id: "ta-6",
+    label: "Tomato Girl",
+    subtitle: "Mediterranean heat",
+    image: UNSPLASH("photo-1529139574466-a303027c1d8b", 300, 400),
+    views: 2900000,
+    mood: "romantic",
+    color: "#C4797A",
+  },
+  {
+    id: "ta-7",
+    label: "Old Money",
+    subtitle: "Heritage prep",
+    image: UNSPLASH("photo-1539109136881-3be0616acf4b", 300, 400),
+    views: 6800000,
+    mood: "classic",
+    color: "#C5A572",
+  },
+  {
+    id: "ta-8",
+    label: "Gorpcore",
+    subtitle: "Trail to street",
+    image: UNSPLASH("photo-1483985988355-763728e1935b", 300, 400),
+    views: 1500000,
+    mood: "adventure",
+    color: "#A8B5A0",
+  },
+  {
+    id: "ta-9",
+    label: "Coquette",
+    subtitle: "Bows & blush",
+    image: UNSPLASH("photo-1496747611176-843222e1e57c", 300, 400),
+    views: 3800000,
+    mood: "romantic",
+    color: "#E8D5D0",
+  },
+  {
+    id: "ta-10",
+    label: "Indie Sleaze",
+    subtitle: "Y2K revival",
+    image: UNSPLASH("photo-1552374196-1ab2a1c593e8", 300, 400),
+    views: 2100000,
+    mood: "street",
+    color: "#B8A9C9",
+  },
+];
+
+export interface EditorNote {
+  lookId: string;
+  note: string;
+  stylingTip: string;
+  editorName: string;
+}
+
+export const editorNotes: Record<string, EditorNote> = {
+  "look-1": {
+    lookId: "look-1",
+    note: "This is the look that launched a thousand corporate Pinterest boards. The COS blazer is architectural without trying too hard — pair with the Vince cami for that I-woke-up-like-this energy.",
+    stylingTip: "Roll the sleeves once. It's the difference between 'attending the meeting' and 'running the meeting.'",
+    editorName: "Sofia Reyes",
+  },
+  "look-2": {
+    lookId: "look-2",
+    note: "Reformation does what fast fashion wishes it could — dresses that move like they're alive. The Mejuri chain adds just enough glint without screaming for attention.",
+    stylingTip: "Skip the clutch for daytime. Cross-body the bag and let the dress do the talking.",
+    editorName: "Lila Rosenberg",
+  },
+  "look-3": {
+    lookId: "look-3",
+    note: "Common Projects and AllSaints are doing more work here than your entire wardrobe. This is stealth flex meets genuine comfort.",
+    stylingTip: "The moto jacket goes over everything — dresses, tees, even a blazer. It's your personality in leather form.",
+    editorName: "Jax Monroe",
+  },
+  "look-4": {
+    lookId: "look-4",
+    note: "Rotate has democratized the sequin dress — it's no longer reserved for the Met Gala. The Bottega clutch is the quiet flex that separates good taste from great.",
+    stylingTip: "Keep makeup minimal when the dress is this loud. A bold red lip is the maximum.",
+    editorName: "Eleanor Chen",
+  },
+  "look-5": {
+    lookId: "look-5",
+    note: "This is the outfit that makes strangers stop you at the airport. Apiece Apart nails transitional dressing — utility meets wanderlust.",
+    stylingTip: "Pre-roll the linen shirt sleeves before you pack. Wrinkles are part of the charm.",
+    editorName: "Zara Kim",
+  },
+  "look-6": {
+    lookId: "look-6",
+    note: "All black is a love language. Nili Lotan's cashmere against Max Mara wool is a texture masterclass. The Row trousers hang like they were cut for you specifically.",
+    stylingTip: "Mix textures aggressively — matte, sheen, knit. Monochrome gets boring without contrast.",
+    editorName: "Sofia Reyes",
+  },
+  "look-9": {
+    lookId: "look-9",
+    note: "This is the outfit where no one can tell what you're wearing, but everyone can tell it's expensive. The Row and Toteme understand that luxury whispers.",
+    stylingTip: "Leave the logo bags at home. The point of quiet luxury is that IYKYK.",
+    editorName: "Eleanor Chen",
+  },
+  "look-12": {
+    lookId: "look-12",
+    note: "Sacai and Needles are the Harajuku dream team. This look takes Shibuya street style and gives it a Western city edge. Bold without being costume-y.",
+    stylingTip: "Let the hoodie do the graphic lifting. Keep shoes neutral so the proportions stay clean.",
+    editorName: "Jax Monroe",
+  },
+};

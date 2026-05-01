@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2 } from "lucide-react";
+import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2, Flame, Sparkles } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
@@ -15,6 +15,9 @@ export function ProfilePage() {
   const collections = useStore((s) => s.collections);
   const createCollection = useStore((s) => s.createCollection);
   const removeFromCollection = useStore((s) => s.removeFromCollection);
+  const getStylePersonality = useStore((s) => s.getStylePersonality);
+  const streakCount = useStore((s) => s.streakCount);
+  const personality = getStylePersonality();
   const [activeSection, setActiveSection] = useState<ProfileSection>("dna");
   const [selectedLook, setSelectedLook] = useState<Look | null>(null);
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
@@ -47,17 +50,42 @@ export function ProfilePage() {
         </div>
 
         {/* Profile avatar & name */}
-        <div className="flex items-center gap-4 mb-6">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold to-blush flex items-center justify-center">
-            <span className="font-editorial text-xl text-white">Y</span>
+        <div className="flex items-center gap-4 mb-4">
+          <div className="relative">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold to-blush flex items-center justify-center">
+              <span className="font-editorial text-xl text-white">Y</span>
+            </div>
+            {streakCount > 1 && (
+              <div className="absolute -bottom-1 -right-1 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-ink">
+                <Flame size={8} className="text-gold" />
+                <span className="text-[8px] font-inter font-bold text-gold">
+                  {streakCount}
+                </span>
+              </div>
+            )}
           </div>
-          <div>
+          <div className="flex-1">
             <h2 className="font-editorial text-xl text-ink">Your Profile</h2>
             <p className="text-xs font-inter text-ink-muted">
               {likedLooks.length} looks loved · {collections.reduce((sum, c) => sum + c.looks.length, 0)} saved
             </p>
           </div>
         </div>
+
+        {/* Style Personality Banner */}
+        <motion.div
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-xl bg-gradient-to-r from-ink via-charcoal to-ink p-4 mb-4 flex items-center justify-between"
+        >
+          <div>
+            <span className="text-[8px] font-inter tracking-[0.25em] uppercase text-gold block mb-0.5">
+              Style Personality
+            </span>
+            <p className="font-editorial text-lg text-cream">{personality}</p>
+          </div>
+          <Sparkles size={20} className="text-gold/40" />
+        </motion.div>
 
         {/* Section tabs */}
         <div className="flex gap-1 bg-ivory rounded-xl p-1">

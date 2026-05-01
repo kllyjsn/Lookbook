@@ -1,7 +1,8 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion";
-import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2 } from "lucide-react";
+import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2, Sparkles } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { useStore } from "../../stores/useStore";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -34,6 +35,9 @@ export function SwipeCard({
   onDoubleTap,
   isTop,
 }: SwipeCardProps) {
+  const getMatchScore = useStore((s) => s.getMatchScore);
+  const matchScore = useMemo(() => getMatchScore(look), [getMatchScore, look]);
+
   const [exitDirection, setExitDirection] = useState<"left" | "right" | "up" | null>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [showHeartBurst, setShowHeartBurst] = useState(false);
@@ -205,6 +209,26 @@ export function SwipeCard({
             </div>
           </div>
         </div>
+
+        {/* Style Match Score */}
+        {isTop && (
+          <motion.div
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.4, type: "spring", stiffness: 300 }}
+            className="absolute bottom-[42%] right-4 z-10"
+          >
+            <div className="flex flex-col items-center gap-0.5 px-2.5 py-2 rounded-xl glass-dark">
+              <Sparkles size={10} className="text-gold" />
+              <span className="text-white text-sm font-inter font-bold leading-none tabular-nums">
+                {matchScore}%
+              </span>
+              <span className="text-[7px] font-inter text-white/50 uppercase tracking-wider leading-none">
+                Match
+              </span>
+            </div>
+          </motion.div>
+        )}
 
         {/* Bottom gradient + content */}
         <div className="absolute inset-x-0 bottom-0 gradient-bottom p-6 pb-8">
