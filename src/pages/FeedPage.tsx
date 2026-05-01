@@ -102,10 +102,11 @@ export function FeedPage() {
 
   const todaysPickLook = useMemo(() => {
     const topStyle = styleDNA.length > 0 ? styleDNA[0].style : "";
-    const matched = feedLooks.find((l) =>
+    const matches = feedLooks.filter((l) =>
       l.tags.some((t) => t.label.toLowerCase().includes(topStyle.toLowerCase()))
     );
-    return matched ?? feedLooks[dailySeed % feedLooks.length];
+    const pool = matches.length > 0 ? matches : feedLooks;
+    return pool[dailySeed % pool.length];
   }, [styleDNA, dailySeed]);
 
   return (

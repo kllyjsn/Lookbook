@@ -9,11 +9,6 @@ type SlotCategory = "Tops" | "Bottoms" | "Shoes" | "Bags" | "Accessories" | "Out
 
 const slotOrder: SlotCategory[] = ["Tops", "Outerwear", "Bottoms", "Shoes"];
 
-function getItemsByCategory(category: SlotCategory): LookItem[] {
-  const allItems = feedLooks.flatMap((look) => look.items);
-  return allItems.filter((item) => item.category === category);
-}
-
 export function MixerPage() {
   const likedLooks = useStore((s) => s.likedLooks);
   const [slots, setSlots] = useState<Record<SlotCategory, LookItem | null>>({
@@ -52,7 +47,7 @@ export function MixerPage() {
   };
 
   const handleSlotTap = (category: SlotCategory) => {
-    const items = getItemsByCategory(category);
+    const items = availableItems.filter((item) => item.category === category);
     if (items.length === 0) return;
     const current = slots[category];
     const currentIdx = current ? items.findIndex((i) => i.id === current.id) : -1;

@@ -295,15 +295,15 @@ export function SwipeCard({
               {Array.from({ length: 8 }).map((_, i) => (
                 <motion.div
                   key={`confetti-${i}`}
-                  initial={{ scale: 0, x: "50%", y: "50%", opacity: 1 }}
+                  initial={{ scale: 0, opacity: 1 }}
                   animate={{
-                    scale: [0, 1, 0.5],
-                    x: `${50 + (Math.cos((i * Math.PI) / 4) * 35)}%`,
-                    y: `${50 + (Math.sin((i * Math.PI) / 4) * 35)}%`,
+                    scale: [0, 1.2, 0.6],
+                    x: Math.cos((i * Math.PI) / 4) * 100,
+                    y: Math.sin((i * Math.PI) / 4) * 100,
                     opacity: [0, 1, 0],
                   }}
                   transition={{ duration: 0.7, delay: i * 0.03 }}
-                  className="absolute w-2 h-2 rounded-full pointer-events-none z-20"
+                  className="absolute left-1/2 top-1/2 w-2 h-2 rounded-full pointer-events-none z-20 -ml-1 -mt-1"
                   style={{
                     backgroundColor: ["#C5A572", "#C4797A", "#E8D5D0", "#B8A9C9", "#A8B5A0", "#FAF9F6", "#1A1A1A", "#C5A572"][i],
                   }}
