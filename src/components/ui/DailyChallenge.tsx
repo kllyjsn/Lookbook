@@ -28,10 +28,11 @@ export function DailyChallenge() {
   const alreadyAccepted = lastChallengeDate === today;
   const challenge = getTodaysChallenge();
 
-  if (challengeDismissed || alreadyAccepted) return null;
+  const shouldShow = !challengeDismissed && !alreadyAccepted;
 
   return (
     <AnimatePresence>
+      {shouldShow && (
       <motion.div
         initial={{ opacity: 0, height: 0 }}
         animate={{ opacity: 1, height: "auto" }}
@@ -79,6 +80,7 @@ export function DailyChallenge() {
           </div>
         </div>
       </motion.div>
+      )}
     </AnimatePresence>
   );
 }

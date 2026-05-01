@@ -183,7 +183,7 @@ export function LookDetail({ look, onClose, onNavigateToLook }: LookDetailProps)
                       url: window.location.href,
                     }).catch(() => {});
                   } else {
-                    navigator.clipboard.writeText(shareText).catch(() => {});
+                    navigator.clipboard?.writeText(shareText).catch(() => {});
                   }
                 }}
                 className="w-12 h-12 rounded-full flex items-center justify-center border border-ink/10 hover:border-ink/30"

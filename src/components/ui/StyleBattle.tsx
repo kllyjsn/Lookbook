@@ -14,7 +14,7 @@ interface Battle {
 }
 
 function generateBattles(): Battle[] {
-  const pairs: [number, number][] = [[0, 5], [2, 11], [8, 3], [9, 6]];
+  const pairs: [number, number][] = [[0, 5], [2, 11], [7, 6], [8, 3]];
   return pairs.map(([a, b], i) => ({
     id: `battle-${i}`,
     title: ["Minimalist vs Streetwear", "Street Luxe vs Tokyo Chic", "Power Suit vs Garden Party", "Quiet Luxury vs Après Noir"][i],
