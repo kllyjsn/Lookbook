@@ -3,13 +3,13 @@ import { Flame, ChevronRight, X } from "lucide-react";
 import { useStore } from "../../stores/useStore";
 
 const challenges = [
+  { theme: "Soft Sunday", desc: "Elevated comfort, cozy luxe", emoji: "☁️" },
   { theme: "Monochrome Monday", desc: "All one color — head to toe", emoji: "🖤" },
   { theme: "Texture Tuesday", desc: "Mix at least 3 different fabrics", emoji: "🧶" },
   { theme: "Workwear Wednesday", desc: "Office siren energy only", emoji: "💼" },
   { theme: "Throwback Thursday", desc: "Vintage-inspired everything", emoji: "📸" },
   { theme: "Festival Friday", desc: "As if you're front row at Coachella", emoji: "🎪" },
   { theme: "Street Saturday", desc: "Streetwear meets high fashion", emoji: "🛹" },
-  { theme: "Soft Sunday", desc: "Elevated comfort, cozy luxe", emoji: "☁️" },
 ];
 
 function getTodaysChallenge() {
