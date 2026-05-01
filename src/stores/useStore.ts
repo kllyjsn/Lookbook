@@ -54,6 +54,15 @@ interface AppState {
   capsuleSelectedItems: string[];
   toggleCapsuleItem: (itemId: string) => void;
 
+  // Streak
+  swipeStreak: number;
+  lastSwipeDate: string | null;
+  updateStreak: () => void;
+
+  // This or That
+  thisOrThatPicks: Record<string, string>;
+  pickThisOrThat: (pairId: string, lookId: string) => void;
+
   // Community
   followedCreators: string[];
   followCreator: (id: string) => void;
@@ -68,7 +77,7 @@ interface AppState {
   completeOnboarding: () => void;
 }
 
-const tagToStyle: Record<string, string> = {
+export const tagToStyle: Record<string, string> = {
   "Minimalist": "Minimalist",
   "Office": "Classic",
   "Romantic": "Romantic",
@@ -249,6 +258,26 @@ export const useStore = create<AppState>()(
             : [...state.capsuleSelectedItems, itemId],
         })),
 
+      swipeStreak: 0,
+      lastSwipeDate: null,
+      updateStreak: () =>
+        set((state) => {
+          const d = new Date();
+          const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+          if (state.lastSwipeDate === today) return state;
+          const yd = new Date(d);
+          yd.setDate(yd.getDate() - 1);
+          const yesterday = `${yd.getFullYear()}-${String(yd.getMonth() + 1).padStart(2, "0")}-${String(yd.getDate()).padStart(2, "0")}`;
+          const streak = state.lastSwipeDate === yesterday ? state.swipeStreak + 1 : 1;
+          return { swipeStreak: streak, lastSwipeDate: today };
+        }),
+
+      thisOrThatPicks: {},
+      pickThisOrThat: (pairId, lookId) =>
+        set((state) => ({
+          thisOrThatPicks: { ...state.thisOrThatPicks, [pairId]: lookId },
+        })),
+
       followedCreators: [],
       followCreator: (id) =>
         set((state) => ({
@@ -276,6 +305,9 @@ export const useStore = create<AppState>()(
         collections: state.collections,
         styleDNA: state.styleDNA,
         budgetPreference: state.budgetPreference,
+        swipeStreak: state.swipeStreak,
+        lastSwipeDate: state.lastSwipeDate,
+        thisOrThatPicks: state.thisOrThatPicks,
         capsuleBudget: state.capsuleBudget,
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,

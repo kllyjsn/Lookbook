@@ -566,3 +566,44 @@ export const styleQuizImages = [
   { id: "q4", image: UNSPLASH("photo-1469334031218-e382a71b716b", 600, 800), style: "Glamour" },
   { id: "q5", image: UNSPLASH("photo-1483985988355-763728e1935b", 600, 800), style: "Classic" },
 ];
+
+// Budget-friendly alternatives mapped by original item id prefix (look id)
+export const budgetAlternatives: Record<string, LookItem[]> = {
+  "look-1": [
+    { id: "ba1", name: "Structured Blazer", brand: "H&M", price: 59, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#" },
+    { id: "ba2", name: "Satin Cami Top", brand: "Zara", price: 29, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
+    { id: "ba3", name: "Wide-Leg Pants", brand: "Uniqlo", price: 49, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
+    { id: "ba4", name: "Pointed Mules", brand: "Mango", price: 69, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+  ],
+  "look-2": [
+    { id: "ba5", name: "Midi Wrap Dress", brand: "& Other Stories", price: 79, image: UNSPLASH("photo-1595777457583-95e059d581b8", 400, 500), category: "Dresses", shopUrl: "#" },
+    { id: "ba6", name: "Strappy Sandals", brand: "Zara", price: 49, image: UNSPLASH("photo-1603487742131-4160ec999306", 400, 500), category: "Shoes", shopUrl: "#" },
+    { id: "ba7", name: "Layered Necklace", brand: "Madewell", price: 38, image: UNSPLASH("photo-1599643478518-a784e5dc4c8f", 400, 500), category: "Accessories", shopUrl: "#" },
+  ],
+  "look-3": [
+    { id: "ba8", name: "Oversized Tee", brand: "Uniqlo", price: 19, image: UNSPLASH("photo-1521572163474-6864f9cf17ab", 400, 500), category: "Tops", shopUrl: "#" },
+    { id: "ba9", name: "Faux Leather Jacket", brand: "Zara", price: 89, image: UNSPLASH("photo-1551028719-00167b16eac5", 400, 500), category: "Outerwear", shopUrl: "#" },
+    { id: "ba10", name: "Straight Jeans", brand: "Levi's", price: 69, image: UNSPLASH("photo-1541099649105-f69ad21f3246", 400, 500), category: "Bottoms", shopUrl: "#" },
+    { id: "ba11", name: "White Sneakers", brand: "Adidas", price: 85, image: UNSPLASH("photo-1549298916-b41d501d3772", 400, 500), category: "Shoes", shopUrl: "#" },
+  ],
+  "look-9": [
+    { id: "ba12", name: "Cashmere-Blend Crew", brand: "Uniqlo", price: 49, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
+    { id: "ba13", name: "Wide Trousers", brand: "COS", price: 89, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
+    { id: "ba14", name: "Minimal Belt Bag", brand: "Mango", price: 45, image: UNSPLASH("photo-1548036328-c9fa89d128fa", 400, 500), category: "Bags", shopUrl: "#" },
+    { id: "ba15", name: "Suede Loafers", brand: "Massimo Dutti", price: 99, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+  ],
+  "look-12": [
+    { id: "ba16", name: "Graphic Hoodie", brand: "H&M", price: 34, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
+    { id: "ba17", name: "Cargo Pants", brand: "Bershka", price: 45, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
+    { id: "ba18", name: "Chunky Sneakers", brand: "New Balance 574", price: 89, image: UNSPLASH("photo-1549298916-b41d501d3772", 400, 500), category: "Shoes", shopUrl: "#" },
+  ],
+};
+
+// "This or That" curated comparison pairs
+export const thisOrThatPairs: { id: string; lookA: Look; lookB: Look; theme: string }[] = [
+  { id: "tot-1", lookA: feedLooks[0], lookB: feedLooks[5], theme: "Office Power Play" },
+  { id: "tot-2", lookA: feedLooks[1], lookB: feedLooks[10], theme: "Date Night Vibe" },
+  { id: "tot-3", lookA: feedLooks[2], lookB: feedLooks[11], theme: "Street Cred" },
+  { id: "tot-4", lookA: feedLooks[8], lookB: feedLooks[4], theme: "Quiet vs. Loud Luxury" },
+  { id: "tot-5", lookA: feedLooks[3], lookB: feedLooks[12], theme: "After Dark" },
+];
