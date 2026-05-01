@@ -18,11 +18,12 @@ export function TrendingTicker() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
+    if (dismissed) return;
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % headlines.length);
     }, 4000);
     return () => clearInterval(timer);
-  }, []);
+  }, [dismissed]);
 
   if (dismissed) return null;
 
