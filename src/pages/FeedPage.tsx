@@ -22,10 +22,12 @@ function DailyDropCountdown() {
   useEffect(() => {
     const calc = () => {
       const now = new Date();
-      const tomorrow = new Date(now);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(9, 0, 0, 0);
-      const diff = tomorrow.getTime() - now.getTime();
+      const target = new Date(now);
+      target.setHours(9, 0, 0, 0);
+      if (now >= target) {
+        target.setDate(target.getDate() + 1);
+      }
+      const diff = target.getTime() - now.getTime();
       setHoursLeft(Math.floor(diff / 3600000));
       setMinsLeft(Math.floor((diff % 3600000) / 60000));
     };
@@ -467,6 +469,7 @@ export function FeedPage() {
       <AnimatePresence>
         {showLookDetail && (
           <LookDetail
+            key={showLookDetail.id}
             look={showLookDetail}
             onClose={() => setShowLookDetail(null)}
           />
