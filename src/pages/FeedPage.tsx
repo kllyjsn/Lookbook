@@ -4,7 +4,7 @@ import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
 import { SearchPage } from "./SearchPage";
 import { Logo } from "../components/ui/Logo";
-import { RefreshCw, Sparkles, Camera } from "lucide-react";
+import { RefreshCw, Sparkles, Camera, Flame, TrendingUp, Heart } from "lucide-react";
 import { feedLooks, moodFilters } from "../data/mockData";
 import type { MoodFilter } from "../data/mockData";
 import { useStore } from "../stores/useStore";
@@ -23,6 +23,10 @@ export function FeedPage() {
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
   const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
+  const passedLooks = useStore((s) => s.passedLooks);
+  const streak = useStore((s) => s.streak);
+  const styleDNA = useStore((s) => s.styleDNA);
+  const addExploredMood = useStore((s) => s.addExploredMood);
   const [showSearch, setShowSearch] = useState(false);
 
   const filteredLooks = useMemo(
@@ -84,9 +88,21 @@ export function FeedPage() {
   const handleMoodFilter = useCallback(
     (mood: MoodFilter) => {
       setActiveMoodFilter(mood);
+      if (mood !== "all") addExploredMood(mood);
     },
-    [setActiveMoodFilter]
+    [setActiveMoodFilter, addExploredMood]
   );
+
+  const topDNA = useMemo(() => {
+    const sorted = [...styleDNA].sort((a, b) => b.percentage - a.percentage);
+    return sorted[0];
+  }, [styleDNA]);
+
+  const sessionLikeRate = useMemo(() => {
+    const total = likedLooks.length + passedLooks.length;
+    if (total === 0) return 0;
+    return Math.round((likedLooks.length / total) * 100);
+  }, [likedLooks.length, passedLooks.length]);
 
   return (
     <div className="h-full flex flex-col bg-cream">
@@ -143,25 +159,66 @@ export function FeedPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full h-full flex flex-col items-center justify-center px-8"
+            className="w-full h-full flex flex-col items-center justify-center px-6 overflow-y-auto"
           >
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 200, damping: 15 }}
-              className="w-20 h-20 rounded-full bg-gradient-to-br from-gold/20 to-blush/20 flex items-center justify-center mb-6"
+              className="w-20 h-20 rounded-full bg-gradient-to-br from-gold/20 to-blush/20 flex items-center justify-center mb-4"
             >
               <Sparkles size={32} className="text-gold" />
             </motion.div>
-            <h2 className="font-editorial text-2xl text-ink text-center mb-2">
-              You've seen today's edit.
+            <h2 className="font-editorial text-2xl text-ink text-center mb-1">
+              Today's Edit — Complete
             </h2>
-            <p className="font-subhead text-base text-ink-muted italic text-center mb-2">
+            <p className="font-subhead text-base text-ink-muted italic text-center mb-4">
               {likedLooks.length > 0
-                ? `You loved ${likedLooks.length} look${likedLooks.length > 1 ? "s" : ""}. Great taste.`
+                ? `You loved ${likedLooks.length} look${likedLooks.length > 1 ? "s" : ""}. Impeccable taste.`
                 : "Come back tomorrow for fresh picks."}
             </p>
-            <div className="flex flex-col gap-3 w-full mt-6">
+
+            {/* Session Stats */}
+            <div className="grid grid-cols-3 gap-3 w-full mb-4">
+              {[
+                { icon: Heart, value: `${sessionLikeRate}%`, label: "Like Rate", color: "text-rose" },
+                { icon: TrendingUp, value: topDNA ? topDNA.style : "—", label: "Top Vibe", color: "text-gold" },
+                { icon: Flame, value: `${streak}d`, label: "Streak", color: "text-rose" },
+              ].map((stat, i) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 + i * 0.1 }}
+                  className="bg-ivory rounded-xl p-3 text-center"
+                >
+                  <stat.icon size={16} className={`${stat.color} mx-auto mb-1`} />
+                  <p className="font-editorial text-lg text-ink leading-tight">{stat.value}</p>
+                  <p className="text-[9px] font-inter tracking-[0.12em] uppercase text-ink-muted mt-0.5">
+                    {stat.label}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Personality line */}
+            {topDNA && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.7 }}
+                className="text-xs font-inter text-ink-muted text-center mb-4 px-4"
+              >
+                Today's vibe: <span className="font-medium text-ink">{topDNA.percentage}% {topDNA.style}</span>
+                {sessionLikeRate > 60
+                  ? " — you're in a loving mood"
+                  : sessionLikeRate > 30
+                  ? " — selective and refined"
+                  : " — hard to impress today"}
+              </motion.p>
+            )}
+
+            <div className="flex flex-col gap-3 w-full">
               <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setCurrentFeedIndex(0)}

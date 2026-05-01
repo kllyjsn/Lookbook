@@ -1,7 +1,9 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion";
-import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2 } from "lucide-react";
+import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2, Sparkles } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { useStore } from "../../stores/useStore";
+import { computeStyleMatch } from "../../stores/useStore";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -132,6 +134,9 @@ export function SwipeCard({
     lastTapRef.current = now;
   }, [onTap, onDoubleTap, x, y]);
 
+  const styleDNA = useStore((s) => s.styleDNA);
+  const match = useMemo(() => computeStyleMatch(look, styleDNA), [look, styleDNA]);
+
   if (exitDirection) {
     return null;
   }
@@ -239,6 +244,25 @@ export function SwipeCard({
                 {look.items.length} pieces
               </span>
             </div>
+            {/* Style Match Score */}
+            {isTop && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="flex items-center gap-2 mt-2"
+              >
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-sm">
+                  <Sparkles size={10} className="text-gold" />
+                  <span className="text-[10px] font-inter font-semibold text-white">{match.score}% match</span>
+                </div>
+                {match.reasons.length > 0 && (
+                  <span className="text-[9px] font-inter text-white/50 italic">
+                    Because you love {match.reasons.join(" & ")}
+                  </span>
+                )}
+              </motion.div>
+            )}
           </div>
         </div>
 
