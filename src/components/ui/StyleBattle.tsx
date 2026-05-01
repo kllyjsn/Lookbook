@@ -17,7 +17,7 @@ function generateBattles(): Battle[] {
   const pairs: [number, number][] = [[0, 5], [2, 11], [7, 6], [8, 3]];
   return pairs.map(([a, b], i) => ({
     id: `battle-${i}`,
-    title: ["Minimalist vs Streetwear", "Street Luxe vs Tokyo Chic", "Power Suit vs Garden Party", "Quiet Luxury vs Après Noir"][i],
+    title: ["Elegance vs Edge", "Street Luxe vs Tokyo Chic", "Power Suit vs Garden Party", "Quiet Luxury vs Après Noir"][i],
     lookA: feedLooks[a],
     lookB: feedLooks[b],
     votesA: [4280, 3190, 5670, 8120][i],
