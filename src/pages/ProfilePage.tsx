@@ -1,11 +1,17 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2 } from "lucide-react";
+import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2, Flame, Award, Sparkles, Users, Palette, LayoutGrid } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
+import type { StyleBadge } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
 import { LookDetail } from "../components/cards/LookDetail";
 import type { Look } from "../data/mockData";
+
+const badgeIcons: Record<string, React.ElementType> = {
+  heart: Heart, bookmark: Bookmark, flame: Flame, sparkles: Sparkles,
+  award: Award, palette: Palette, layout: LayoutGrid, users: Users,
+};
 
 type ProfileSection = "dna" | "liked" | "collections";
 
@@ -15,6 +21,10 @@ export function ProfilePage() {
   const collections = useStore((s) => s.collections);
   const createCollection = useStore((s) => s.createCollection);
   const removeFromCollection = useStore((s) => s.removeFromCollection);
+  const streak = useStore((s) => s.streak);
+  const styleLevel = useStore((s) => s.styleLevel);
+  const badges = useStore((s) => s.badges);
+  const totalSwipes = useStore((s) => s.totalSwipes);
   const [activeSection, setActiveSection] = useState<ProfileSection>("dna");
   const [selectedLook, setSelectedLook] = useState<Look | null>(null);
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
@@ -47,15 +57,36 @@ export function ProfilePage() {
         </div>
 
         {/* Profile avatar & name */}
-        <div className="flex items-center gap-4 mb-6">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold to-blush flex items-center justify-center">
-            <span className="font-editorial text-xl text-white">Y</span>
+        <div className="flex items-center gap-4 mb-3">
+          <div className="relative">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold to-blush flex items-center justify-center">
+              <span className="font-editorial text-xl text-white">Y</span>
+            </div>
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-ink flex items-center justify-center border-2 border-cream">
+              <span className="text-[9px] font-inter font-bold text-gold">{styleLevel}</span>
+            </div>
           </div>
-          <div>
+          <div className="flex-1">
             <h2 className="font-editorial text-xl text-ink">Your Profile</h2>
             <p className="text-xs font-inter text-ink-muted">
-              {likedLooks.length} looks loved · {collections.reduce((sum, c) => sum + c.looks.length, 0)} saved
+              {likedLooks.length} loved · {totalSwipes} swiped · Lvl {styleLevel}
             </p>
+          </div>
+        </div>
+
+        {/* Streak + Stats strip */}
+        <div className="flex gap-2 mb-4">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-ivory">
+            <Flame size={12} className="text-rose" />
+            <span className="text-[10px] font-inter font-semibold text-ink">{streak}d streak</span>
+          </div>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-ivory">
+            <Award size={12} className="text-gold" />
+            <span className="text-[10px] font-inter font-semibold text-ink">{badges.length} badges</span>
+          </div>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-ivory">
+            <Sparkles size={12} className="text-lavender" />
+            <span className="text-[10px] font-inter font-semibold text-ink">Level {styleLevel}</span>
           </div>
         </div>
 
@@ -92,6 +123,50 @@ export function ProfilePage() {
               exit={{ opacity: 0, y: -10 }}
             >
               <StyleDNA data={styleDNA} />
+
+              {/* Badges */}
+              {badges.length > 0 && (
+                <div className="mt-8">
+                  <h3 className="font-editorial text-lg text-ink mb-3">Badges Earned</h3>
+                  <div className="grid grid-cols-4 gap-3">
+                    {badges.map((badge: StyleBadge, i: number) => {
+                      const Icon = badgeIcons[badge.icon] ?? Award;
+                      return (
+                        <motion.div
+                          key={badge.id}
+                          initial={{ opacity: 0, scale: 0.5 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: i * 0.08, type: "spring", stiffness: 300 }}
+                          className="flex flex-col items-center gap-1.5"
+                        >
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gold/20 to-blush/20 flex items-center justify-center">
+                            <Icon size={18} className="text-gold" />
+                          </div>
+                          <span className="text-[9px] font-inter font-medium text-ink text-center leading-tight">
+                            {badge.label}
+                          </span>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Style Level Progress */}
+              <div className="mt-6 p-4 rounded-xl bg-ivory">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-inter font-medium text-ink">Style Level {styleLevel}</span>
+                  <span className="text-[10px] font-inter text-ink-muted">{styleLevel >= 10 ? "Max level!" : `${totalSwipes % 15}/15 to next`}</span>
+                </div>
+                <div className="h-2 bg-ink/5 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${styleLevel >= 10 ? 100 : ((totalSwipes % 15) / 15) * 100}%` }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                    className="h-full rounded-full bg-gradient-to-r from-gold to-blush"
+                  />
+                </div>
+              </div>
 
               {/* Style insights */}
               <div className="mt-8 space-y-4">

@@ -10,6 +10,25 @@ interface SavedCollection {
   createdAt: number;
 }
 
+export interface StyleBadge {
+  id: string;
+  label: string;
+  description: string;
+  icon: string;
+  unlockedAt?: number;
+}
+
+const ALL_BADGES: StyleBadge[] = [
+  { id: "first-love", label: "First Love", description: "Loved your first look", icon: "heart" },
+  { id: "curator", label: "Curator", description: "Saved 5 looks to collections", icon: "bookmark" },
+  { id: "streak-3", label: "On Fire", description: "3-day discovery streak", icon: "flame" },
+  { id: "streak-7", label: "Style Devotee", description: "7-day discovery streak", icon: "sparkles" },
+  { id: "ten-loves", label: "Tastemaker", description: "Loved 10 looks", icon: "award" },
+  { id: "all-moods", label: "Eclectic Eye", description: "Explored every mood filter", icon: "palette" },
+  { id: "capsule-builder", label: "Capsule Builder", description: "Built a capsule wardrobe", icon: "layout" },
+  { id: "community-star", label: "Community Star", description: "Followed 3 creators", icon: "users" },
+];
+
 interface AppState {
   // Feed state
   currentFeedIndex: number;
@@ -59,6 +78,16 @@ interface AppState {
   followCreator: (id: string) => void;
   unfollowCreator: (id: string) => void;
 
+  // Streak & gamification
+  streak: number;
+  lastActiveDate: string | null;
+  totalSwipes: number;
+  badges: StyleBadge[];
+  styleLevel: number;
+  checkAndUpdateStreak: () => void;
+  exploredMoods: string[];
+  addExploredMood: (mood: string) => void;
+
   // UI state
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -98,6 +127,53 @@ const tagToStyle: Record<string, string> = {
   "Vintage": "Romantic",
   "Sustainable": "Minimalist",
 };
+
+function computeBadges(
+  likedCount: number,
+  collections: SavedCollection[],
+  streak: number,
+  followedCreators: string[],
+  capsuleItems: string[],
+  exploredMoods: string[],
+  currentBadges: StyleBadge[] = [],
+): StyleBadge[] {
+  const unlocked: StyleBadge[] = [];
+  const now = Date.now();
+  for (const badge of ALL_BADGES) {
+    let earned = false;
+    switch (badge.id) {
+      case "first-love": earned = likedCount >= 1; break;
+      case "ten-loves": earned = likedCount >= 10; break;
+      case "curator": earned = collections.reduce((sum, c) => sum + c.looks.length, 0) >= 5; break;
+      case "streak-3": earned = streak >= 3; break;
+      case "streak-7": earned = streak >= 7; break;
+      case "all-moods": earned = exploredMoods.length >= 6; break;
+      case "capsule-builder": earned = capsuleItems.length >= 5; break;
+      case "community-star": earned = followedCreators.length >= 3; break;
+    }
+    if (earned) {
+      const existing = currentBadges.find((b) => b.id === badge.id);
+      unlocked.push({ ...badge, unlockedAt: existing?.unlockedAt ?? now });
+    }
+  }
+  return unlocked;
+}
+
+export function computeStyleMatch(look: Look, styleDNA: StyleDNAEntry[]): { score: number; reasons: string[] } {
+  if (styleDNA.length === 0) return { score: 75, reasons: [] };
+  const dnaMap = new Map(styleDNA.map((d) => [d.style, d.percentage]));
+  let matchScore = 0;
+  const reasons: string[] = [];
+  for (const tag of look.tags) {
+    const style = tagToStyle[tag.label];
+    if (style && dnaMap.has(style)) {
+      matchScore += dnaMap.get(style)!;
+      if (dnaMap.get(style)! >= 20) reasons.push(style);
+    }
+  }
+  const score = Math.min(99, Math.max(60, Math.round(matchScore * 0.7 + 30)));
+  return { score, reasons: [...new Set(reasons)].slice(0, 2) };
+}
 
 function computeDNA(likedLooks: Look[]): StyleDNAEntry[] {
   if (likedLooks.length === 0) return defaultStyleDNA;
@@ -155,29 +231,55 @@ export const useStore = create<AppState>()(
           const newLiked = state.likedLooks.some((l) => l.id === look.id)
             ? state.likedLooks
             : [...state.likedLooks, look];
+          const today = new Date().toISOString().slice(0, 10);
+          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+          const newStreak = state.lastActiveDate === today ? state.streak : (state.lastActiveDate === yesterday ? state.streak + 1 : 1);
+          const newSwipes = state.totalSwipes + 1;
+          const newLevel = Math.min(10, 1 + Math.floor(newSwipes / 15));
+          const badges = computeBadges(newLiked.length, state.collections, newStreak, state.followedCreators, state.capsuleSelectedItems, state.exploredMoods, state.badges);
           return {
             likedLooks: newLiked,
             currentFeedIndex: state.currentFeedIndex + 1,
             lastSwipedLook: look,
             lastSwipeAction: "like" as const,
             styleDNA: computeDNA(newLiked),
+            totalSwipes: newSwipes,
+            styleLevel: newLevel,
+            streak: newStreak,
+            lastActiveDate: today,
+            badges,
           };
         }),
       passLook: (look) =>
-        set((state) => ({
-          passedLooks: state.passedLooks.some((l) => l.id === look.id)
-            ? state.passedLooks
-            : [...state.passedLooks, look],
-          currentFeedIndex: state.currentFeedIndex + 1,
-          lastSwipedLook: look,
-          lastSwipeAction: "pass" as const,
-        })),
+        set((state) => {
+          const today = new Date().toISOString().slice(0, 10);
+          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+          const newStreak = state.lastActiveDate === today ? state.streak : (state.lastActiveDate === yesterday ? state.streak + 1 : 1);
+          const newSwipes = state.totalSwipes + 1;
+          const newLevel = Math.min(10, 1 + Math.floor(newSwipes / 15));
+          const badges = computeBadges(state.likedLooks.length, state.collections, newStreak, state.followedCreators, state.capsuleSelectedItems, state.exploredMoods, state.badges);
+          return {
+            passedLooks: state.passedLooks.some((l) => l.id === look.id)
+              ? state.passedLooks
+              : [...state.passedLooks, look],
+            currentFeedIndex: state.currentFeedIndex + 1,
+            lastSwipedLook: look,
+            lastSwipeAction: "pass" as const,
+            totalSwipes: newSwipes,
+            styleLevel: newLevel,
+            streak: newStreak,
+            lastActiveDate: today,
+            badges,
+          };
+        }),
       saveLook: (look) =>
-        set((state) => ({
-          likedLooks: state.likedLooks.some((l) => l.id === look.id)
+        set((state) => {
+          const newLiked = state.likedLooks.some((l) => l.id === look.id)
             ? state.likedLooks
-            : [...state.likedLooks, look],
-        })),
+            : [...state.likedLooks, look];
+          const badges = computeBadges(newLiked.length, state.collections, state.streak, state.followedCreators, state.capsuleSelectedItems, state.exploredMoods, state.badges);
+          return { likedLooks: newLiked, badges };
+        }),
 
       undoLastSwipe: () =>
         set((state) => {
@@ -188,6 +290,7 @@ export const useStore = create<AppState>()(
           const newPassed = state.lastSwipeAction === "pass"
             ? (() => { const idx = state.passedLooks.findLastIndex((l) => l.id === state.lastSwipedLook!.id); return idx >= 0 ? [...state.passedLooks.slice(0, idx), ...state.passedLooks.slice(idx + 1)] : state.passedLooks; })()
             : state.passedLooks;
+          const badges = computeBadges(newLiked.length, state.collections, state.streak, state.followedCreators, state.capsuleSelectedItems, state.exploredMoods, state.badges);
           return {
             likedLooks: newLiked,
             passedLooks: newPassed,
@@ -195,6 +298,7 @@ export const useStore = create<AppState>()(
             lastSwipedLook: null,
             lastSwipeAction: null,
             styleDNA: computeDNA(newLiked),
+            badges,
           };
         }),
 
@@ -203,13 +307,15 @@ export const useStore = create<AppState>()(
         { id: "wishlist", name: "Wishlist", looks: [], createdAt: Date.now() },
       ],
       addToCollection: (collectionId, look) =>
-        set((state) => ({
-          collections: state.collections.map((c) =>
+        set((state) => {
+          const newCollections = state.collections.map((c) =>
             c.id === collectionId && !c.looks.some((l) => l.id === look.id)
               ? { ...c, looks: [...c.looks, look] }
               : c
-          ),
-        })),
+          );
+          const badges = computeBadges(state.likedLooks.length, newCollections, state.streak, state.followedCreators, state.capsuleSelectedItems, state.exploredMoods, state.badges);
+          return { collections: newCollections, badges };
+        }),
       createCollection: (name) => {
         const id = `col-${Date.now()}`;
         set((state) => ({
@@ -221,13 +327,15 @@ export const useStore = create<AppState>()(
         return id;
       },
       removeFromCollection: (collectionId, lookId) =>
-        set((state) => ({
-          collections: state.collections.map((c) =>
+        set((state) => {
+          const newCollections = state.collections.map((c) =>
             c.id === collectionId
               ? { ...c, looks: c.looks.filter((l) => l.id !== lookId) }
               : c
-          ),
-        })),
+          );
+          const badges = computeBadges(state.likedLooks.length, newCollections, state.streak, state.followedCreators, state.capsuleSelectedItems, state.exploredMoods, state.badges);
+          return { collections: newCollections, badges };
+        }),
 
       styleDNA: defaultStyleDNA,
       updateStyleDNA: (dna) => set({ styleDNA: dna }),
@@ -243,23 +351,52 @@ export const useStore = create<AppState>()(
       setCapsuleBudget: (budget) => set({ capsuleBudget: budget }),
       capsuleSelectedItems: [],
       toggleCapsuleItem: (itemId) =>
-        set((state) => ({
-          capsuleSelectedItems: state.capsuleSelectedItems.includes(itemId)
+        set((state) => {
+          const newItems = state.capsuleSelectedItems.includes(itemId)
             ? state.capsuleSelectedItems.filter((id) => id !== itemId)
-            : [...state.capsuleSelectedItems, itemId],
-        })),
+            : [...state.capsuleSelectedItems, itemId];
+          const badges = computeBadges(state.likedLooks.length, state.collections, state.streak, state.followedCreators, newItems, state.exploredMoods, state.badges);
+          return { capsuleSelectedItems: newItems, badges };
+        }),
 
       followedCreators: [],
       followCreator: (id) =>
-        set((state) => ({
-          followedCreators: state.followedCreators.includes(id)
+        set((state) => {
+          const newFollowed = state.followedCreators.includes(id)
             ? state.followedCreators
-            : [...state.followedCreators, id],
-        })),
+            : [...state.followedCreators, id];
+          const badges = computeBadges(state.likedLooks.length, state.collections, state.streak, newFollowed, state.capsuleSelectedItems, state.exploredMoods, state.badges);
+          return { followedCreators: newFollowed, badges };
+        }),
       unfollowCreator: (id) =>
-        set((state) => ({
-          followedCreators: state.followedCreators.filter((cid) => cid !== id),
-        })),
+        set((state) => {
+          const newFollowed = state.followedCreators.filter((cid) => cid !== id);
+          const badges = computeBadges(state.likedLooks.length, state.collections, state.streak, newFollowed, state.capsuleSelectedItems, state.exploredMoods, state.badges);
+          return { followedCreators: newFollowed, badges };
+        }),
+
+      streak: 0,
+      lastActiveDate: null,
+      totalSwipes: 0,
+      badges: [],
+      styleLevel: 1,
+      exploredMoods: [],
+      addExploredMood: (mood) =>
+        set((state) => {
+          if (state.exploredMoods.includes(mood)) return state;
+          const newMoods = [...state.exploredMoods, mood];
+          const badges = computeBadges(state.likedLooks.length, state.collections, state.streak, state.followedCreators, state.capsuleSelectedItems, newMoods, state.badges);
+          return { exploredMoods: newMoods, badges };
+        }),
+      checkAndUpdateStreak: () =>
+        set((state) => {
+          const today = new Date().toISOString().slice(0, 10);
+          if (state.lastActiveDate === today) return state;
+          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+          const newStreak = state.lastActiveDate === yesterday ? state.streak + 1 : 1;
+          const badges = computeBadges(state.likedLooks.length, state.collections, newStreak, state.followedCreators, state.capsuleSelectedItems, state.exploredMoods, state.badges);
+          return { streak: newStreak, lastActiveDate: today, badges };
+        }),
 
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
@@ -280,6 +417,12 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        streak: state.streak,
+        lastActiveDate: state.lastActiveDate,
+        totalSwipes: state.totalSwipes,
+        badges: state.badges,
+        styleLevel: state.styleLevel,
+        exploredMoods: state.exploredMoods,
       }),
     }
   )

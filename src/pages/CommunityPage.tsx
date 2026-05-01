@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, BadgeCheck, Sparkles, Clock } from "lucide-react";
+import { Search, BadgeCheck, Sparkles, Clock, TrendingUp, Heart, Eye } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { PostCard } from "../components/community/PostCard";
 import { CreatorProfile } from "../components/community/CreatorProfile";
@@ -8,9 +8,12 @@ import { MustHaveCard } from "../components/community/MustHaveCard";
 import { MustHaveDetail } from "../components/community/MustHaveDetail";
 import { FollowButton } from "../components/community/FollowButton";
 import { ProductCard } from "../components/cards/ProductCard";
+import { LookDetail } from "../components/cards/LookDetail";
 import { useStore } from "../stores/useStore";
 import { creators, communityPosts, mustHaveLists } from "../data/communityData";
 import type { Creator, CommunityPost, MustHaveList } from "../data/communityData";
+import { feedLooks } from "../data/mockData";
+import type { Look } from "../data/mockData";
 
 
 type CommunityTab = "forYou" | "following" | "mustHaves";
@@ -69,6 +72,18 @@ export function CommunityPage() {
   const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null);
   const [selectedMustHave, setSelectedMustHave] = useState<MustHaveList | null>(null);
   const [shopPost, setShopPost] = useState<CommunityPost | null>(null);
+  const [trendingLook, setTrendingLook] = useState<Look | null>(null);
+
+  const trendingLooks = useMemo(
+    () => [...feedLooks].sort((a, b) => b.likes - a.likes).slice(0, 5),
+    []
+  );
+
+  function formatCount(n: number): string {
+    if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
+    if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
+    return String(n);
+  }
 
   const followedCreators = useStore((s) => s.followedCreators);
 
@@ -189,6 +204,57 @@ export function CommunityPage() {
                     </div>
                   </div>
                 </motion.div>
+              </div>
+            )}
+
+            {/* Trending Board (For You only) */}
+            {activeTab === "forYou" && (
+              <div className="px-6 mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp size={14} className="text-rose" />
+                    <h2 className="text-xs font-inter font-semibold tracking-[0.12em] uppercase text-ink">
+                      Hot Right Now
+                    </h2>
+                  </div>
+                  <span className="text-[9px] font-inter text-ink-muted tracking-wider uppercase">
+                    Updated live
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  {trendingLooks.map((look, i) => (
+                    <motion.div
+                      key={look.id}
+                      initial={{ opacity: 0, x: -15 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setTrendingLook(look)}
+                      className="flex items-center gap-3 p-2.5 rounded-xl bg-ivory cursor-pointer hover:bg-blush/10 transition-colors"
+                    >
+                      <span className="font-editorial text-lg text-ink/30 w-5 text-center flex-shrink-0">
+                        {i + 1}
+                      </span>
+                      <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
+                        <img src={look.image} alt={look.title} className="img-editorial" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-inter font-medium text-ink truncate">{look.title}</p>
+                        <p className="text-[10px] font-inter text-ink-muted">{look.tags.map((t) => t.label).join(" · ")}</p>
+                      </div>
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        <span className="flex items-center gap-1 text-[10px] font-inter text-rose">
+                          <Heart size={10} fill="currentColor" />
+                          {formatCount(look.likes)}
+                        </span>
+                        <span className="flex items-center gap-1 text-[10px] font-inter text-ink-muted">
+                          <Eye size={10} />
+                          {formatCount(Math.round(look.likes * 2.3))}
+                        </span>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -388,6 +454,15 @@ export function CommunityPage() {
             key={shopPost.id}
             post={shopPost}
             onClose={() => setShopPost(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {trendingLook && (
+          <LookDetail
+            look={trendingLook}
+            onClose={() => setTrendingLook(null)}
           />
         )}
       </AnimatePresence>

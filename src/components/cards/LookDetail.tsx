@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
-import type { Look } from "../../data/mockData";
+import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp, Sparkles } from "lucide-react";
+import type { Look, LookItem } from "../../data/mockData";
+import { feedLooks } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
 import { useStore } from "../../stores/useStore";
+import { computeStyleMatch } from "../../stores/useStore";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -21,8 +23,28 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
+  const styleDNA = useStore((s) => s.styleDNA);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  const match = useMemo(() => computeStyleMatch(look, styleDNA), [look, styleDNA]);
+
+  const wearItWith = useMemo(() => {
+    const currentCategories = new Set(look.items.map((i) => i.category));
+    const currentItemIds = new Set(look.items.map((i) => i.id));
+    const complementary: LookItem[] = [];
+    const otherLooks = feedLooks.filter((l) => l.id !== look.id);
+    for (const other of otherLooks) {
+      for (const item of other.items) {
+        if (!currentItemIds.has(item.id) && !currentCategories.has(item.category) && complementary.length < 4) {
+          complementary.push(item);
+          currentCategories.add(item.category);
+        }
+      }
+      if (complementary.length >= 4) break;
+    }
+    return complementary;
+  }, [look]);
 
   return (
     <AnimatePresence>
@@ -96,6 +118,24 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 <Tag key={tag.label} label={tag.label} color={tag.color} />
               ))}
             </div>
+
+            {/* Match Score */}
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+              className="flex items-center gap-2 mb-4"
+            >
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold/10 border border-gold/20">
+                <Sparkles size={12} className="text-gold" />
+                <span className="text-xs font-inter font-semibold text-gold">{match.score}% Your Style</span>
+              </div>
+              {match.reasons.length > 0 && (
+                <span className="text-[10px] font-inter text-ink-muted italic">
+                  Matches your {match.reasons.join(" & ")} DNA
+                </span>
+              )}
+            </motion.div>
 
             {/* Engagement stats */}
             <div className="flex items-center gap-4 mb-5">
@@ -187,6 +227,24 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 ))}
               </div>
             </div>
+
+            {/* Wear It With — cross-look suggestions */}
+            {wearItWith.length > 0 && (
+              <div className="mb-10">
+                <div className="flex items-center gap-3 mb-6">
+                  <Sparkles size={18} className="text-gold" />
+                  <h3 className="font-editorial text-xl text-ink">Wear It With</h3>
+                  <span className="text-xs font-inter text-ink-muted ml-auto">
+                    Complementary picks
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  {wearItWith.map((item, i) => (
+                    <ProductCard key={item.id} item={item} index={i} />
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Photographer credit */}
             {look.photographer && (
