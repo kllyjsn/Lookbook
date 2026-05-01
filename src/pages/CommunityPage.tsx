@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, BadgeCheck, Sparkles, Clock } from "lucide-react";
+import { Search, BadgeCheck, Sparkles, Clock, TrendingUp, ArrowUpRight } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { PostCard } from "../components/community/PostCard";
 import { CreatorProfile } from "../components/community/CreatorProfile";
@@ -275,6 +275,44 @@ export function CommunityPage() {
                 ))
               )}
             </div>
+
+            {/* Trend Forecast (For You only) */}
+            {activeTab === "forYou" && (
+              <div className="px-6 py-6 mt-2">
+                <div className="flex items-center gap-2 mb-4">
+                  <TrendingUp size={16} className="text-rose" />
+                  <h2 className="font-editorial text-lg text-ink">Trend Forecast</h2>
+                  <span className="text-[9px] font-inter tracking-[0.15em] uppercase text-ink-muted ml-auto">This Week</span>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    { trend: "Quiet Luxury 2.0", delta: "+18%", desc: "The Row-coded neutrals are surging across all style profiles", hot: true },
+                    { trend: "Office Siren", delta: "+12%", desc: "Structured blazer dresses and pencil skirts are back with edge", hot: true },
+                    { trend: "Coastal Grandmother", delta: "+9%", desc: "Linen everything — Nancy Meyers core meets modern ease", hot: false },
+                    { trend: "Tokyo Street", delta: "+7%", desc: "Layered proportions and crossbody pouches trending in streetwear", hot: false },
+                  ].map((item, i) => (
+                    <motion.div
+                      key={item.trend}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.06 }}
+                      className="flex items-start gap-3 p-3 rounded-xl bg-ivory"
+                    >
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${item.hot ? "bg-rose/10" : "bg-ink/5"}`}>
+                        <ArrowUpRight size={14} className={item.hot ? "text-rose" : "text-ink-muted"} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-inter font-semibold text-ink">{item.trend}</p>
+                          <span className={`text-[10px] font-inter font-bold ${item.hot ? "text-rose" : "text-sage"}`}>{item.delta}</span>
+                        </div>
+                        <p className="text-[11px] font-inter text-ink-muted mt-0.5">{item.desc}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Suggested creators (after feed in For You) */}
             {activeTab === "forYou" && (

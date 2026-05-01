@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
+import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp, Dna, Tag as TagIcon } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { budgetAlternatives } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
-import { useStore } from "../../stores/useStore";
+import { useStore, tagToStyle } from "../../stores/useStore";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -21,8 +22,18 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
+  const styleDNA = useStore((s) => s.styleDNA);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  const styleMatchPct = useMemo(() => {
+    if (!styleDNA || styleDNA.length === 0) return 0;
+    const lookStyles = new Set(look.tags.map((t) => tagToStyle[t.label]).filter(Boolean));
+    return styleDNA.filter((d) => lookStyles.has(d.style)).reduce((s, d) => s + d.percentage, 0);
+  }, [look.tags, styleDNA]);
+
+  const budgetAlts = budgetAlternatives[look.id] ?? [];
+  const budgetTotal = budgetAlts.reduce((sum, item) => sum + item.price, 0);
 
   return (
     <AnimatePresence>
@@ -96,6 +107,24 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 <Tag key={tag.label} label={tag.label} color={tag.color} />
               ))}
             </div>
+
+            {/* Style Match badge */}
+            {styleMatchPct > 0 && (
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+                className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-gold/8 border border-gold/15"
+              >
+                <Dna size={14} className="text-gold" />
+                <span className="text-xs font-inter font-semibold text-gold">
+                  {styleMatchPct}% Your Style
+                </span>
+                <span className="text-[10px] font-inter text-ink-muted ml-auto">
+                  Based on your DNA
+                </span>
+              </motion.div>
+            )}
 
             {/* Engagement stats */}
             <div className="flex items-center gap-4 mb-5">
@@ -187,6 +216,25 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 ))}
               </div>
             </div>
+
+            {/* Steal the Look — budget alternatives */}
+            {budgetAlts.length > 0 && (
+              <div className="mb-10">
+                <div className="flex items-center gap-3 mb-2">
+                  <TagIcon size={16} className="text-sage" />
+                  <h3 className="font-editorial text-xl text-ink">Steal the Look</h3>
+                </div>
+                <p className="text-xs font-inter text-ink-muted mb-4">
+                  Get the vibe for <span className="font-semibold text-sage">${budgetTotal}</span>{" "}
+                  instead of {look.priceRange}
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  {budgetAlts.map((item, i) => (
+                    <ProductCard key={item.id} item={item} index={i} />
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Photographer credit */}
             {look.photographer && (
