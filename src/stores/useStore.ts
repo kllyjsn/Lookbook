@@ -59,6 +59,26 @@ interface AppState {
   followCreator: (id: string) => void;
   unfollowCreator: (id: string) => void;
 
+  // Style Streak
+  streakCount: number;
+  lastSessionDate: string | null;
+  recordSession: () => void;
+
+  // Style personality
+  getStylePersonality: () => string;
+
+  // Style recap stats
+  getStyleRecap: () => {
+    topAesthetic: string;
+    avgBudget: string;
+    topBrand: string;
+    totalExplored: number;
+    matchScore: number;
+  };
+
+  // Style match score for a look
+  getMatchScore: (look: Look) => number;
+
   // UI state
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -261,6 +281,81 @@ export const useStore = create<AppState>()(
           followedCreators: state.followedCreators.filter((cid) => cid !== id),
         })),
 
+      streakCount: 0,
+      lastSessionDate: null,
+      recordSession: () =>
+        set((state) => {
+          const today = new Date().toISOString().slice(0, 10);
+          if (state.lastSessionDate === today) return state;
+          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+          const isConsecutive = state.lastSessionDate === yesterday;
+          return {
+            streakCount: isConsecutive ? state.streakCount + 1 : 1,
+            lastSessionDate: today,
+          };
+        }),
+
+      getStylePersonality: () => {
+        const dna = get().styleDNA;
+        const top = [...dna].sort((a, b) => b.percentage - a.percentage)[0];
+        if (!top) return "Style Explorer";
+        const map: Record<string, string> = {
+          Minimalist: "The Curator",
+          Classic: "The Connoisseur",
+          Romantic: "The Dreamer",
+          Streetwear: "The Maverick",
+          "Avant-Garde": "The Visionary",
+        };
+        return map[top.style] ?? "Style Explorer";
+      },
+
+      getStyleRecap: () => {
+        const liked = get().likedLooks;
+        const passed = get().passedLooks;
+        const total = liked.length + passed.length;
+        if (liked.length === 0) {
+          return { topAesthetic: "—", avgBudget: "—", topBrand: "—", totalExplored: total, matchScore: 0 };
+        }
+        const tagCounts: Record<string, number> = {};
+        const brandCounts: Record<string, number> = {};
+        let priceSum = 0;
+        let priceCount = 0;
+        for (const look of liked) {
+          for (const tag of look.tags) {
+            tagCounts[tag.label] = (tagCounts[tag.label] ?? 0) + 1;
+          }
+          for (const item of look.items) {
+            brandCounts[item.brand] = (brandCounts[item.brand] ?? 0) + 1;
+            priceSum += item.price;
+            priceCount++;
+          }
+        }
+        const topTag = Object.entries(tagCounts).sort((a, b) => b[1] - a[1])[0];
+        const topBrand = Object.entries(brandCounts).sort((a, b) => b[1] - a[1])[0];
+        const avg = priceCount > 0 ? Math.round(priceSum / priceCount) : 0;
+        return {
+          topAesthetic: topTag?.[0] ?? "—",
+          avgBudget: avg > 0 ? `$${avg}` : "—",
+          topBrand: topBrand?.[0] ?? "—",
+          totalExplored: total,
+          matchScore: total > 0 ? Math.round((liked.length / total) * 100) : 0,
+        };
+      },
+
+      getMatchScore: (look: Look) => {
+        const dna = get().styleDNA;
+        if (dna.length === 0) return 75;
+        let score = 60;
+        for (const tag of look.tags) {
+          const mapped = tagToStyle[tag.label];
+          if (mapped) {
+            const entry = dna.find((d) => d.style === mapped);
+            if (entry) score += entry.percentage * 0.35;
+          }
+        }
+        return Math.min(99, Math.round(score));
+      },
+
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
       showLookDetail: null,
@@ -280,6 +375,8 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        streakCount: state.streakCount,
+        lastSessionDate: state.lastSessionDate,
       }),
     }
   )
