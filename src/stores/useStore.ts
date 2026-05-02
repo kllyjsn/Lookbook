@@ -159,7 +159,14 @@ export const useStore = create<AppState>()(
       currentFeedIndex: 0,
       setCurrentFeedIndex: (index) => set({ currentFeedIndex: index }),
       activeMoodFilter: "all" as MoodFilter,
-      setActiveMoodFilter: (mood) => set({ activeMoodFilter: mood, currentFeedIndex: 0, lastSwipedLook: null, lastSwipeAction: null }),
+      setActiveMoodFilter: (mood) =>
+        set({
+          activeMoodFilter: mood,
+          currentFeedIndex: 0,
+          lastSwipedLook: null,
+          lastSwipeAction: null,
+          feedShuffleSeed: 0,
+        }),
       feedShuffleSeed: 0,
       shuffleFeed: () =>
         set((state) => ({
@@ -350,7 +357,9 @@ export const useStore = create<AppState>()(
         longestStreak: state.longestStreak,
         lastViewedCommunityAt: state.lastViewedCommunityAt,
         postReactions: state.postReactions,
-        feedShuffleSeed: state.feedShuffleSeed,
+        // feedShuffleSeed is intentionally NOT persisted: shuffle is a
+        // session-scoped action, so each new session starts in the
+        // curated/DNA-ranked order rather than the last shuffled order.
       }),
     }
   )

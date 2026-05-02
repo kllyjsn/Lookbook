@@ -6,7 +6,7 @@ import { SearchPage } from "./SearchPage";
 import { Logo } from "../components/ui/Logo";
 import { RefreshCw, Sparkles, Camera, Shuffle, Flame } from "lucide-react";
 import { feedLooks, moodFilters } from "../data/mockData";
-import type { MoodFilter } from "../data/mockData";
+import type { Look, MoodFilter } from "../data/mockData";
 import { useStore } from "../stores/useStore";
 import {
   getIssueDateLabel,
@@ -30,7 +30,6 @@ export function FeedPage() {
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
   const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
-  const styleDNA = useStore((s) => s.styleDNA);
   const feedShuffleSeed = useStore((s) => s.feedShuffleSeed);
   const shuffleFeed = useStore((s) => s.shuffleFeed);
   const recordVisit = useStore((s) => s.recordVisit);
@@ -46,23 +45,37 @@ export function FeedPage() {
   const issueDateLabel = useMemo(() => getIssueDateLabel(), []);
   const trendPulse = useMemo(() => getTrendPulseForToday(), []);
 
-  // Once the user has signal (>=3 liked looks), tune the feed order to
-  // their Style DNA so the magazine feels like it knows them.
-  const isTuned = likedLooks.length >= 3;
-
-  const filteredLooks = useMemo(() => {
+  // Snapshot the feed order per "session" — defined as a unique
+  // (moodFilter, shuffleSeed) pair. We intentionally do NOT recompute
+  // when styleDNA changes mid-session: every like updates Style DNA,
+  // and re-ranking mid-swipe would shuffle already-seen looks back into
+  // view and push unseen looks past the current index. Rank is decided
+  // once at session start (or when the user changes filter / shuffles).
+  // styleDNA + likedLooks are read from the store snapshot here rather
+  // than as reactive deps so the memo only recomputes on those keys.
+  const { filteredLooks, isTuned } = useMemo<{
+    filteredLooks: Look[];
+    isTuned: boolean;
+  }>(() => {
+    const s = useStore.getState();
     const base =
       activeMoodFilter === "all"
         ? feedLooks
         : feedLooks.filter((l) => l.mood === activeMoodFilter);
     if (feedShuffleSeed > 0) {
-      return seededShuffle(base, feedShuffleSeed);
+      return {
+        filteredLooks: seededShuffle(base, feedShuffleSeed),
+        isTuned: false,
+      };
     }
-    if (isTuned) {
-      return rankLooksByDNA(base, styleDNA);
+    if (s.likedLooks.length >= 3) {
+      return {
+        filteredLooks: rankLooksByDNA(base, s.styleDNA),
+        isTuned: true,
+      };
     }
-    return base;
-  }, [activeMoodFilter, feedShuffleSeed, isTuned, styleDNA]);
+    return { filteredLooks: [...base], isTuned: false };
+  }, [activeMoodFilter, feedShuffleSeed]);
 
   const hasSeenAll = currentFeedIndex >= filteredLooks.length;
 
