@@ -10,17 +10,34 @@ interface SavedCollection {
   createdAt: number;
 }
 
+export type FeedMode = "cards" | "reels";
+
 interface AppState {
   // Feed state
   currentFeedIndex: number;
   setCurrentFeedIndex: (index: number) => void;
   activeMoodFilter: MoodFilter;
   setActiveMoodFilter: (mood: MoodFilter) => void;
+  feedMode: FeedMode;
+  setFeedMode: (mode: FeedMode) => void;
+
+  // Daily Edit cadence + streak
+  lastVisitISO: string | null; // YYYY-MM-DD of last app open day
+  streakDays: number;          // consecutive days the user has opened LKBK
+  streakHistory: string[];     // ISO dates of last 14 visit days (sorted asc)
+  noteVisit: () => void;       // call on app boot to update streak
+  reminderEnabled: boolean;
+  setReminderEnabled: (v: boolean) => void;
+
+  // Recently viewed
+  recentlyViewed: Look[];
+  trackView: (look: Look) => void;
 
   // Liked / passed looks
   likedLooks: Look[];
   passedLooks: Look[];
   likeLook: (look: Look) => void;
+  loveLookNoAdvance: (look: Look) => void; // Reels-mode like: updates DNA but doesn't advance feed index
   passLook: (look: Look) => void;
   saveLook: (look: Look) => void;
 
@@ -144,6 +161,44 @@ export const useStore = create<AppState>()(
       setCurrentFeedIndex: (index) => set({ currentFeedIndex: index }),
       activeMoodFilter: "all" as MoodFilter,
       setActiveMoodFilter: (mood) => set({ activeMoodFilter: mood, currentFeedIndex: 0, lastSwipedLook: null, lastSwipeAction: null }),
+      feedMode: "cards" as FeedMode,
+      setFeedMode: (mode) => set({ feedMode: mode }),
+
+      lastVisitISO: null,
+      streakDays: 0,
+      streakHistory: [],
+      noteVisit: () =>
+        set((state) => {
+          const today = new Date();
+          const todayISO = today.toISOString().slice(0, 10);
+          if (state.lastVisitISO === todayISO) return state;
+
+          let nextStreak = 1;
+          if (state.lastVisitISO) {
+            const last = new Date(state.lastVisitISO + "T00:00:00");
+            const diffMs = today.setHours(0, 0, 0, 0) - last.getTime();
+            const diffDays = Math.round(diffMs / 86400000);
+            if (diffDays === 1) nextStreak = state.streakDays + 1;
+            else if (diffDays === 0) nextStreak = state.streakDays;
+          }
+          const nextHistory = [...state.streakHistory, todayISO].slice(-14);
+          return {
+            lastVisitISO: todayISO,
+            streakDays: nextStreak,
+            streakHistory: nextHistory,
+          };
+        }),
+      reminderEnabled: false,
+      setReminderEnabled: (v) => set({ reminderEnabled: v }),
+
+      recentlyViewed: [],
+      trackView: (look) =>
+        set((state) => ({
+          recentlyViewed: [
+            look,
+            ...state.recentlyViewed.filter((l) => l.id !== look.id),
+          ].slice(0, 12),
+        })),
 
       likedLooks: [],
       passedLooks: [],
@@ -160,6 +215,16 @@ export const useStore = create<AppState>()(
             currentFeedIndex: state.currentFeedIndex + 1,
             lastSwipedLook: look,
             lastSwipeAction: "like" as const,
+            styleDNA: computeDNA(newLiked),
+          };
+        }),
+      loveLookNoAdvance: (look) =>
+        set((state) => {
+          const newLiked = state.likedLooks.some((l) => l.id === look.id)
+            ? state.likedLooks
+            : [...state.likedLooks, look];
+          return {
+            likedLooks: newLiked,
             styleDNA: computeDNA(newLiked),
           };
         }),
@@ -280,6 +345,12 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        feedMode: state.feedMode,
+        lastVisitISO: state.lastVisitISO,
+        streakDays: state.streakDays,
+        streakHistory: state.streakHistory,
+        reminderEnabled: state.reminderEnabled,
+        recentlyViewed: state.recentlyViewed,
       }),
     }
   )

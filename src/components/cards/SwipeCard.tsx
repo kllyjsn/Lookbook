@@ -23,6 +23,7 @@ interface SwipeCardProps {
   onTap: () => void;
   onDoubleTap: () => void;
   isTop: boolean;
+  pickReason?: string;
 }
 
 export function SwipeCard({
@@ -33,6 +34,7 @@ export function SwipeCard({
   onTap,
   onDoubleTap,
   isTop,
+  pickReason,
 }: SwipeCardProps) {
   const [exitDirection, setExitDirection] = useState<"left" | "right" | "up" | null>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
@@ -225,6 +227,16 @@ export function SwipeCard({
             <p className="font-subhead text-base text-white/80 italic">
               {look.subtitle}
             </p>
+            {isTop && pickReason && (
+              <div className="flex items-start gap-1.5 pt-1">
+                <span className="text-[9px] font-inter font-bold tracking-[0.2em] uppercase text-gold mt-0.5">
+                  FOR YOU
+                </span>
+                <span className="text-[11px] font-inter text-white/85 leading-snug">
+                  {pickReason}
+                </span>
+              </div>
+            )}
             <div className="flex items-center gap-3 pt-1">
               <span className="flex items-center gap-1 text-xs font-inter text-white/60">
                 <Heart size={12} fill="currentColor" />

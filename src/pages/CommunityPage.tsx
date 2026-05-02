@@ -7,13 +7,16 @@ import { CreatorProfile } from "../components/community/CreatorProfile";
 import { MustHaveCard } from "../components/community/MustHaveCard";
 import { MustHaveDetail } from "../components/community/MustHaveDetail";
 import { FollowButton } from "../components/community/FollowButton";
+import { EditorsNotebook } from "../components/community/EditorsNotebook";
 import { ProductCard } from "../components/cards/ProductCard";
+import { LookDetail } from "../components/cards/LookDetail";
 import { useStore } from "../stores/useStore";
 import { creators, communityPosts, mustHaveLists } from "../data/communityData";
 import type { Creator, CommunityPost, MustHaveList } from "../data/communityData";
+import type { Look } from "../data/mockData";
 
 
-type CommunityTab = "forYou" | "following" | "mustHaves";
+type CommunityTab = "forYou" | "following" | "mustHaves" | "notebook";
 
 function PostShopOverlay({
   post,
@@ -69,6 +72,7 @@ export function CommunityPage() {
   const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null);
   const [selectedMustHave, setSelectedMustHave] = useState<MustHaveList | null>(null);
   const [shopPost, setShopPost] = useState<CommunityPost | null>(null);
+  const [openLook, setOpenLook] = useState<Look | null>(null);
 
   const followedCreators = useStore((s) => s.followedCreators);
 
@@ -118,6 +122,7 @@ export function CommunityPage() {
         <div className="flex gap-1 bg-ivory rounded-xl p-1">
           {([
             { id: "forYou" as const, label: "For You" },
+            { id: "notebook" as const, label: "Notebook" },
             { id: "following" as const, label: "Following" },
             { id: "mustHaves" as const, label: "Must Haves" },
           ]).map((tab) => (
@@ -125,7 +130,7 @@ export function CommunityPage() {
               key={tab.id}
               whileTap={{ scale: 0.97 }}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 py-2.5 rounded-lg text-xs font-inter font-medium transition-all ${
+              className={`flex-1 py-2 rounded-lg text-[11px] font-inter font-medium transition-all ${
                 activeTab === tab.id
                   ? "bg-white text-ink shadow-sm"
                   : "text-ink-muted"
@@ -326,6 +331,18 @@ export function CommunityPage() {
           </motion.div>
         )}
 
+        {/* Editor's Notebook tab */}
+        {activeTab === "notebook" && (
+          <motion.div
+            key="notebook"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+          >
+            <EditorsNotebook onLookOpen={(look) => setOpenLook(look)} />
+          </motion.div>
+        )}
+
         {/* Must Haves tab */}
         {activeTab === "mustHaves" && (
           <motion.div
@@ -388,6 +405,16 @@ export function CommunityPage() {
             key={shopPost.id}
             post={shopPost}
             onClose={() => setShopPost(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {openLook && (
+          <LookDetail
+            key={openLook.id}
+            look={openLook}
+            onClose={() => setOpenLook(null)}
           />
         )}
       </AnimatePresence>
