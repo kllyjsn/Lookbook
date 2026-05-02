@@ -1,13 +1,28 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Look, StyleDNAEntry, MoodFilter } from "../data/mockData";
+import type { Look, StyleDNAEntry, MoodFilter, LookItem } from "../data/mockData";
 import { defaultStyleDNA } from "../data/mockData";
+import type { Comment } from "../data/communityData";
+import { initialComments, ootdEntries } from "../data/communityData";
 
 interface SavedCollection {
   id: string;
   name: string;
   looks: Look[];
   createdAt: number;
+}
+
+function todayKey(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function dayDelta(a: string, b: string): number {
+  const [ay, am, ad] = a.split("-").map(Number);
+  const [by, bm, bd] = b.split("-").map(Number);
+  const da = Date.UTC(ay, am - 1, ad);
+  const db = Date.UTC(by, bm - 1, bd);
+  return Math.round((db - da) / 86400000);
 }
 
 interface AppState {
@@ -58,6 +73,32 @@ interface AppState {
   followedCreators: string[];
   followCreator: (id: string) => void;
   unfollowCreator: (id: string) => void;
+
+  // Comments
+  comments: Comment[];
+  addComment: (postId: string, text: string) => void;
+  toggleCommentLike: (commentId: string) => void;
+  likedCommentIds: string[];
+
+  // OOTD challenge
+  ootdVotes: Record<string, number>;
+  votedOOTDIds: string[];
+  voteOOTD: (entryId: string) => void;
+  ootdJoined: boolean;
+  joinOOTD: () => void;
+  ootdSubmittedImage: string | null;
+  submitOOTD: (image: string) => void;
+
+  // Daily streak
+  streakCount: number;
+  longestStreak: number;
+  lastOpenedDate: string | null;
+  registerDailyOpen: () => void;
+
+  // Item-level wishlist
+  wishlistItemIds: string[];
+  wishlistItems: LookItem[];
+  toggleWishlistItem: (item: LookItem) => void;
 
   // UI state
   activeTab: string;
@@ -261,6 +302,94 @@ export const useStore = create<AppState>()(
           followedCreators: state.followedCreators.filter((cid) => cid !== id),
         })),
 
+      comments: initialComments,
+      likedCommentIds: [],
+      addComment: (postId, text) =>
+        set((state) => ({
+          comments: [
+            ...state.comments,
+            {
+              id: `${postId}-u-${Date.now()}`,
+              postId,
+              authorId: "you",
+              authorName: "You",
+              authorAvatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&q=80",
+              text,
+              createdAt: "now",
+              likes: 0,
+            },
+          ],
+        })),
+      toggleCommentLike: (commentId) =>
+        set((state) => {
+          const isLiked = state.likedCommentIds.includes(commentId);
+          return {
+            likedCommentIds: isLiked
+              ? state.likedCommentIds.filter((id) => id !== commentId)
+              : [...state.likedCommentIds, commentId],
+            comments: state.comments.map((c) =>
+              c.id === commentId
+                ? { ...c, likes: c.likes + (isLiked ? -1 : 1) }
+                : c,
+            ),
+          };
+        }),
+
+      ootdVotes: Object.fromEntries(ootdEntries.map((e) => [e.id, e.votes])),
+      votedOOTDIds: [],
+      voteOOTD: (entryId) =>
+        set((state) => {
+          if (state.votedOOTDIds.includes(entryId)) return state;
+          return {
+            votedOOTDIds: [...state.votedOOTDIds, entryId],
+            ootdVotes: {
+              ...state.ootdVotes,
+              [entryId]: (state.ootdVotes[entryId] ?? 0) + 1,
+            },
+          };
+        }),
+      ootdJoined: false,
+      joinOOTD: () => set({ ootdJoined: true }),
+      ootdSubmittedImage: null,
+      submitOOTD: (image) => set({ ootdSubmittedImage: image, ootdJoined: true }),
+
+      streakCount: 0,
+      longestStreak: 0,
+      lastOpenedDate: null,
+      registerDailyOpen: () =>
+        set((state) => {
+          const today = todayKey();
+          if (state.lastOpenedDate === today) return state;
+          let nextStreak = 1;
+          if (state.lastOpenedDate) {
+            const delta = dayDelta(state.lastOpenedDate, today);
+            if (delta === 1) nextStreak = state.streakCount + 1;
+            else if (delta === 0) nextStreak = state.streakCount;
+            else nextStreak = 1;
+          }
+          return {
+            lastOpenedDate: today,
+            streakCount: nextStreak,
+            longestStreak: Math.max(state.longestStreak, nextStreak),
+          };
+        }),
+
+      wishlistItemIds: [],
+      wishlistItems: [],
+      toggleWishlistItem: (item) =>
+        set((state) => {
+          const has = state.wishlistItemIds.includes(item.id);
+          return has
+            ? {
+                wishlistItemIds: state.wishlistItemIds.filter((id) => id !== item.id),
+                wishlistItems: state.wishlistItems.filter((w) => w.id !== item.id),
+              }
+            : {
+                wishlistItemIds: [...state.wishlistItemIds, item.id],
+                wishlistItems: [...state.wishlistItems, item],
+              };
+        }),
+
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
       showLookDetail: null,
@@ -280,6 +409,17 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        comments: state.comments,
+        likedCommentIds: state.likedCommentIds,
+        ootdVotes: state.ootdVotes,
+        votedOOTDIds: state.votedOOTDIds,
+        ootdJoined: state.ootdJoined,
+        ootdSubmittedImage: state.ootdSubmittedImage,
+        streakCount: state.streakCount,
+        longestStreak: state.longestStreak,
+        lastOpenedDate: state.lastOpenedDate,
+        wishlistItemIds: state.wishlistItemIds,
+        wishlistItems: state.wishlistItems,
       }),
     }
   )

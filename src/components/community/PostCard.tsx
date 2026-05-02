@@ -1,8 +1,10 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, MessageCircle, Bookmark, ShoppingBag, BadgeCheck, TrendingUp, Flame } from "lucide-react";
 import type { CommunityPost } from "../../data/communityData";
 import { FollowButton } from "./FollowButton";
+import { CommentsDrawer } from "./CommentsDrawer";
+import { useStore } from "../../stores/useStore";
 
 interface PostCardProps {
   post: CommunityPost;
@@ -22,7 +24,14 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
   const [saved, setSaved] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [showHeartBurst, setShowHeartBurst] = useState(false);
+  const [showComments, setShowComments] = useState(false);
   const lastTapRef = useRef(0);
+
+  const allComments = useStore((s) => s.comments);
+  const liveCommentCount = useMemo(
+    () => allComments.filter((c) => c.postId === post.id).length || post.comments,
+    [allComments, post.id, post.comments],
+  );
 
   const isViral = post.likes > 7000;
   const isTrending = post.likes > 5000;
@@ -163,10 +172,14 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
           </span>
         </motion.button>
 
-        <button className="flex items-center gap-1.5">
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setShowComments(true)}
+          className="flex items-center gap-1.5"
+        >
           <MessageCircle size={20} className="text-ink-muted" strokeWidth={1.5} />
-          <span className="text-xs font-inter text-ink-muted">{formatCount(post.comments)}</span>
-        </button>
+          <span className="text-xs font-inter text-ink-muted">{formatCount(liveCommentCount)}</span>
+        </motion.button>
 
         <motion.button
           whileTap={{ scale: 0.85 }}
@@ -208,6 +221,28 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
         <span className="font-semibold text-ink">{post.creator.displayName}</span>{" "}
         {post.caption}
       </p>
+
+      {/* View comments link */}
+      {liveCommentCount > 0 && (
+        <button
+          onClick={() => setShowComments(true)}
+          className="mt-1.5 px-1 text-[12px] font-inter text-ink-muted hover:text-ink transition-colors"
+        >
+          View all {formatCount(liveCommentCount)} comments
+        </button>
+      )}
+
+      {/* Comments drawer */}
+      <AnimatePresence>
+        {showComments && (
+          <CommentsDrawer
+            postId={post.id}
+            postTitle={post.title}
+            creatorName={post.creator.displayName}
+            onClose={() => setShowComments(false)}
+          />
+        )}
+      </AnimatePresence>
     </motion.article>
   );
 }

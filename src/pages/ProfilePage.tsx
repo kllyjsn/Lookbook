@@ -4,6 +4,7 @@ import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Tr
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
+import { StreakBadge } from "../components/ui/StreakBadge";
 import { LookDetail } from "../components/cards/LookDetail";
 import type { Look } from "../data/mockData";
 
@@ -15,6 +16,10 @@ export function ProfilePage() {
   const collections = useStore((s) => s.collections);
   const createCollection = useStore((s) => s.createCollection);
   const removeFromCollection = useStore((s) => s.removeFromCollection);
+  const streakCount = useStore((s) => s.streakCount);
+  const longestStreak = useStore((s) => s.longestStreak);
+  const wishlistItems = useStore((s) => s.wishlistItems);
+  const toggleWishlistItem = useStore((s) => s.toggleWishlistItem);
   const [activeSection, setActiveSection] = useState<ProfileSection>("dna");
   const [selectedLook, setSelectedLook] = useState<Look | null>(null);
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
@@ -47,17 +52,23 @@ export function ProfilePage() {
         </div>
 
         {/* Profile avatar & name */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-4 mb-4">
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold to-blush flex items-center justify-center">
             <span className="font-editorial text-xl text-white">Y</span>
           </div>
-          <div>
+          <div className="flex-1 min-w-0">
             <h2 className="font-editorial text-xl text-ink">Your Profile</h2>
             <p className="text-xs font-inter text-ink-muted">
-              {likedLooks.length} looks loved · {collections.reduce((sum, c) => sum + c.looks.length, 0)} saved
+              {likedLooks.length} looks loved · {collections.reduce((sum, c) => sum + c.looks.length, 0)} saved · {wishlistItems.length} on wishlist
             </p>
           </div>
         </div>
+
+        {streakCount > 0 && (
+          <div className="mb-5">
+            <StreakBadge count={streakCount} longest={longestStreak} variant="full" />
+          </div>
+        )}
 
         {/* Section tabs */}
         <div className="flex gap-1 bg-ivory rounded-xl p-1">
@@ -139,6 +150,53 @@ export function ProfilePage() {
                   ))}
                 </div>
               </div>
+
+              {wishlistItems.length > 0 && (
+                <div className="mt-8">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-editorial text-lg text-ink">Wishlist</h3>
+                    <span className="text-[10px] font-inter tracking-[0.18em] uppercase text-ink-muted">
+                      {wishlistItems.length} pieces
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {wishlistItems.map((item, i) => (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.04 }}
+                        className="group relative"
+                      >
+                        <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-ivory mb-2">
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="img-editorial group-hover:scale-105 transition-transform duration-500"
+                          />
+                          <button
+                            onClick={() => toggleWishlistItem(item)}
+                            className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center"
+                          >
+                            <Heart size={12} className="text-rose" fill="currentColor" />
+                          </button>
+                        </div>
+                        <div className="space-y-0.5 px-0.5">
+                          <p className="text-[10px] font-inter tracking-[0.1em] uppercase text-ink-muted truncate">
+                            {item.brand}
+                          </p>
+                          <p className="text-xs font-inter text-ink leading-snug truncate">
+                            {item.name}
+                          </p>
+                          <p className="text-xs font-inter font-medium text-ink">
+                            ${item.price}
+                          </p>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </motion.div>
           )}
 

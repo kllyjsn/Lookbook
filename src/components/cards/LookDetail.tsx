@@ -118,6 +118,26 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               {look.description}
             </p>
 
+            {/* Editor's Note pull-quote */}
+            {look.editorsNote && (
+              <motion.figure
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="relative my-8 pl-6 pr-2 py-1 border-l-2 border-gold"
+              >
+                <span className="absolute -top-3 left-3 px-2 py-0.5 bg-cream text-[9px] font-inter font-bold tracking-[0.25em] uppercase text-gold">
+                  Editor's Note
+                </span>
+                <blockquote className="font-subhead text-lg text-ink italic leading-snug">
+                  &ldquo;{look.editorsNote.text}&rdquo;
+                </blockquote>
+                <figcaption className="mt-3 text-[10px] font-inter tracking-[0.18em] uppercase text-ink-muted">
+                  — {look.editorsNote.author}
+                </figcaption>
+              </motion.figure>
+            )}
+
             {/* Action bar */}
             <div className="flex items-center gap-3 mb-10">
               <motion.button

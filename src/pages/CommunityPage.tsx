@@ -1,12 +1,13 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, BadgeCheck, Sparkles, Clock } from "lucide-react";
+import { Search, BadgeCheck, Sparkles, Clock, Trophy } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { PostCard } from "../components/community/PostCard";
 import { CreatorProfile } from "../components/community/CreatorProfile";
 import { MustHaveCard } from "../components/community/MustHaveCard";
 import { MustHaveDetail } from "../components/community/MustHaveDetail";
 import { FollowButton } from "../components/community/FollowButton";
+import { OOTDChallenge } from "../components/community/OOTDChallenge";
 import { ProductCard } from "../components/cards/ProductCard";
 import { useStore } from "../stores/useStore";
 import { creators, communityPosts, mustHaveLists } from "../data/communityData";
@@ -69,6 +70,9 @@ export function CommunityPage() {
   const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null);
   const [selectedMustHave, setSelectedMustHave] = useState<MustHaveList | null>(null);
   const [shopPost, setShopPost] = useState<CommunityPost | null>(null);
+  const [showOOTD, setShowOOTD] = useState(false);
+  const ootdJoined = useStore((s) => s.ootdJoined);
+  const ootdSubmittedImage = useStore((s) => s.ootdSubmittedImage);
 
   const followedCreators = useStore((s) => s.followedCreators);
 
@@ -152,14 +156,16 @@ export function CommunityPage() {
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="relative overflow-hidden rounded-2xl"
+                  whileTap={{ scale: 0.99 }}
+                  onClick={() => setShowOOTD(true)}
+                  className="relative overflow-hidden rounded-2xl cursor-pointer"
                 >
                   <img
                     src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&h=300&fit=crop&q=80"
                     alt="OOTD Challenge"
                     className="w-full h-36 object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-r from-ink/80 via-ink/60 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-ink/85 via-ink/55 to-transparent" />
                   <div className="absolute inset-0 flex items-center p-5">
                     <div className="flex-1">
                       <div className="flex items-center gap-1.5 mb-1.5">
@@ -172,15 +178,23 @@ export function CommunityPage() {
                         OOTD: Summer Whites
                       </h3>
                       <p className="text-[11px] font-inter text-white/60 mb-2">
-                        Style an all-white look. Best picks get featured.
+                        {ootdSubmittedImage
+                          ? "Your entry is in. Vote on the leaderboard."
+                          : "Style an all-white look. Best picks get featured."}
                       </p>
                       <div className="flex items-center gap-3">
-                        <motion.button
-                          whileTap={{ scale: 0.95 }}
-                          className="px-4 py-1.5 rounded-full bg-gold text-white text-[10px] font-inter font-semibold"
-                        >
-                          Join Challenge
-                        </motion.button>
+                        <span className="px-4 py-1.5 rounded-full bg-gold text-white text-[10px] font-inter font-semibold flex items-center gap-1">
+                          {ootdSubmittedImage ? (
+                            <>
+                              <Trophy size={10} />
+                              View leaderboard
+                            </>
+                          ) : ootdJoined ? (
+                            "Continue"
+                          ) : (
+                            "Join Challenge"
+                          )}
+                        </span>
                         <span className="flex items-center gap-1 text-[10px] font-inter text-white/40">
                           <Clock size={10} />
                           8h left
@@ -390,6 +404,10 @@ export function CommunityPage() {
             onClose={() => setShopPost(null)}
           />
         )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showOOTD && <OOTDChallenge onClose={() => setShowOOTD(false)} />}
       </AnimatePresence>
     </div>
   );

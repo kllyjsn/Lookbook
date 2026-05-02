@@ -4,6 +4,7 @@ import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
 import { SearchPage } from "./SearchPage";
 import { Logo } from "../components/ui/Logo";
+import { StreakBadge } from "../components/ui/StreakBadge";
 import { RefreshCw, Sparkles, Camera } from "lucide-react";
 import { feedLooks, moodFilters } from "../data/mockData";
 import type { MoodFilter } from "../data/mockData";
@@ -23,6 +24,8 @@ export function FeedPage() {
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
   const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
+  const streakCount = useStore((s) => s.streakCount);
+  const longestStreak = useStore((s) => s.longestStreak);
   const [showSearch, setShowSearch] = useState(false);
 
   const filteredLooks = useMemo(
@@ -161,6 +164,11 @@ export function FeedPage() {
                 ? `You loved ${likedLooks.length} look${likedLooks.length > 1 ? "s" : ""}. Great taste.`
                 : "Come back tomorrow for fresh picks."}
             </p>
+            {streakCount > 0 && (
+              <div className="mt-4 flex justify-center">
+                <StreakBadge count={streakCount} longest={longestStreak} />
+              </div>
+            )}
             <div className="flex flex-col gap-3 w-full mt-6">
               <motion.button
                 whileTap={{ scale: 0.98 }}
