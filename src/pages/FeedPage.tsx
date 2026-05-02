@@ -24,6 +24,7 @@ export function FeedPage() {
   const showLookDetailFocus = useStore((s) => s.showLookDetailFocus);
   const setShowLookDetail = useStore((s) => s.setShowLookDetail);
   const setActiveTab = useStore((s) => s.setActiveTab);
+  const setCommunitySubTab = useStore((s) => s.setCommunitySubTab);
   const activeMoodFilter = useStore((s) => s.activeMoodFilter);
   const setActiveMoodFilter = useStore((s) => s.setActiveMoodFilter);
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
@@ -152,6 +153,18 @@ export function FeedPage() {
   );
   const reelsOnShare = useCallback(
     (look: Look) => {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        navigator
+          .share({
+            title: `LKBK — ${look.title}`,
+            text: look.description,
+            url: window.location.href,
+          })
+          .catch(() => {});
+        return;
+      }
+      // Fallback for browsers without Web Share: open the editorial so the
+      // user can use the in-page Send-for-a-vote flow.
       setShowLookDetail(look);
       trackView(look);
     },
@@ -253,8 +266,14 @@ export function FeedPage() {
                 reminderEnabled={reminderEnabled}
                 onToggleReminder={() => setReminderEnabled(!reminderEnabled)}
                 onReplay={() => setCurrentFeedIndex(0)}
-                onExplore={() => setActiveTab("community")}
-                onOpenNotebook={() => setActiveTab("community")}
+                onExplore={() => {
+                  setCommunitySubTab("forYou");
+                  setActiveTab("community");
+                }}
+                onOpenNotebook={() => {
+                  setCommunitySubTab("notebook");
+                  setActiveTab("community");
+                }}
               />
             ) : (
               <div className="relative w-full h-full max-w-md mx-auto">

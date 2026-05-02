@@ -16,8 +16,6 @@ import type { Creator, CommunityPost, MustHaveList } from "../data/communityData
 import type { Look } from "../data/mockData";
 
 
-type CommunityTab = "forYou" | "following" | "mustHaves" | "notebook";
-
 function PostShopOverlay({
   post,
   onClose,
@@ -68,7 +66,8 @@ function PostShopOverlay({
 }
 
 export function CommunityPage() {
-  const [activeTab, setActiveTab] = useState<CommunityTab>("forYou");
+  const activeTab = useStore((s) => s.communitySubTab);
+  const setActiveTab = useStore((s) => s.setCommunitySubTab);
   const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null);
   const [selectedMustHave, setSelectedMustHave] = useState<MustHaveList | null>(null);
   const [shopPost, setShopPost] = useState<CommunityPost | null>(null);

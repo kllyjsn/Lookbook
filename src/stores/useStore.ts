@@ -80,6 +80,8 @@ interface AppState {
   // UI state
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  communitySubTab: "forYou" | "following" | "mustHaves" | "notebook";
+  setCommunitySubTab: (tab: "forYou" | "following" | "mustHaves" | "notebook") => void;
   showLookDetail: Look | null;
   showLookDetailFocus: "default" | "comments";
   setShowLookDetail: (look: Look | null, focus?: "default" | "comments") => void;
@@ -334,6 +336,8 @@ export const useStore = create<AppState>()(
 
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
+      communitySubTab: "forYou",
+      setCommunitySubTab: (tab) => set({ communitySubTab: tab }),
       showLookDetail: null,
       showLookDetailFocus: "default",
       setShowLookDetail: (look, focus = "default") =>
