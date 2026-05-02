@@ -1,9 +1,14 @@
 import type { Look, StyleDNAEntry } from "../data/mockData";
 
-// Map raw tag labels to the 5 canonical Style DNA buckets.
-// Mirrors the mapping in stores/useStore.ts so match-score and DNA stay coherent.
-const tagToStyle: Record<string, string> = {
+/**
+ * Single source of truth for mapping raw look tag labels to the 5 canonical
+ * Style DNA buckets. Both `computeDNA` (in stores/useStore.ts) and
+ * `styleMatchScore` import this so the match-score chip and the DNA chart
+ * always agree on what a look "is".
+ */
+export const tagToStyle: Record<string, string> = {
   Minimalist: "Minimalist",
+  Classic: "Classic",
   Office: "Classic",
   Romantic: "Romantic",
   Evening: "Romantic",
@@ -31,7 +36,6 @@ const tagToStyle: Record<string, string> = {
   Boho: "Romantic",
   Vintage: "Romantic",
   Sustainable: "Minimalist",
-  Classic: "Classic",
 };
 
 /**

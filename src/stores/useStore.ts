@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Look, StyleDNAEntry, MoodFilter } from "../data/mockData";
 import { defaultStyleDNA } from "../data/mockData";
+import { tagToStyle } from "../lib/styleMatch";
 
 interface SavedCollection {
   id: string;
@@ -88,37 +89,6 @@ function daysBetween(a: string, b: string): number {
   const db = new Date(by, bm - 1, bd).getTime();
   return Math.round((db - da) / 86400000);
 }
-
-const tagToStyle: Record<string, string> = {
-  "Minimalist": "Minimalist",
-  "Office": "Classic",
-  "Romantic": "Romantic",
-  "Evening": "Romantic",
-  "Streetwear": "Streetwear",
-  "Casual": "Streetwear",
-  "Glamour": "Avant-Garde",
-  "Adventure": "Classic",
-  "Utility": "Classic",
-  "Chic": "Minimalist",
-  "Feminine": "Romantic",
-  "Social": "Romantic",
-  "Tailored": "Classic",
-  "Power": "Classic",
-  "Clean": "Minimalist",
-  "Scandi": "Minimalist",
-  "Quiet Luxury": "Classic",
-  "Investment": "Classic",
-  "Tokyo": "Avant-Garde",
-  "Creative": "Avant-Garde",
-  "Statement": "Avant-Garde",
-  "Corporate": "Classic",
-  "Siren": "Avant-Garde",
-  "Coastal": "Classic",
-  "Festival": "Avant-Garde",
-  "Boho": "Romantic",
-  "Vintage": "Romantic",
-  "Sustainable": "Minimalist",
-};
 
 function computeDNA(likedLooks: Look[]): StyleDNAEntry[] {
   if (likedLooks.length === 0) return defaultStyleDNA;
