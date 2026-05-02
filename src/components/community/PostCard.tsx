@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Heart, MessageCircle, Bookmark, ShoppingBag, BadgeCheck, TrendingUp, Flame } from "lucide-react";
 import type { CommunityPost } from "../../data/communityData";
 import { FollowButton } from "./FollowButton";
+import { reactionEmojis } from "../../data/editorial";
+import { useStore } from "../../stores/useStore";
 
 interface PostCardProps {
   post: CommunityPost;
@@ -23,6 +25,8 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
   const [imgLoaded, setImgLoaded] = useState(false);
   const [showHeartBurst, setShowHeartBurst] = useState(false);
   const lastTapRef = useRef(0);
+  const reaction = useStore((s) => s.postReactions[post.id]);
+  const togglePostReaction = useStore((s) => s.togglePostReaction);
 
   const isViral = post.likes > 7000;
   const isTrending = post.likes > 5000;
@@ -201,6 +205,39 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
             </span>
           </motion.button>
         )}
+      </div>
+
+      {/* Reaction bar — lightweight emoji reactions, persisted per user */}
+      <div className="flex items-center gap-1.5 px-1 mb-2 overflow-x-auto scrollbar-hide">
+        {reactionEmojis.map((r) => {
+          const isOn = reaction === r.id;
+          return (
+            <motion.button
+              key={r.id}
+              whileTap={{ scale: 0.85 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                togglePostReaction(post.id, r.id);
+              }}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs transition-colors flex-shrink-0 ${
+                isOn
+                  ? "bg-gold/15 border border-gold/40"
+                  : "bg-ivory border border-ink/5 hover:border-ink/15"
+              }`}
+              aria-label={`React with ${r.label}`}
+              aria-pressed={isOn}
+            >
+              <span className="leading-none">{r.char}</span>
+              <span
+                className={`text-[10px] font-inter ${
+                  isOn ? "text-ink font-medium" : "text-ink-muted"
+                }`}
+              >
+                {r.label}
+              </span>
+            </motion.button>
+          );
+        })}
       </div>
 
       {/* Caption */}

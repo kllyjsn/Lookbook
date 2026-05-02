@@ -1,13 +1,20 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
 import { SearchPage } from "./SearchPage";
 import { Logo } from "../components/ui/Logo";
-import { RefreshCw, Sparkles, Camera } from "lucide-react";
+import { RefreshCw, Sparkles, Camera, Shuffle, Flame } from "lucide-react";
 import { feedLooks, moodFilters } from "../data/mockData";
-import type { MoodFilter } from "../data/mockData";
+import type { Look, MoodFilter } from "../data/mockData";
 import { useStore } from "../stores/useStore";
+import {
+  getIssueDateLabel,
+  getIssueNumber,
+  getTrendPulseForToday,
+  rankLooksByDNA,
+  seededShuffle,
+} from "../data/editorial";
 
 export function FeedPage() {
   const currentFeedIndex = useStore((s) => s.currentFeedIndex);
@@ -23,15 +30,52 @@ export function FeedPage() {
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
   const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
+  const feedShuffleSeed = useStore((s) => s.feedShuffleSeed);
+  const shuffleFeed = useStore((s) => s.shuffleFeed);
+  const recordVisit = useStore((s) => s.recordVisit);
+  const streakDays = useStore((s) => s.streakDays);
   const [showSearch, setShowSearch] = useState(false);
 
-  const filteredLooks = useMemo(
-    () =>
+  // Mark today's visit when the feed mounts (TikTok-style daily streak).
+  useEffect(() => {
+    recordVisit();
+  }, [recordVisit]);
+
+  const issueNumber = useMemo(() => getIssueNumber(), []);
+  const issueDateLabel = useMemo(() => getIssueDateLabel(), []);
+  const trendPulse = useMemo(() => getTrendPulseForToday(), []);
+
+  // Snapshot the feed order per "session" — defined as a unique
+  // (moodFilter, shuffleSeed) pair. We intentionally do NOT recompute
+  // when styleDNA changes mid-session: every like updates Style DNA,
+  // and re-ranking mid-swipe would shuffle already-seen looks back into
+  // view and push unseen looks past the current index. Rank is decided
+  // once at session start (or when the user changes filter / shuffles).
+  // styleDNA + likedLooks are read from the store snapshot here rather
+  // than as reactive deps so the memo only recomputes on those keys.
+  const { filteredLooks, isTuned } = useMemo<{
+    filteredLooks: Look[];
+    isTuned: boolean;
+  }>(() => {
+    const s = useStore.getState();
+    const base =
       activeMoodFilter === "all"
         ? feedLooks
-        : feedLooks.filter((l) => l.mood === activeMoodFilter),
-    [activeMoodFilter]
-  );
+        : feedLooks.filter((l) => l.mood === activeMoodFilter);
+    if (feedShuffleSeed > 0) {
+      return {
+        filteredLooks: seededShuffle(base, feedShuffleSeed),
+        isTuned: false,
+      };
+    }
+    if (s.likedLooks.length >= 3) {
+      return {
+        filteredLooks: rankLooksByDNA(base, s.styleDNA),
+        isTuned: true,
+      };
+    }
+    return { filteredLooks: [...base], isTuned: false };
+  }, [activeMoodFilter, feedShuffleSeed]);
 
   const hasSeenAll = currentFeedIndex >= filteredLooks.length;
 
@@ -90,30 +134,92 @@ export function FeedPage() {
 
   return (
     <div className="h-full flex flex-col bg-cream">
-      {/* Header */}
-      <div className="flex items-center justify-between py-3 px-6">
-        <Logo variant="mark" size="sm" />
-        <div className="flex items-center gap-3">
-          <span className="text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted">
-            {Math.min(currentFeedIndex + 1, feedLooks.length)} / {feedLooks.length}
-          </span>
-          <div className="w-16 h-1 bg-ink/10 rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-gold rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${Math.min(((currentFeedIndex + 1) / feedLooks.length) * 100, 100)}%` }}
-              transition={{ duration: 0.3 }}
-            />
+      {/* Issue Cover masthead */}
+      <div className="px-6 pt-3 pb-2">
+        <div className="flex items-center justify-between">
+          <Logo variant="mark" size="sm" />
+          <div className="flex items-center gap-3">
+            {streakDays > 0 && (
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose/10 border border-rose/20"
+                title={`${streakDays}-day streak`}
+              >
+                <Flame size={11} className="text-rose" fill="currentColor" />
+                <span className="text-[10px] font-inter font-semibold text-rose">
+                  {streakDays}
+                </span>
+              </motion.div>
+            )}
+            {!hasSeenAll && (
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setShowSearch(true)}
+                className="w-8 h-8 rounded-full bg-ivory border border-ink/10 flex items-center justify-center"
+                aria-label="Search the look"
+              >
+                <Camera size={14} className="text-ink" />
+              </motion.button>
+            )}
           </div>
-          {!hasSeenAll && (
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => setShowSearch(true)}
-              className="w-8 h-8 rounded-full bg-ivory border border-ink/10 flex items-center justify-center"
-            >
-              <Camera size={14} className="text-ink" />
-            </motion.button>
-          )}
+        </div>
+        <div className="mt-1.5 flex items-center justify-between">
+          <div>
+            <span className="text-masthead text-[10px] text-ink-muted">
+              ISSUE {String(issueNumber).padStart(3, "0")}
+            </span>
+            <span className="text-masthead text-[10px] text-ink-muted/60 mx-2">·</span>
+            <span className="text-masthead text-[10px] text-ink-muted">
+              {issueDateLabel}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-inter tracking-[0.15em] uppercase text-ink-muted">
+              {Math.min(currentFeedIndex + 1, filteredLooks.length || 1)} /{" "}
+              {filteredLooks.length || feedLooks.length}
+            </span>
+            <div className="w-12 h-1 bg-ink/10 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-gold rounded-full"
+                initial={{ width: 0 }}
+                animate={{
+                  width: `${Math.min(
+                    ((currentFeedIndex + 1) /
+                      Math.max(filteredLooks.length, 1)) *
+                      100,
+                    100,
+                  )}%`,
+                }}
+                transition={{ duration: 0.3 }}
+              />
+            </div>
+          </div>
+        </div>
+        <h1 className="font-editorial text-3xl text-ink leading-tight mt-1">
+          Today's Edit
+        </h1>
+        {isTuned && feedShuffleSeed === 0 && (
+          <motion.span
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-1 mt-1 text-[10px] font-inter tracking-[0.15em] uppercase text-gold"
+          >
+            <Sparkles size={10} />
+            Tuned to your taste
+          </motion.span>
+        )}
+      </div>
+
+      {/* Trend Pulse — rotating editorial line of the day */}
+      <div className="px-6 pb-2">
+        <div className="flex items-center gap-2 py-1.5 px-3 rounded-full bg-ivory border border-ink/5">
+          <span className="text-[9px] font-inter font-bold tracking-[0.2em] uppercase text-gold flex-shrink-0">
+            Trend Pulse
+          </span>
+          <span className="font-subhead text-xs text-ink-light italic truncate">
+            {trendPulse}
+          </span>
         </div>
       </div>
 
@@ -161,19 +267,40 @@ export function FeedPage() {
                 ? `You loved ${likedLooks.length} look${likedLooks.length > 1 ? "s" : ""}. Great taste.`
                 : "Come back tomorrow for fresh picks."}
             </p>
+            {streakDays > 0 && (
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.15 }}
+                className="flex items-center gap-2 mt-2 px-3 py-1.5 rounded-full bg-rose/10 border border-rose/20"
+              >
+                <Flame size={14} className="text-rose" fill="currentColor" />
+                <span className="text-xs font-inter font-medium text-rose">
+                  {streakDays}-day streak — keep it lit
+                </span>
+              </motion.div>
+            )}
             <div className="flex flex-col gap-3 w-full mt-6">
               <motion.button
                 whileTap={{ scale: 0.98 }}
-                onClick={() => setCurrentFeedIndex(0)}
+                onClick={() => shuffleFeed()}
                 className="w-full py-3.5 rounded-full bg-ink text-cream font-inter text-sm font-medium flex items-center justify-center gap-2"
               >
-                <RefreshCw size={14} />
+                <Shuffle size={14} />
+                Shuffle the Edit
+              </motion.button>
+              <motion.button
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setCurrentFeedIndex(0)}
+                className="w-full py-3 rounded-full border border-ink/15 text-ink-light font-inter text-sm flex items-center justify-center gap-2"
+              >
+                <RefreshCw size={13} />
                 Replay Today's Edit
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setActiveTab("community")}
-                className="w-full py-3.5 rounded-full border border-ink/15 text-ink font-inter text-sm font-medium"
+                className="w-full py-3 rounded-full text-ink-muted font-inter text-sm"
               >
                 Explore Community
               </motion.button>

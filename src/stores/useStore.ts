@@ -16,6 +16,8 @@ interface AppState {
   setCurrentFeedIndex: (index: number) => void;
   activeMoodFilter: MoodFilter;
   setActiveMoodFilter: (mood: MoodFilter) => void;
+  feedShuffleSeed: number;
+  shuffleFeed: () => void;
 
   // Liked / passed looks
   likedLooks: Look[];
@@ -66,6 +68,20 @@ interface AppState {
   setShowLookDetail: (look: Look | null) => void;
   hasCompletedOnboarding: boolean;
   completeOnboarding: () => void;
+
+  // Daily streak (TikTok-style retention)
+  lastVisitDate: string | null; // YYYY-MM-DD
+  streakDays: number;
+  longestStreak: number;
+  recordVisit: () => void;
+
+  // Community new-posts indicator
+  lastViewedCommunityAt: number;
+  markCommunityViewed: () => void;
+
+  // Per-post reactions (post id -> reaction id chosen by this user)
+  postReactions: Record<string, string>;
+  togglePostReaction: (postId: string, reactionId: string) => void;
 }
 
 const tagToStyle: Record<string, string> = {
@@ -91,6 +107,7 @@ const tagToStyle: Record<string, string> = {
   "Creative": "Avant-Garde",
   "Statement": "Avant-Garde",
   "Corporate": "Classic",
+  "Classic": "Classic",
   "Siren": "Avant-Garde",
   "Coastal": "Classic",
   "Festival": "Avant-Garde",
@@ -143,7 +160,22 @@ export const useStore = create<AppState>()(
       currentFeedIndex: 0,
       setCurrentFeedIndex: (index) => set({ currentFeedIndex: index }),
       activeMoodFilter: "all" as MoodFilter,
-      setActiveMoodFilter: (mood) => set({ activeMoodFilter: mood, currentFeedIndex: 0, lastSwipedLook: null, lastSwipeAction: null }),
+      setActiveMoodFilter: (mood) =>
+        set({
+          activeMoodFilter: mood,
+          currentFeedIndex: 0,
+          lastSwipedLook: null,
+          lastSwipeAction: null,
+          feedShuffleSeed: 0,
+        }),
+      feedShuffleSeed: 0,
+      shuffleFeed: () =>
+        set((state) => ({
+          feedShuffleSeed: state.feedShuffleSeed + 1,
+          currentFeedIndex: 0,
+          lastSwipedLook: null,
+          lastSwipeAction: null,
+        })),
 
       likedLooks: [],
       passedLooks: [],
@@ -262,11 +294,62 @@ export const useStore = create<AppState>()(
         })),
 
       activeTab: "feed",
-      setActiveTab: (tab) => set({ activeTab: tab }),
+      setActiveTab: (tab) => {
+        if (tab === "community") {
+          set({ activeTab: tab, lastViewedCommunityAt: Date.now() });
+        } else {
+          set({ activeTab: tab });
+        }
+      },
       showLookDetail: null,
       setShowLookDetail: (look) => set({ showLookDetail: look }),
       hasCompletedOnboarding: false,
       completeOnboarding: () => set({ hasCompletedOnboarding: true }),
+
+      lastVisitDate: null,
+      streakDays: 0,
+      longestStreak: 0,
+      recordVisit: () =>
+        set((state) => {
+          // Use local-date strings so streak boundaries match the user's
+          // wall-clock day, not UTC midnight. Compute "yesterday" via
+          // calendar arithmetic on the local Date so DST transitions
+          // (which produce 23- or 25-hour days) don't skip a day.
+          const toLocalDateString = (d: Date): string =>
+            `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+          const now = new Date();
+          const today = toLocalDateString(now);
+          if (state.lastVisitDate === today) return state;
+          const yesterdayDate = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate() - 1,
+          );
+          const yesterday = toLocalDateString(yesterdayDate);
+          const newStreak =
+            state.lastVisitDate === yesterday ? state.streakDays + 1 : 1;
+          return {
+            lastVisitDate: today,
+            streakDays: newStreak,
+            longestStreak: Math.max(state.longestStreak, newStreak),
+          };
+        }),
+
+      lastViewedCommunityAt: 0,
+      markCommunityViewed: () => set({ lastViewedCommunityAt: Date.now() }),
+
+      postReactions: {},
+      togglePostReaction: (postId, reactionId) =>
+        set((state) => {
+          const current = state.postReactions[postId];
+          const next = { ...state.postReactions };
+          if (current === reactionId) {
+            delete next[postId];
+          } else {
+            next[postId] = reactionId;
+          }
+          return { postReactions: next };
+        }),
     }),
     {
       name: "lkbk-store",
@@ -280,6 +363,14 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        lastVisitDate: state.lastVisitDate,
+        streakDays: state.streakDays,
+        longestStreak: state.longestStreak,
+        lastViewedCommunityAt: state.lastViewedCommunityAt,
+        postReactions: state.postReactions,
+        // feedShuffleSeed is intentionally NOT persisted: shuffle is a
+        // session-scoped action, so each new session starts in the
+        // curated/DNA-ranked order rather than the last shuffled order.
       }),
     }
   )
