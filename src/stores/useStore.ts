@@ -107,6 +107,7 @@ const tagToStyle: Record<string, string> = {
   "Creative": "Avant-Garde",
   "Statement": "Avant-Garde",
   "Corporate": "Classic",
+  "Classic": "Classic",
   "Siren": "Avant-Garde",
   "Coastal": "Classic",
   "Festival": "Avant-Garde",
