@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2 } from "lucide-react";
+import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2, Flame } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
 import { LookDetail } from "../components/cards/LookDetail";
 import type { Look } from "../data/mockData";
 
-type ProfileSection = "dna" | "liked" | "collections";
+type ProfileSection = "dna" | "liked" | "collections" | "recent";
 
 export function ProfilePage() {
   const styleDNA = useStore((s) => s.styleDNA);
@@ -15,6 +15,8 @@ export function ProfilePage() {
   const collections = useStore((s) => s.collections);
   const createCollection = useStore((s) => s.createCollection);
   const removeFromCollection = useStore((s) => s.removeFromCollection);
+  const recentlyViewed = useStore((s) => s.recentlyViewed);
+  const streakDays = useStore((s) => s.streakDays);
   const [activeSection, setActiveSection] = useState<ProfileSection>("dna");
   const [selectedLook, setSelectedLook] = useState<Look | null>(null);
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
@@ -47,30 +49,40 @@ export function ProfilePage() {
         </div>
 
         {/* Profile avatar & name */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-4 mb-4">
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold to-blush flex items-center justify-center">
             <span className="font-editorial text-xl text-white">Y</span>
           </div>
-          <div>
+          <div className="flex-1 min-w-0">
             <h2 className="font-editorial text-xl text-ink">Your Profile</h2>
             <p className="text-xs font-inter text-ink-muted">
-              {likedLooks.length} looks loved · {collections.reduce((sum, c) => sum + c.looks.length, 0)} saved
+              {likedLooks.length} loved · {collections.reduce((sum, c) => sum + c.looks.length, 0)} saved
+              {recentlyViewed.length > 0 && ` · ${recentlyViewed.length} viewed`}
             </p>
           </div>
+          {streakDays > 0 && (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold/10 border border-gold/20">
+              <Flame size={12} className="text-gold" />
+              <span className="text-[11px] font-inter font-semibold text-gold">
+                {streakDays}d
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Section tabs */}
         <div className="flex gap-1 bg-ivory rounded-xl p-1">
           {([
-            { id: "dna" as const, label: "Style DNA" },
+            { id: "dna" as const, label: "DNA" },
             { id: "liked" as const, label: "Loved" },
             { id: "collections" as const, label: "Collections" },
+            { id: "recent" as const, label: "Recent" },
           ]).map((tab) => (
             <motion.button
               key={tab.id}
               whileTap={{ scale: 0.97 }}
               onClick={() => setActiveSection(tab.id)}
-              className={`flex-1 py-2.5 rounded-lg text-xs font-inter font-medium transition-all ${
+              className={`flex-1 py-2 rounded-lg text-[11px] font-inter font-medium transition-all ${
                 activeSection === tab.id
                   ? "bg-white text-ink shadow-sm"
                   : "text-ink-muted"
@@ -398,6 +410,63 @@ export function ProfilePage() {
                         </div>
                       )}
                     </motion.div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {activeSection === "recent" && (
+            <motion.div
+              key="recent"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <Clock size={14} className="text-ink-muted" />
+                <p className="font-subhead text-sm text-ink-light italic">
+                  The looks you've opened recently — pick up where you left off.
+                </p>
+              </div>
+
+              {recentlyViewed.length === 0 ? (
+                <div className="flex flex-col items-center py-16">
+                  <Clock size={32} className="text-ink/10 mb-3" />
+                  <p className="font-subhead text-base text-ink-muted italic">
+                    Nothing viewed yet
+                  </p>
+                  <p className="text-xs font-inter text-ink-muted mt-1 max-w-[260px] text-center">
+                    Tap a look to open the full editorial — it'll show up here.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 gap-2">
+                  {recentlyViewed.map((look, i) => (
+                    <motion.button
+                      key={look.id}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: i * 0.04 }}
+                      onClick={() => setSelectedLook(look)}
+                      className="relative aspect-[3/4] rounded-lg overflow-hidden bg-ivory"
+                    >
+                      <img
+                        src={look.image}
+                        alt={look.title}
+                        className="img-editorial"
+                      />
+                      <div className="absolute inset-x-0 bottom-0 gradient-bottom p-2">
+                        <p className="text-white text-[10px] font-inter font-medium leading-tight line-clamp-2">
+                          {look.title}
+                        </p>
+                      </div>
+                      {i === 0 && (
+                        <span className="absolute top-1.5 left-1.5 text-[8px] font-inter font-bold tracking-[0.15em] uppercase text-white bg-ink/65 backdrop-blur-sm rounded-full px-1.5 py-0.5">
+                          Latest
+                        </span>
+                      )}
+                    </motion.button>
                   ))}
                 </div>
               )}

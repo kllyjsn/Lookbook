@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Look, StyleDNAEntry, MoodFilter } from "../data/mockData";
 import { defaultStyleDNA } from "../data/mockData";
+import { localDateISO } from "../data/editorialData";
 
 interface SavedCollection {
   id: string;
@@ -10,17 +11,34 @@ interface SavedCollection {
   createdAt: number;
 }
 
+export type FeedMode = "cards" | "reels";
+
 interface AppState {
   // Feed state
   currentFeedIndex: number;
   setCurrentFeedIndex: (index: number) => void;
   activeMoodFilter: MoodFilter;
   setActiveMoodFilter: (mood: MoodFilter) => void;
+  feedMode: FeedMode;
+  setFeedMode: (mode: FeedMode) => void;
+
+  // Daily Edit cadence + streak
+  lastVisitISO: string | null; // YYYY-MM-DD of last app open day
+  streakDays: number;          // consecutive days the user has opened LKBK
+  streakHistory: string[];     // ISO dates of last 14 visit days (sorted asc)
+  noteVisit: () => void;       // call on app boot to update streak
+  reminderEnabled: boolean;
+  setReminderEnabled: (v: boolean) => void;
+
+  // Recently viewed
+  recentlyViewed: Look[];
+  trackView: (look: Look) => void;
 
   // Liked / passed looks
   likedLooks: Look[];
   passedLooks: Look[];
   likeLook: (look: Look) => void;
+  loveLookNoAdvance: (look: Look) => void; // Reels-mode like: updates DNA but doesn't advance feed index
   passLook: (look: Look) => void;
   saveLook: (look: Look) => void;
 
@@ -62,8 +80,11 @@ interface AppState {
   // UI state
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  communitySubTab: "forYou" | "following" | "mustHaves" | "notebook";
+  setCommunitySubTab: (tab: "forYou" | "following" | "mustHaves" | "notebook") => void;
   showLookDetail: Look | null;
-  setShowLookDetail: (look: Look | null) => void;
+  showLookDetailFocus: "default" | "comments";
+  setShowLookDetail: (look: Look | null, focus?: "default" | "comments") => void;
   hasCompletedOnboarding: boolean;
   completeOnboarding: () => void;
 }
@@ -144,6 +165,48 @@ export const useStore = create<AppState>()(
       setCurrentFeedIndex: (index) => set({ currentFeedIndex: index }),
       activeMoodFilter: "all" as MoodFilter,
       setActiveMoodFilter: (mood) => set({ activeMoodFilter: mood, currentFeedIndex: 0, lastSwipedLook: null, lastSwipeAction: null }),
+      feedMode: "cards" as FeedMode,
+      setFeedMode: (mode) => set({ feedMode: mode }),
+
+      lastVisitISO: null,
+      streakDays: 0,
+      streakHistory: [],
+      noteVisit: () =>
+        set((state) => {
+          // Use local time consistently — both for "today" and for the diff —
+          // so users in any timezone see correct day-rollover behavior.
+          const today = new Date();
+          const todayISO = localDateISO(today);
+          if (state.lastVisitISO === todayISO) return state;
+
+          let nextStreak = 1;
+          if (state.lastVisitISO) {
+            const last = new Date(state.lastVisitISO + "T00:00:00");
+            const todayMidnight = new Date(today);
+            todayMidnight.setHours(0, 0, 0, 0);
+            const diffMs = todayMidnight.getTime() - last.getTime();
+            const diffDays = Math.round(diffMs / 86400000);
+            if (diffDays === 1) nextStreak = state.streakDays + 1;
+            else if (diffDays === 0) nextStreak = state.streakDays;
+          }
+          const nextHistory = [...state.streakHistory, todayISO].slice(-14);
+          return {
+            lastVisitISO: todayISO,
+            streakDays: nextStreak,
+            streakHistory: nextHistory,
+          };
+        }),
+      reminderEnabled: false,
+      setReminderEnabled: (v) => set({ reminderEnabled: v }),
+
+      recentlyViewed: [],
+      trackView: (look) =>
+        set((state) => ({
+          recentlyViewed: [
+            look,
+            ...state.recentlyViewed.filter((l) => l.id !== look.id),
+          ].slice(0, 12),
+        })),
 
       likedLooks: [],
       passedLooks: [],
@@ -160,6 +223,16 @@ export const useStore = create<AppState>()(
             currentFeedIndex: state.currentFeedIndex + 1,
             lastSwipedLook: look,
             lastSwipeAction: "like" as const,
+            styleDNA: computeDNA(newLiked),
+          };
+        }),
+      loveLookNoAdvance: (look) =>
+        set((state) => {
+          const newLiked = state.likedLooks.some((l) => l.id === look.id)
+            ? state.likedLooks
+            : [...state.likedLooks, look];
+          return {
+            likedLooks: newLiked,
             styleDNA: computeDNA(newLiked),
           };
         }),
@@ -263,8 +336,12 @@ export const useStore = create<AppState>()(
 
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
+      communitySubTab: "forYou",
+      setCommunitySubTab: (tab) => set({ communitySubTab: tab }),
       showLookDetail: null,
-      setShowLookDetail: (look) => set({ showLookDetail: look }),
+      showLookDetailFocus: "default",
+      setShowLookDetail: (look, focus = "default") =>
+        set({ showLookDetail: look, showLookDetailFocus: look ? focus : "default" }),
       hasCompletedOnboarding: false,
       completeOnboarding: () => set({ hasCompletedOnboarding: true }),
     }),
@@ -280,6 +357,12 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        feedMode: state.feedMode,
+        lastVisitISO: state.lastVisitISO,
+        streakDays: state.streakDays,
+        streakHistory: state.streakHistory,
+        reminderEnabled: state.reminderEnabled,
+        recentlyViewed: state.recentlyViewed,
       }),
     }
   )

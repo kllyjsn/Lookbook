@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
+import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp, Users } from "lucide-react";
 import type { Look } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
 import { useStore } from "../../stores/useStore";
+import { LookComments } from "./LookComments";
+import { SendForVote } from "./SendForVote";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -15,14 +17,32 @@ function formatCount(n: number): string {
 interface LookDetailProps {
   look: Look;
   onClose: () => void;
+  focus?: "default" | "comments";
 }
 
-export function LookDetail({ look, onClose }: LookDetailProps) {
+export function LookDetail({ look, onClose, focus = "default" }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
+  const trackView = useStore((s) => s.trackView);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showVote, setShowVote] = useState(false);
+  const commentsRef = useRef<HTMLDivElement>(null);
+
+  // Record this look in Recently Viewed when opened.
+  useEffect(() => {
+    trackView(look);
+  }, [look, trackView]);
+
+  // If opened with focus="comments" (e.g. from Reels Talk button), scroll to the discussion.
+  useEffect(() => {
+    if (focus !== "comments") return;
+    const t = setTimeout(() => {
+      commentsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 250);
+    return () => clearTimeout(t);
+  }, [focus]);
 
   return (
     <AnimatePresence>
@@ -157,6 +177,17 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.95 }}
+                onClick={() => setShowVote(true)}
+                className="h-12 px-4 rounded-full flex items-center justify-center gap-2 border border-ink/10 hover:border-ink/30"
+                title="Send for a vote"
+              >
+                <Users size={16} className="text-ink-muted" />
+                <span className="text-xs font-inter font-medium text-ink-light">
+                  Send for a vote
+                </span>
+              </motion.button>
+              <motion.button
+                whileTap={{ scale: 0.95 }}
                 onClick={() => {
                   if (navigator.share) {
                     navigator.share({
@@ -188,6 +219,11 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </div>
             </div>
 
+            {/* Comments / The Discussion */}
+            <div ref={commentsRef} className="mb-10 scroll-mt-20">
+              <LookComments lookId={look.id} />
+            </div>
+
             {/* Photographer credit */}
             {look.photographer && (
               <p className="text-center text-[10px] font-inter tracking-[0.2em] uppercase text-ink-muted pb-24">
@@ -196,6 +232,11 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
             )}
           </div>
         </div>
+
+        {/* Send for a vote modal */}
+        <AnimatePresence>
+          {showVote && <SendForVote look={look} onClose={() => setShowVote(false)} />}
+        </AnimatePresence>
       </motion.div>
     </AnimatePresence>
   );
