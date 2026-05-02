@@ -37,11 +37,7 @@ export function CommentsDrawer({ postId, postTitle, creatorName, staticCount, on
     return () => clearTimeout(t);
   }, []);
 
-  const handleSend = () => {
-    const text = draft.trim();
-    if (!text) return;
-    addComment(postId, text);
-    setDraft("");
+  const scrollToBottom = () => {
     setTimeout(() => {
       listRef.current?.scrollTo({
         top: listRef.current.scrollHeight,
@@ -50,8 +46,17 @@ export function CommentsDrawer({ postId, postTitle, creatorName, staticCount, on
     }, 50);
   };
 
+  const handleSend = () => {
+    const text = draft.trim();
+    if (!text) return;
+    addComment(postId, text);
+    setDraft("");
+    scrollToBottom();
+  };
+
   const handleQuickReaction = (emoji: string) => {
     addComment(postId, emoji);
+    scrollToBottom();
   };
 
   return createPortal(
