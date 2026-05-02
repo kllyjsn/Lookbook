@@ -147,15 +147,21 @@ export interface IssueMasthead {
   issueLabel: string; // "VOL · XII   ISSUE · 137"
 }
 
-// Stable issue-number derivation: days since the LKBK "launch date" (2025-09-01).
-const LAUNCH = new Date("2025-09-01T00:00:00").getTime();
+// Stable issue-number derivation: days since the LKBK "launch date" (2025-09-01),
+// computed in local time so day rollover happens at the user's local midnight.
+const LAUNCH_LOCAL = new Date(2025, 8, 1); // 2025-09-01 local midnight (month is 0-indexed)
 
 export function computeIssue(date: Date = new Date()): IssueMasthead {
-  const days = Math.max(1, Math.floor((date.getTime() - LAUNCH) / 86400000) + 1);
+  // Snap to local midnight on both sides so the diff is whole days regardless of time of day.
+  const todayLocalMidnight = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const days = Math.max(
+    1,
+    Math.floor((todayLocalMidnight.getTime() - LAUNCH_LOCAL.getTime()) / 86400000) + 1,
+  );
   const issue = days; // one issue per day since launch
-  const month = date.getUTCMonth();
-  const dayNum = date.getUTCDate();
-  const year = date.getUTCFullYear();
+  const month = date.getMonth();
+  const dayNum = date.getDate();
+  const year = date.getFullYear();
   const vol = toRoman(Math.max(1, year - 2014)); // Vol XII = 2026
   const dd = String(dayNum).padStart(2, "0");
   return {
@@ -197,8 +203,14 @@ export function localDateISO(date: Date = new Date()): string {
   return `${y}-${m}-${d}`;
 }
 
-// Time until next "drop" — daily at 07:00 local.
-export function nextDropIn(now: Date = new Date()): { hours: number; mins: number; label: string } {
+// Time until next "drop" — daily at 07:00 local. `dayLabel` is "Today" if the
+// next 7AM is on the current local calendar day, otherwise "Tomorrow".
+export function nextDropIn(now: Date = new Date()): {
+  hours: number;
+  mins: number;
+  label: string;
+  dayLabel: "Today" | "Tomorrow";
+} {
   const next = new Date(now);
   next.setHours(7, 0, 0, 0);
   if (next.getTime() <= now.getTime()) {
@@ -209,5 +221,6 @@ export function nextDropIn(now: Date = new Date()): { hours: number; mins: numbe
   const hours = Math.floor(totalMins / 60);
   const mins = totalMins % 60;
   const label = hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
-  return { hours, mins, label };
+  const dayLabel: "Today" | "Tomorrow" = next.getDate() === now.getDate() ? "Today" : "Tomorrow";
+  return { hours, mins, label, dayLabel };
 }

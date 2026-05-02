@@ -119,7 +119,7 @@ export function EndOfFeed({
               Next drop
             </p>
             <p className="font-editorial text-lg text-ink leading-tight">
-              Tomorrow · 7:00 AM
+              {drop.dayLabel} · 7:00 AM
             </p>
           </div>
           <div className="text-right">
