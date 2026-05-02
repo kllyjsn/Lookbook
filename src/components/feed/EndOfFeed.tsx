@@ -94,7 +94,7 @@ export function EndOfFeed({
       </h2>
       <p className="font-subhead text-sm text-ink-muted italic text-center mb-4 max-w-[280px]">
         {likedCount > 0
-          ? `You loved ${likedCount} look${likedCount > 1 ? "s" : ""} today. Filed to your DNA.`
+          ? `You've loved ${likedCount} look${likedCount > 1 ? "s" : ""} so far. All filed to your DNA.`
           : "Tomorrow's drop will be tuned to your taste."}
       </p>
 

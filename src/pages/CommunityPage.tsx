@@ -9,11 +9,9 @@ import { MustHaveDetail } from "../components/community/MustHaveDetail";
 import { FollowButton } from "../components/community/FollowButton";
 import { EditorsNotebook } from "../components/community/EditorsNotebook";
 import { ProductCard } from "../components/cards/ProductCard";
-import { LookDetail } from "../components/cards/LookDetail";
 import { useStore } from "../stores/useStore";
 import { creators, communityPosts, mustHaveLists } from "../data/communityData";
 import type { Creator, CommunityPost, MustHaveList } from "../data/communityData";
-import type { Look } from "../data/mockData";
 
 
 function PostShopOverlay({
@@ -71,7 +69,6 @@ export function CommunityPage() {
   const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null);
   const [selectedMustHave, setSelectedMustHave] = useState<MustHaveList | null>(null);
   const [shopPost, setShopPost] = useState<CommunityPost | null>(null);
-  const [openLook, setOpenLook] = useState<Look | null>(null);
 
   const followedCreators = useStore((s) => s.followedCreators);
 
@@ -338,7 +335,7 @@ export function CommunityPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
           >
-            <EditorsNotebook onLookOpen={(look) => setOpenLook(look)} />
+            <EditorsNotebook />
           </motion.div>
         )}
 
@@ -408,15 +405,6 @@ export function CommunityPage() {
         )}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {openLook && (
-          <LookDetail
-            key={openLook.id}
-            look={openLook}
-            onClose={() => setOpenLook(null)}
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 }

@@ -5,9 +5,9 @@ import { notebookEssays, type NotebookEssay } from "../../data/editorialData";
 import { feedLooks, type Look } from "../../data/mockData";
 import { useStore } from "../../stores/useStore";
 
-interface EditorsNotebookProps {
-  onLookOpen: (look: Look) => void;
-}
+// EditorsNotebook is intentionally self-contained: opening a related look
+// routes through the store so the LookDetail overlay survives the tab switch
+// from Community → Feed.
 
 function EssayCard({
   essay,
@@ -66,13 +66,12 @@ function EssayCard({
 function EssayDetail({
   essay,
   onClose,
-  onLookOpen,
 }: {
   essay: NotebookEssay;
   onClose: () => void;
-  onLookOpen: (look: Look) => void;
 }) {
   const setActiveTab = useStore((s) => s.setActiveTab);
+  const setShowLookDetail = useStore((s) => s.setShowLookDetail);
   const related = essay.relatedLookIds
     .map((id) => feedLooks.find((l) => l.id === id))
     .filter((x): x is Look => Boolean(x));
@@ -157,9 +156,11 @@ function EssayDetail({
                   key={look.id}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => {
+                    // Route through the global store so the look detail
+                    // survives FeedPage mounting after the tab switch.
                     onClose();
+                    setShowLookDetail(look);
                     setActiveTab("feed");
-                    setTimeout(() => onLookOpen(look), 100);
                   }}
                   className="text-left"
                 >
@@ -184,7 +185,7 @@ function EssayDetail({
   );
 }
 
-export function EditorsNotebook({ onLookOpen }: EditorsNotebookProps) {
+export function EditorsNotebook() {
   const [open, setOpen] = useState<NotebookEssay | null>(null);
 
   return (
@@ -209,7 +210,6 @@ export function EditorsNotebook({ onLookOpen }: EditorsNotebookProps) {
           <EssayDetail
             essay={open}
             onClose={() => setOpen(null)}
-            onLookOpen={onLookOpen}
           />
         )}
       </AnimatePresence>
