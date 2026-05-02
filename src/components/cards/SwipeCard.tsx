@@ -55,15 +55,15 @@ export function SwipeCard({
     if (total === 0) return null;
     const top = [...dna].sort((a, b) => b.percentage - a.percentage)[0];
     if (!top || top.percentage < 20) return null;
+    if (likedLooks.length < 3) {
+      return look.trending ? "Trending across the community" : null;
+    }
     const matchedTag = look.tags.find((t) => tagToStyle[t.label] === top.style);
     if (matchedTag) {
       return `Matches your ${top.style.toLowerCase()} side`;
     }
-    if (likedLooks.length >= 3 && look.editorsChoice) {
+    if (look.editorsChoice) {
       return "Picked because you've loved bold pieces";
-    }
-    if (look.trending && likedLooks.length < 3) {
-      return "Trending across the community";
     }
     return null;
   }, [isTop, styleDNA, look, likedLooks.length]);
