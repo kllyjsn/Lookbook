@@ -45,10 +45,39 @@ export function OOTDChallenge({ onClose }: OOTDChallengeProps) {
     setIsReadingFile(true);
     const reader = new FileReader();
     reader.onload = () => {
-      if (typeof reader.result === "string") {
-        setPreviewUrl(reader.result);
+      if (typeof reader.result !== "string") {
+        setIsReadingFile(false);
+        return;
       }
-      setIsReadingFile(false);
+      const img = new Image();
+      img.onload = () => {
+        // Downscale to fit within 512x512 and encode as JPEG so the
+        // persisted data URL stays well under the localStorage quota.
+        const MAX = 512;
+        const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+        const w = Math.max(1, Math.round(img.width * scale));
+        const h = Math.max(1, Math.round(img.height * scale));
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          setPreviewUrl(reader.result as string);
+          setIsReadingFile(false);
+          return;
+        }
+        ctx.drawImage(img, 0, 0, w, h);
+        try {
+          setPreviewUrl(canvas.toDataURL("image/jpeg", 0.8));
+        } catch {
+          setPreviewUrl(reader.result as string);
+        }
+        setIsReadingFile(false);
+      };
+      img.onerror = () => {
+        setIsReadingFile(false);
+      };
+      img.src = reader.result;
     };
     reader.onerror = () => {
       setIsReadingFile(false);
