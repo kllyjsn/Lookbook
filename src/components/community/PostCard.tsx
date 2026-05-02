@@ -29,7 +29,11 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
 
   const allComments = useStore((s) => s.comments);
   const liveCommentCount = useMemo(
-    () => allComments.filter((c) => c.postId === post.id).length || post.comments,
+    () =>
+      Math.max(
+        allComments.filter((c) => c.postId === post.id).length,
+        post.comments,
+      ),
     [allComments, post.id, post.comments],
   );
 
@@ -239,6 +243,7 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
             postId={post.id}
             postTitle={post.title}
             creatorName={post.creator.displayName}
+            staticCount={post.comments}
             onClose={() => setShowComments(false)}
           />
         )}

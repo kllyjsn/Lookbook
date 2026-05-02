@@ -26,6 +26,7 @@ export function OOTDChallenge({ onClose }: OOTDChallengeProps) {
   const [showComposer, setShowComposer] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(ootdSubmittedImage);
   const [showThanks, setShowThanks] = useState(false);
+  const [isReadingFile, setIsReadingFile] = useState(false);
 
   const sortedEntries = [...ootdEntries].sort((a, b) => {
     const va = ootdVotes[a.id] ?? a.votes;
@@ -41,8 +42,18 @@ export function OOTDChallenge({ onClose }: OOTDChallengeProps) {
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
-    const url = URL.createObjectURL(f);
-    setPreviewUrl(url);
+    setIsReadingFile(true);
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        setPreviewUrl(reader.result);
+      }
+      setIsReadingFile(false);
+    };
+    reader.onerror = () => {
+      setIsReadingFile(false);
+    };
+    reader.readAsDataURL(f);
   };
 
   const handleSubmit = () => {
@@ -273,16 +284,16 @@ export function OOTDChallenge({ onClose }: OOTDChallengeProps) {
                   onChange={handleFile}
                 />
                 <button
-                  disabled={!previewUrl}
+                  disabled={!previewUrl || isReadingFile}
                   onClick={handleSubmit}
                   className={`w-full py-3.5 rounded-full text-sm font-inter font-medium flex items-center justify-center gap-2 ${
-                    previewUrl
+                    previewUrl && !isReadingFile
                       ? "bg-ink text-cream"
                       : "bg-ink/15 text-ink/40 pointer-events-none"
                   }`}
                 >
                   <Sparkles size={14} />
-                  Submit my look
+                  {isReadingFile ? "Processing..." : "Submit my look"}
                 </button>
               </motion.div>
             </motion.div>

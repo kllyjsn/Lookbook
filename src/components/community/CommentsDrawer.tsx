@@ -7,12 +7,13 @@ interface CommentsDrawerProps {
   postId: string;
   postTitle: string;
   creatorName: string;
+  staticCount?: number;
   onClose: () => void;
 }
 
 const QUICK_REACTIONS = ["❤️", "🔥", "✨", "👏", "💾", "😍"];
 
-export function CommentsDrawer({ postId, postTitle, creatorName, onClose }: CommentsDrawerProps) {
+export function CommentsDrawer({ postId, postTitle, creatorName, staticCount, onClose }: CommentsDrawerProps) {
   const allComments = useStore((s) => s.comments);
   const likedCommentIds = useStore((s) => s.likedCommentIds);
   const addComment = useStore((s) => s.addComment);
@@ -24,6 +25,10 @@ export function CommentsDrawer({ postId, postTitle, creatorName, onClose }: Comm
   const comments = useMemo(
     () => allComments.filter((c) => c.postId === postId),
     [allComments, postId],
+  );
+  const headerCount = useMemo(
+    () => Math.max(comments.length, staticCount ?? 0),
+    [comments.length, staticCount],
   );
 
   useEffect(() => {
@@ -74,7 +79,7 @@ export function CommentsDrawer({ postId, postTitle, creatorName, onClose }: Comm
         <div className="flex items-center justify-between px-5 pt-2 pb-3 border-b border-ink/5">
           <div className="min-w-0">
             <h3 className="font-editorial text-lg text-ink leading-tight">
-              {comments.length} {comments.length === 1 ? "comment" : "comments"}
+              {headerCount} {headerCount === 1 ? "comment" : "comments"}
             </h3>
             <p className="text-[11px] font-inter text-ink-muted truncate">
               on &ldquo;{postTitle}&rdquo; by {creatorName}
