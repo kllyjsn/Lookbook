@@ -186,6 +186,17 @@ export function pickReasonFor(
   return `Curated for ${look.mood} mood today.`;
 }
 
+// Local-date ISO (YYYY-MM-DD) — uses the user's local timezone so that
+// "today" is consistent across streak comparisons regardless of UTC offset.
+// Avoid Date.toISOString() for this — that returns UTC and disagrees with
+// local-midnight math for users in negative UTC offsets.
+export function localDateISO(date: Date = new Date()): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
 // Time until next "drop" — daily at 07:00 local.
 export function nextDropIn(now: Date = new Date()): { hours: number; mins: number; label: string } {
   const next = new Date(now);

@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Look, StyleDNAEntry, MoodFilter } from "../data/mockData";
 import { defaultStyleDNA } from "../data/mockData";
+import { localDateISO } from "../data/editorialData";
 
 interface SavedCollection {
   id: string;
@@ -80,7 +81,8 @@ interface AppState {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   showLookDetail: Look | null;
-  setShowLookDetail: (look: Look | null) => void;
+  showLookDetailFocus: "default" | "comments";
+  setShowLookDetail: (look: Look | null, focus?: "default" | "comments") => void;
   hasCompletedOnboarding: boolean;
   completeOnboarding: () => void;
 }
@@ -169,14 +171,18 @@ export const useStore = create<AppState>()(
       streakHistory: [],
       noteVisit: () =>
         set((state) => {
+          // Use local time consistently — both for "today" and for the diff —
+          // so users in any timezone see correct day-rollover behavior.
           const today = new Date();
-          const todayISO = today.toISOString().slice(0, 10);
+          const todayISO = localDateISO(today);
           if (state.lastVisitISO === todayISO) return state;
 
           let nextStreak = 1;
           if (state.lastVisitISO) {
             const last = new Date(state.lastVisitISO + "T00:00:00");
-            const diffMs = today.setHours(0, 0, 0, 0) - last.getTime();
+            const todayMidnight = new Date(today);
+            todayMidnight.setHours(0, 0, 0, 0);
+            const diffMs = todayMidnight.getTime() - last.getTime();
             const diffDays = Math.round(diffMs / 86400000);
             if (diffDays === 1) nextStreak = state.streakDays + 1;
             else if (diffDays === 0) nextStreak = state.streakDays;
@@ -329,7 +335,9 @@ export const useStore = create<AppState>()(
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
       showLookDetail: null,
-      setShowLookDetail: (look) => set({ showLookDetail: look }),
+      showLookDetailFocus: "default",
+      setShowLookDetail: (look, focus = "default") =>
+        set({ showLookDetail: look, showLookDetailFocus: look ? focus : "default" }),
       hasCompletedOnboarding: false,
       completeOnboarding: () => set({ hasCompletedOnboarding: true }),
     }),

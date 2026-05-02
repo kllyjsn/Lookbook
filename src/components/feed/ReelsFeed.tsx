@@ -20,6 +20,7 @@ interface ReelsFeedProps {
   onLike: (look: Look) => void;
   onSave: (look: Look) => void;
   onShop: (look: Look) => void;
+  onComments: (look: Look) => void;
   onShare: (look: Look) => void;
   onView: (look: Look) => void;
   isLiked: (lookId: string) => boolean;
@@ -43,6 +44,7 @@ function Reel({
   onLike,
   onSave,
   onShop,
+  onComments,
   onShare,
   onView,
   isLiked,
@@ -195,7 +197,7 @@ function Reel({
           whileTap={{ scale: 0.85 }}
           onClick={(e) => {
             e.stopPropagation();
-            onShop(look);
+            onComments(look);
           }}
           className="flex flex-col items-center gap-1"
         >
@@ -266,6 +268,7 @@ export function ReelsFeed({
   onLike,
   onSave,
   onShop,
+  onComments,
   onShare,
   onView,
   isLiked,
@@ -327,6 +330,7 @@ export function ReelsFeed({
               onLike={onLike}
               onSave={onSave}
               onShop={onShop}
+              onComments={onComments}
               onShare={onShare}
               onView={onView}
               isLiked={isLiked}

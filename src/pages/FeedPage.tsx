@@ -21,6 +21,7 @@ export function FeedPage() {
   const passLook = useStore((s) => s.passLook);
   const addToCollection = useStore((s) => s.addToCollection);
   const showLookDetail = useStore((s) => s.showLookDetail);
+  const showLookDetailFocus = useStore((s) => s.showLookDetailFocus);
   const setShowLookDetail = useStore((s) => s.setShowLookDetail);
   const setActiveTab = useStore((s) => s.setActiveTab);
   const activeMoodFilter = useStore((s) => s.activeMoodFilter);
@@ -142,6 +143,13 @@ export function FeedPage() {
     },
     [setShowLookDetail, trackView],
   );
+  const reelsOnComments = useCallback(
+    (look: Look) => {
+      setShowLookDetail(look, "comments");
+      trackView(look);
+    },
+    [setShowLookDetail, trackView],
+  );
   const reelsOnShare = useCallback(
     (look: Look) => {
       setShowLookDetail(look);
@@ -207,6 +215,7 @@ export function FeedPage() {
             onLike={reelsLikeLook}
             onSave={reelsOnSave}
             onShop={reelsOnShop}
+            onComments={reelsOnComments}
             onShare={reelsOnShare}
             onView={reelsOnView}
             isLiked={isLiked}
@@ -325,6 +334,7 @@ export function FeedPage() {
         {showLookDetail && (
           <LookDetail
             look={showLookDetail}
+            focus={showLookDetailFocus}
             onClose={() => setShowLookDetail(null)}
           />
         )}

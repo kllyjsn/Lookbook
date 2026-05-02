@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp, Users } from "lucide-react";
 import type { Look } from "../../data/mockData";
@@ -17,9 +17,10 @@ function formatCount(n: number): string {
 interface LookDetailProps {
   look: Look;
   onClose: () => void;
+  focus?: "default" | "comments";
 }
 
-export function LookDetail({ look, onClose }: LookDetailProps) {
+export function LookDetail({ look, onClose, focus = "default" }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
@@ -27,11 +28,21 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showVote, setShowVote] = useState(false);
+  const commentsRef = useRef<HTMLDivElement>(null);
 
   // Record this look in Recently Viewed when opened.
   useEffect(() => {
     trackView(look);
   }, [look, trackView]);
+
+  // If opened with focus="comments" (e.g. from Reels Talk button), scroll to the discussion.
+  useEffect(() => {
+    if (focus !== "comments") return;
+    const t = setTimeout(() => {
+      commentsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 250);
+    return () => clearTimeout(t);
+  }, [focus]);
 
   return (
     <AnimatePresence>
@@ -209,7 +220,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
             </div>
 
             {/* Comments / The Discussion */}
-            <div className="mb-10">
+            <div ref={commentsRef} className="mb-10 scroll-mt-20">
               <LookComments lookId={look.id} />
             </div>
 

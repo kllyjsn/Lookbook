@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Flame, RefreshCw, Bell, BellOff, Sparkles, ArrowRight } from "lucide-react";
-import { nextDropIn } from "../../data/editorialData";
+import { nextDropIn, localDateISO } from "../../data/editorialData";
 
 interface EndOfFeedProps {
   likedCount: number;
@@ -21,7 +21,8 @@ function StreakGrid({ history }: { history: string[] }) {
   for (let i = 6; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(today.getDate() - i);
-    const iso = d.toISOString().slice(0, 10);
+    // Use local-date ISO to stay consistent with how the store records visits.
+    const iso = localDateISO(d);
     days.push({
       iso,
       visited: history.includes(iso),
