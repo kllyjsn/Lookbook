@@ -311,11 +311,13 @@ export const useStore = create<AppState>()(
       longestStreak: 0,
       recordVisit: () =>
         set((state) => {
-          const today = new Date().toISOString().slice(0, 10);
+          // Use local-date strings so streak boundaries match the user's
+          // wall-clock day, not UTC midnight.
+          const toLocalDateString = (d: Date): string =>
+            `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+          const today = toLocalDateString(new Date());
           if (state.lastVisitDate === today) return state;
-          const yesterday = new Date(Date.now() - 86400000)
-            .toISOString()
-            .slice(0, 10);
+          const yesterday = toLocalDateString(new Date(Date.now() - 86400000));
           const newStreak =
             state.lastVisitDate === yesterday ? state.streakDays + 1 : 1;
           return {
