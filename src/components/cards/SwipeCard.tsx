@@ -1,7 +1,8 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion";
-import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2 } from "lucide-react";
+import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2, Sparkles } from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { useStore, tagToStyle } from "../../stores/useStore";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -43,6 +44,29 @@ export function SwipeCard({
   const singleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const doubleTapDetectedRef = useRef(false);
   const swipedRef = useRef(false);
+
+  const styleDNA = useStore((s) => s.styleDNA);
+  const likedLooks = useStore((s) => s.likedLooks);
+
+  const matchReason = useMemo(() => {
+    if (!isTop) return null;
+    const dna = styleDNA;
+    const total = dna.reduce((sum, d) => sum + d.percentage, 0);
+    if (total === 0) return null;
+    const top = [...dna].sort((a, b) => b.percentage - a.percentage)[0];
+    if (!top || top.percentage < 20) return null;
+    if (likedLooks.length < 3) {
+      return look.trending ? "Trending across the community" : null;
+    }
+    const matchedTag = look.tags.find((t) => tagToStyle[t.label] === top.style);
+    if (matchedTag) {
+      return `Matches your ${top.style.toLowerCase()} side`;
+    }
+    if (look.editorsChoice) {
+      return "Picked because you've loved bold pieces";
+    }
+    return null;
+  }, [isTop, styleDNA, look, likedLooks.length]);
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -209,6 +233,19 @@ export function SwipeCard({
         {/* Bottom gradient + content */}
         <div className="absolute inset-x-0 bottom-0 gradient-bottom p-6 pb-8">
           <div className="space-y-3">
+            {matchReason && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 }}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gold/15 backdrop-blur-md border border-gold/25"
+              >
+                <Sparkles size={10} className="text-gold" />
+                <span className="text-[10px] font-inter font-medium tracking-[0.05em] text-gold">
+                  {matchReason}
+                </span>
+              </motion.div>
+            )}
             <div className="flex gap-2">
               {look.tags.map((tag) => (
                 <span

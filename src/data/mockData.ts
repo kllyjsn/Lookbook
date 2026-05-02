@@ -32,6 +32,7 @@ export interface Look {
   editorsChoice?: boolean;
   mood: MoodFilter;
   badge?: "trending" | "editors-pick" | "new";
+  editorsNote?: { text: string; author: string };
 }
 
 export interface EventType {
@@ -87,6 +88,10 @@ export const feedLooks: Look[] = [
     likes: 14200,
     trending: true,
     editorsChoice: true,
+    editorsNote: {
+      text: "This is the post-girlboss blazer. Soft-shouldered, lived-in wool, and trousers that move. Quiet authority — the kind that doesn't need a press release.",
+      author: "Sofia Reyes, Editor-in-Chief",
+    },
     mood: "minimal",
     items: [
       { id: "i1", name: "Structured Wool Blazer", brand: "COS", price: 275, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#" },
@@ -237,6 +242,10 @@ export const feedLooks: Look[] = [
     description:
       "Prints that feel fresh, not fussy. The kind of outfit that makes everyone ask where you got it.",
     likes: 5400,
+    editorsNote: {
+      text: "There's an art to florals: keep the print loud, and everything else a whisper. Raffia, brushed gold, and skin — that's the formula.",
+      author: "Lila Rosenberg, Style Director",
+    },
     mood: "romantic",
     items: [
       { id: "i25", name: "Printed Wrap Dress", brand: "Diane von Furstenberg", price: 398, image: UNSPLASH("photo-1572804013309-59a88b7e92f1", 400, 500), category: "Dresses", shopUrl: "#" },
@@ -385,6 +394,10 @@ export const feedLooks: Look[] = [
       "When you need to own the room from the moment you walk in. Structured drama meets liquid gold.",
     likes: 12600,
     editorsChoice: true,
+    editorsNote: {
+      text: "Drama, but make it intentional. The cut does the talking — accessories should be punctuation, not paragraphs.",
+      author: "Eleanor Chen, Fashion Director",
+    },
     mood: "evening",
     items: [
       { id: "i49", name: "Draped Gown", brand: "Saint Laurent", price: 2890, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), category: "Dresses", shopUrl: "#" },

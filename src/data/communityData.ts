@@ -27,6 +27,27 @@ export interface CommunityPost {
   occasion: string;
 }
 
+export interface Comment {
+  id: string;
+  postId: string;
+  authorId: string;
+  authorName: string;
+  authorAvatar: string;
+  authorVerified?: boolean;
+  text: string;
+  createdAt: string;
+  likes: number;
+}
+
+export interface OOTDEntry {
+  id: string;
+  creator: Creator;
+  image: string;
+  caption: string;
+  votes: number;
+  tags: StyleTag[];
+}
+
 export interface MustHaveList {
   id: string;
   creator: Creator;
@@ -461,5 +482,111 @@ export const mustHaveLists: MustHaveList[] = [
     ],
     likes: 11200,
     saves: 6100,
+  },
+];
+
+const commentTemplates: Array<{
+  authorIdx: number;
+  text: string;
+  timeAgo: string;
+  likes: number;
+}> = [
+  { authorIdx: 1, text: "obsessed with this. that blazer is everything 🔥", timeAgo: "12m", likes: 142 },
+  { authorIdx: 3, text: "where is the bag from? been searching for one like this forever", timeAgo: "34m", likes: 89 },
+  { authorIdx: 5, text: "this is the kind of styling I want in my life", timeAgo: "1h", likes: 67 },
+  { authorIdx: 0, text: "the proportions on this are unreal — saved 💾", timeAgo: "2h", likes: 234 },
+  { authorIdx: 7, text: "would you size up or true to size?", timeAgo: "2h", likes: 12 },
+  { authorIdx: 6, text: "ok I need to recreate this immediately", timeAgo: "3h", likes: 56 },
+  { authorIdx: 4, text: "the colour palette here is everything", timeAgo: "4h", likes: 28 },
+  { authorIdx: 2, text: "this is exactly the energy I'm bringing into spring", timeAgo: "5h", likes: 92 },
+  { authorIdx: 1, text: "literally just bought the shoes because of you", timeAgo: "6h", likes: 45 },
+  { authorIdx: 0, text: "iconic. and you make it look so easy", timeAgo: "7h", likes: 178 },
+];
+
+export const initialComments: Comment[] = communityPosts.flatMap((post, postIdx) => {
+  const count = 3 + (postIdx % 3);
+  return Array.from({ length: count }, (_, i) => {
+    const tpl = commentTemplates[(postIdx * 3 + i) % commentTemplates.length];
+    const author = creators[tpl.authorIdx % creators.length];
+    return {
+      id: `${post.id}-c${i}`,
+      postId: post.id,
+      authorId: author.id,
+      authorName: author.displayName,
+      authorAvatar: author.avatar,
+      authorVerified: author.verified,
+      text: tpl.text,
+      createdAt: tpl.timeAgo,
+      likes: tpl.likes,
+    };
+  });
+});
+
+export const ootdEntries: OOTDEntry[] = [
+  {
+    id: "ootd-1",
+    creator: creators[0],
+    image: UNSPLASH("photo-1483985988355-763728e1935b", 600, 800),
+    caption: "All-white linen, gold accents, sun-drenched.",
+    votes: 1284,
+    tags: [
+      { label: "Minimalist", color: "#1A1A1A" },
+      { label: "Linen", color: "#FAF9F6" },
+    ],
+  },
+  {
+    id: "ootd-2",
+    creator: creators[3],
+    image: UNSPLASH("photo-1496747611176-843222e1e57c", 600, 800),
+    caption: "Eyelet cotton dress, bare shoulders, soft summer girl energy.",
+    votes: 982,
+    tags: [
+      { label: "Romantic", color: "#C4797A" },
+      { label: "Eyelet", color: "#E8D5D0" },
+    ],
+  },
+  {
+    id: "ootd-3",
+    creator: creators[7],
+    image: UNSPLASH("photo-1558618666-fcd25c85f82e", 600, 800),
+    caption: "Crisp poplin shirt + tailored white trousers. Office siren, white edition.",
+    votes: 876,
+    tags: [
+      { label: "Tailored", color: "#1A1A1A" },
+      { label: "Poplin", color: "#FAF9F6" },
+    ],
+  },
+  {
+    id: "ootd-4",
+    creator: creators[2],
+    image: UNSPLASH("photo-1515886657613-9f3515b0c78f", 600, 800),
+    caption: "Streetwear take — oversized white tee, slouchy denim, white Nikes.",
+    votes: 754,
+    tags: [
+      { label: "Streetwear", color: "#2D2D2D" },
+      { label: "Oversized", color: "#8A8A8A" },
+    ],
+  },
+  {
+    id: "ootd-5",
+    creator: creators[5],
+    image: UNSPLASH("photo-1539109136881-3be0616acf4b", 600, 800),
+    caption: "Suiting in winter white. Texture is everything.",
+    votes: 612,
+    tags: [
+      { label: "Tailored", color: "#1A1A1A" },
+      { label: "Modern", color: "#8A8A8A" },
+    ],
+  },
+  {
+    id: "ootd-6",
+    creator: creators[4],
+    image: UNSPLASH("photo-1485968579580-b6d095142e6e", 600, 800),
+    caption: "All-white avant-garde — sculptural shapes, monastic vibe.",
+    votes: 489,
+    tags: [
+      { label: "Avant-Garde", color: "#B8A9C9" },
+      { label: "Sculptural", color: "#FAF9F6" },
+    ],
   },
 ];

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useStore } from "./stores/useStore";
 import { TabBar } from "./components/layout/TabBar";
@@ -19,7 +20,14 @@ const pages: Record<string, React.FC> = {
 export default function App() {
   const activeTab = useStore((s) => s.activeTab);
   const hasCompletedOnboarding = useStore((s) => s.hasCompletedOnboarding);
+  const registerDailyOpen = useStore((s) => s.registerDailyOpen);
   const Page = pages[activeTab] ?? FeedPage;
+
+  useEffect(() => {
+    if (hasCompletedOnboarding) {
+      registerDailyOpen();
+    }
+  }, [hasCompletedOnboarding, registerDailyOpen]);
 
   if (!hasCompletedOnboarding) {
     return <OnboardingPage />;
