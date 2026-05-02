@@ -8,6 +8,10 @@ import { RefreshCw, Sparkles, Camera } from "lucide-react";
 import { feedLooks, moodFilters } from "../data/mockData";
 import type { MoodFilter } from "../data/mockData";
 import { useStore } from "../stores/useStore";
+import { TrendingPulse } from "../components/feed/TrendingPulse";
+import { styleMatchScore } from "../lib/styleMatch";
+
+const MATCH_SCORE_MIN_LIKES = 3;
 
 export function FeedPage() {
   const currentFeedIndex = useStore((s) => s.currentFeedIndex);
@@ -23,6 +27,7 @@ export function FeedPage() {
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
   const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
+  const styleDNA = useStore((s) => s.styleDNA);
   const [showSearch, setShowSearch] = useState(false);
 
   const filteredLooks = useMemo(
@@ -43,6 +48,13 @@ export function FeedPage() {
     () => filteredLooks[(currentFeedIndex + 1) % filteredLooks.length],
     [currentFeedIndex, filteredLooks]
   );
+
+  // Personalized match score — kicks in only after the user has shown enough signal.
+  const matchScore = useMemo(() => {
+    if (likedLooks.length < MATCH_SCORE_MIN_LIKES) return undefined;
+    const score = styleMatchScore(currentLook, styleDNA);
+    return score >= 50 ? score : undefined;
+  }, [currentLook, styleDNA, likedLooks.length]);
 
   const handleSwipeRight = useCallback(() => {
     likeLook(currentLook);
@@ -116,6 +128,9 @@ export function FeedPage() {
           )}
         </div>
       </div>
+
+      {/* Trending Pulse — auto-rotating FYP-energy ticker */}
+      <TrendingPulse />
 
       {/* Mood filter pills */}
       <div className="px-4 pb-2">
@@ -203,6 +218,7 @@ export function FeedPage() {
                 onTap={handleTap}
                 onDoubleTap={handleDoubleTap}
                 isTop={true}
+                matchScore={matchScore}
               />
             </AnimatePresence>
           </div>

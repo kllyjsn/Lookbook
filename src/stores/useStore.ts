@@ -66,6 +66,27 @@ interface AppState {
   setShowLookDetail: (look: Look | null) => void;
   hasCompletedOnboarding: boolean;
   completeOnboarding: () => void;
+
+  // Streak (daily-return retention loop)
+  streakCount: number;
+  lastVisitDate: string | null; // YYYY-MM-DD in local time
+  registerVisit: () => void;
+}
+
+// Local-date YYYY-MM-DD (avoid UTC drift across timezones / DST).
+function localDateKey(d = new Date()): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function daysBetween(a: string, b: string): number {
+  const [ay, am, ad] = a.split("-").map(Number);
+  const [by, bm, bd] = b.split("-").map(Number);
+  const da = new Date(ay, am - 1, ad).getTime();
+  const db = new Date(by, bm - 1, bd).getTime();
+  return Math.round((db - da) / 86400000);
 }
 
 const tagToStyle: Record<string, string> = {
@@ -267,6 +288,22 @@ export const useStore = create<AppState>()(
       setShowLookDetail: (look) => set({ showLookDetail: look }),
       hasCompletedOnboarding: false,
       completeOnboarding: () => set({ hasCompletedOnboarding: true }),
+
+      streakCount: 0,
+      lastVisitDate: null,
+      registerVisit: () =>
+        set((state) => {
+          const today = localDateKey();
+          if (state.lastVisitDate === today) return state;
+          if (!state.lastVisitDate) {
+            return { streakCount: 1, lastVisitDate: today };
+          }
+          const gap = daysBetween(state.lastVisitDate, today);
+          if (gap === 1) return { streakCount: state.streakCount + 1, lastVisitDate: today };
+          if (gap <= 0) return { lastVisitDate: today };
+          // Skipped a day — reset to 1 (today counts).
+          return { streakCount: 1, lastVisitDate: today };
+        }),
     }),
     {
       name: "lkbk-store",
@@ -280,6 +317,8 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        streakCount: state.streakCount,
+        lastVisitDate: state.lastVisitDate,
       }),
     }
   )

@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion";
-import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2 } from "lucide-react";
+import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2, Sparkles } from "lucide-react";
 import type { Look } from "../../data/mockData";
 
 function formatCount(n: number): string {
@@ -23,6 +23,8 @@ interface SwipeCardProps {
   onTap: () => void;
   onDoubleTap: () => void;
   isTop: boolean;
+  /** 0–99 personalized match score; rendered when >= 50 and isTop. */
+  matchScore?: number;
 }
 
 export function SwipeCard({
@@ -33,6 +35,7 @@ export function SwipeCard({
   onTap,
   onDoubleTap,
   isTop,
+  matchScore,
 }: SwipeCardProps) {
   const [exitDirection, setExitDirection] = useState<"left" | "right" | "up" | null>(null);
   const [imgLoaded, setImgLoaded] = useState(false);
@@ -163,6 +166,21 @@ export function SwipeCard({
           onLoad={() => setImgLoaded(true)}
           draggable={false}
         />
+
+        {/* Style match score — personalized relevance signal */}
+        {isTop && typeof matchScore === "number" && matchScore >= 50 && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ delay: 0.4, type: "spring", stiffness: 300 }}
+            className="absolute top-16 left-4 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cream/95 backdrop-blur-sm border border-ink/10 shadow-sm"
+          >
+            <Sparkles size={11} className="text-gold" />
+            <span className="text-[10px] font-inter font-semibold tracking-[0.05em] text-ink">
+              {matchScore}% match for you
+            </span>
+          </motion.div>
+        )}
 
         {/* Top gradient + magazine masthead */}
         <div className="absolute inset-x-0 top-0 gradient-top p-6 pt-8">
