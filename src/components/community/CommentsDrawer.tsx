@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Heart, Send, BadgeCheck } from "lucide-react";
 import { useStore } from "../../stores/useStore";
@@ -53,7 +54,7 @@ export function CommentsDrawer({ postId, postTitle, creatorName, staticCount, on
     addComment(postId, emoji);
   };
 
-  return (
+  return createPortal(
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -227,6 +228,7 @@ export function CommentsDrawer({ postId, postTitle, creatorName, staticCount, on
           </div>
         </div>
       </motion.div>
-    </motion.div>
+    </motion.div>,
+    document.body,
   );
 }

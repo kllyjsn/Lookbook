@@ -2,29 +2,7 @@ import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion";
 import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2, Sparkles } from "lucide-react";
 import type { Look } from "../../data/mockData";
-import { useStore } from "../../stores/useStore";
-
-const TAG_TO_STYLE: Record<string, string> = {
-  Minimalist: "Minimalist",
-  Office: "Classic",
-  Tailored: "Classic",
-  Modern: "Classic",
-  Romantic: "Romantic",
-  Feminine: "Romantic",
-  Streetwear: "Streetwear",
-  Casual: "Streetwear",
-  Sport: "Streetwear",
-  Bohemian: "Avant-Garde",
-  Avant: "Avant-Garde",
-  Glamour: "Romantic",
-  Statement: "Avant-Garde",
-  Evening: "Classic",
-  Vintage: "Romantic",
-  Sustainable: "Minimalist",
-  Investment: "Classic",
-  Outerwear: "Classic",
-  Monochrome: "Minimalist",
-};
+import { useStore, tagToStyle } from "../../stores/useStore";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -77,7 +55,7 @@ export function SwipeCard({
     if (total === 0) return null;
     const top = [...dna].sort((a, b) => b.percentage - a.percentage)[0];
     if (!top || top.percentage < 20) return null;
-    const matchedTag = look.tags.find((t) => TAG_TO_STYLE[t.label] === top.style);
+    const matchedTag = look.tags.find((t) => tagToStyle[t.label] === top.style);
     if (matchedTag) {
       return `Matches your ${top.style.toLowerCase()} side`;
     }
