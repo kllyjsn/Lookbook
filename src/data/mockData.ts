@@ -32,6 +32,18 @@ export interface Look {
   editorsChoice?: boolean;
   mood: MoodFilter;
   badge?: "trending" | "editors-pick" | "new";
+  editorNote?: string;
+  trendVelocity?: number;
+  budgetAlternatives?: LookItem[];
+}
+
+export interface StyleBattle {
+  id: string;
+  lookA: string;
+  lookB: string;
+  title: string;
+  votesA: number;
+  votesB: number;
 }
 
 export interface EventType {
@@ -88,11 +100,17 @@ export const feedLooks: Look[] = [
     trending: true,
     editorsChoice: true,
     mood: "minimal",
+    editorNote: "The trick here is proportion — the blazer does the heavy lifting while the silk camisole keeps it from feeling corporate. Roll the sleeves once for instant cool.",
+    trendVelocity: 340,
     items: [
       { id: "i1", name: "Structured Wool Blazer", brand: "COS", price: 275, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#" },
       { id: "i2", name: "Silk Camisole", brand: "Vince", price: 195, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i3", name: "Wide-Leg Trousers", brand: "Theory", price: 325, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
       { id: "i4", name: "Leather Pointed Mules", brand: "Aeyde", price: 345, image: UNSPLASH("photo-1543163521-1bf539c55dd2", 400, 500), category: "Shoes", shopUrl: "#" },
+    ],
+    budgetAlternatives: [
+      { id: "ba1", name: "Structured Blazer", brand: "H&M", price: 59, image: UNSPLASH("photo-1591047139829-d91aecb6caea", 400, 500), category: "Outerwear", shopUrl: "#" },
+      { id: "ba2", name: "Satin Camisole", brand: "Zara", price: 35, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
     ],
   },
   {
@@ -113,6 +131,8 @@ export const feedLooks: Look[] = [
     likes: 9800,
     trending: true,
     mood: "romantic",
+    editorNote: "Let the dress do the talking — keep jewelry minimal and let that neckline frame everything. The clutch should be small enough to forget about.",
+    trendVelocity: 180,
     items: [
       { id: "i5", name: "Flowing Midi Dress", brand: "Reformation", price: 248, image: UNSPLASH("photo-1595777457583-95e059d581b8", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i6", name: "Strappy Heeled Sandals", brand: "By Far", price: 420, image: UNSPLASH("photo-1603487742131-4160ec999306", 400, 500), category: "Shoes", shopUrl: "#" },
@@ -139,6 +159,12 @@ export const feedLooks: Look[] = [
     likes: 18400,
     trending: true,
     mood: "street",
+    editorNote: "The secret to making basics look expensive? Fit. Get the tee oversized, the jeans high-waisted, and the sneakers box-fresh. That's the whole formula.",
+    trendVelocity: 520,
+    budgetAlternatives: [
+      { id: "ba3", name: "Oversized Cotton Tee", brand: "Uniqlo", price: 19, image: UNSPLASH("photo-1521572163474-6864f9cf17ab", 400, 500), category: "Tops", shopUrl: "#" },
+      { id: "ba4", name: "Faux Leather Jacket", brand: "Zara", price: 89, image: UNSPLASH("photo-1551028719-00167b16eac5", 400, 500), category: "Outerwear", shopUrl: "#" },
+    ],
     items: [
       { id: "i9", name: "Oversized Cotton Tee", brand: "Aritzia", price: 58, image: UNSPLASH("photo-1521572163474-6864f9cf17ab", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i10", name: "Leather Moto Jacket", brand: "AllSaints", price: 499, image: UNSPLASH("photo-1551028719-00167b16eac5", 400, 500), category: "Outerwear", shopUrl: "#" },
@@ -163,6 +189,7 @@ export const feedLooks: Look[] = [
       "When the invitation says black tie, answer with conviction. Statement pieces that command every room.",
     likes: 7600,
     mood: "evening",
+    editorNote: "This is a 'less is more' moment — the dress is the statement, so skip the necklace. One bold ring and those crystal earrings are all you need.",
     items: [
       { id: "i13", name: "Sequin Column Dress", brand: "Rotate", price: 595, image: UNSPLASH("photo-1566174053879-31528523f8ae", 400, 500), category: "Dresses", shopUrl: "#" },
       { id: "i14", name: "Crystal Drop Earrings", brand: "Swarovski", price: 189, image: UNSPLASH("photo-1535632066927-ab7c9ab60908", 400, 500), category: "Accessories", shopUrl: "#" },
@@ -188,6 +215,7 @@ export const feedLooks: Look[] = [
       "Pack less, look more. Versatile silhouettes in earth tones that take you from gallery to rooftop bar.",
     likes: 6200,
     mood: "adventure",
+    editorNote: "Roll the cuffs, cinch the waist with the shirt's own belt, and leave two buttons undone. Utility doesn't have to mean uniform.",
     items: [
       { id: "i17", name: "Linen Utility Shirt", brand: "Apiece Apart", price: 265, image: UNSPLASH("photo-1596755094514-f87e34085b2c", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i18", name: "Cargo Culottes", brand: "COS", price: 135, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -213,6 +241,8 @@ export const feedLooks: Look[] = [
     likes: 11300,
     trending: true,
     mood: "minimal",
+    editorNote: "Head-to-toe black is the ultimate power move. The key? Texture mixing. Matte cashmere against polished leather boots creates visual depth that pure color never could.",
+    trendVelocity: 290,
     items: [
       { id: "i21", name: "Cashmere Turtleneck", brand: "Nili Lotan", price: 495, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i22", name: "Tailored Wool Coat", brand: "Max Mara", price: 895, image: UNSPLASH("photo-1539533018447-63fcce2678e3", 400, 500), category: "Outerwear", shopUrl: "#" },
@@ -287,6 +317,8 @@ export const feedLooks: Look[] = [
     likes: 22100,
     trending: true,
     mood: "classic",
+    editorNote: "Quiet luxury isn't about what you wear — it's about what you don't. No logos, no hardware, just devastatingly good fabric. The flex is the cashmere weight.",
+    trendVelocity: 680,
     items: [
       { id: "i33", name: "Cashmere Crew", brand: "The Row", price: 890, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i34", name: "Wool Palazzo Pants", brand: "Toteme", price: 450, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -361,6 +393,12 @@ export const feedLooks: Look[] = [
     likes: 19200,
     trending: true,
     mood: "street",
+    editorNote: "The trick with Tokyo layering: every piece should work alone. The hoodie over nothing, the cargos with a plain tee. It's modular dressing at its finest.",
+    trendVelocity: 410,
+    budgetAlternatives: [
+      { id: "ba5", name: "Graphic Hoodie", brand: "Uniqlo", price: 39, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
+      { id: "ba6", name: "Cargo Pants", brand: "H&M", price: 34, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
+    ],
     items: [
       { id: "i45", name: "Graphic Hoodie", brand: "Sacai", price: 580, image: UNSPLASH("photo-1576566588028-4147f3842f27", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i46", name: "Cargo Pants", brand: "Needles", price: 340, image: UNSPLASH("photo-1594938298603-c8148c4dae35", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -460,6 +498,8 @@ export const feedLooks: Look[] = [
     likes: 21300,
     trending: true,
     mood: "adventure",
+    editorNote: "Festival dressing rule #1: if you can't dance in it, don't wear it. These Western boots will take you from grass to gravel. Skip the flower crown forever.",
+    trendVelocity: 750,
     items: [
       { id: "i61", name: "Crochet Top", brand: "Cult Gaia", price: 198, image: UNSPLASH("photo-1564257631407-4deb1f99d992", 400, 500), category: "Tops", shopUrl: "#" },
       { id: "i62", name: "Denim Cutoffs", brand: "RE/DONE", price: 225, image: UNSPLASH("photo-1541099649105-f69ad21f3246", 400, 500), category: "Bottoms", shopUrl: "#" },
@@ -565,4 +605,12 @@ export const styleQuizImages = [
   { id: "q3", image: UNSPLASH("photo-1515886657613-9f3515b0c78f", 600, 800), style: "Streetwear" },
   { id: "q4", image: UNSPLASH("photo-1469334031218-e382a71b716b", 600, 800), style: "Glamour" },
   { id: "q5", image: UNSPLASH("photo-1483985988355-763728e1935b", 600, 800), style: "Classic" },
+];
+
+export const styleBattles: StyleBattle[] = [
+  { id: "battle-1", lookA: "look-1", lookB: "look-3", title: "Office Power vs Street Luxe", votesA: 4230, votesB: 5120 },
+  { id: "battle-2", lookA: "look-2", lookB: "look-4", title: "Summer Reverie vs After Dark", votesA: 3890, votesB: 2760 },
+  { id: "battle-3", lookA: "look-9", lookB: "look-8", title: "Quiet Luxury vs Power Suit", votesA: 6100, votesB: 4800 },
+  { id: "battle-4", lookA: "look-6", lookB: "look-10", title: "All Black vs Scandi Cool", votesA: 3400, votesB: 4100 },
+  { id: "battle-5", lookA: "look-12", lookB: "look-16", title: "Tokyo Street vs Festival Season", votesA: 5500, votesB: 7200 },
 ];

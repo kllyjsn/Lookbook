@@ -4,6 +4,10 @@ import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-reac
 import type { Look } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
+import { EditorNote } from "../ui/EditorNote";
+import { OutfitAnatomy } from "../ui/OutfitAnatomy";
+import { BudgetAlternatives } from "../ui/BudgetAlternatives";
+import { TrendVelocity } from "../ui/TrendVelocity";
 import { useStore } from "../../stores/useStore";
 
 function formatCount(n: number): string {
@@ -92,10 +96,20 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                   Editor's Pick
                 </span>
               )}
+              {look.trendVelocity && (
+                <TrendVelocity velocity={look.trendVelocity} compact />
+              )}
               {look.tags.map((tag) => (
                 <Tag key={tag.label} label={tag.label} color={tag.color} />
               ))}
             </div>
+
+            {/* Trend velocity detail */}
+            {look.trendVelocity && (
+              <div className="mb-5">
+                <TrendVelocity velocity={look.trendVelocity} />
+              </div>
+            )}
 
             {/* Engagement stats */}
             <div className="flex items-center gap-4 mb-5">
@@ -117,6 +131,9 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
             <p className="font-subhead text-xl text-ink-light leading-relaxed mb-8 italic">
               {look.description}
             </p>
+
+            {/* Editor's Note */}
+            {look.editorNote && <EditorNote note={look.editorNote} />}
 
             {/* Action bar */}
             <div className="flex items-center gap-3 mb-10">
@@ -172,6 +189,9 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </motion.button>
             </div>
 
+            {/* Outfit Anatomy */}
+            <OutfitAnatomy items={look.items} />
+
             {/* Shop the Look section */}
             <div className="mb-10">
               <div className="flex items-center gap-3 mb-6">
@@ -187,6 +207,11 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 ))}
               </div>
             </div>
+
+            {/* Budget Alternatives */}
+            {look.budgetAlternatives && look.budgetAlternatives.length > 0 && (
+              <BudgetAlternatives items={look.budgetAlternatives} />
+            )}
 
             {/* Photographer credit */}
             {look.photographer && (

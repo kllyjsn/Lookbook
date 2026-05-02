@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, type PanInfo } from "framer-motion";
-import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2 } from "lucide-react";
+import { Heart, X, ShoppingBag, Bookmark, TrendingUp, Award, Zap, Undo2, Flame } from "lucide-react";
 import type { Look } from "../../data/mockData";
 
 function formatCount(n: number): string {
@@ -204,6 +204,22 @@ export function SwipeCard({
               </span>
             </div>
           </div>
+          {/* Trend velocity indicator */}
+          {look.trendVelocity && look.trendVelocity >= 400 && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5 }}
+              className="absolute top-16 right-4"
+            >
+              <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-black/40 backdrop-blur-sm">
+                <Flame size={10} className="text-rose" />
+                <span className="text-[9px] font-inter font-semibold text-white">
+                  +{look.trendVelocity}%
+                </span>
+              </div>
+            </motion.div>
+          )}
         </div>
 
         {/* Bottom gradient + content */}
