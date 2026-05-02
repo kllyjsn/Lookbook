@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, MessageCircle, Bookmark, ShoppingBag, BadgeCheck, TrendingUp, Flame } from "lucide-react";
 import type { CommunityPost } from "../../data/communityData";
@@ -17,12 +17,46 @@ function formatCount(n: number): string {
   return String(n);
 }
 
+const REACTIONS = [
+  { id: "fire", emoji: "🔥", label: "Fire" },
+  { id: "love", emoji: "💖", label: "Love" },
+  { id: "stunning", emoji: "✨", label: "Stunning" },
+  { id: "obsessed", emoji: "👏", label: "Obsessed" },
+] as const;
+type ReactionId = (typeof REACTIONS)[number]["id"];
+
+// Deterministic baseline counts seeded by post id so re-renders are stable.
+function seedReactionCounts(postId: string, baseLikes: number): Record<ReactionId, number> {
+  let h = 0;
+  for (let i = 0; i < postId.length; i++) h = (h * 31 + postId.charCodeAt(i)) >>> 0;
+  const total = Math.max(40, Math.round(baseLikes * 0.18));
+  return {
+    fire: Math.round(total * (0.32 + ((h % 9) / 100))),
+    love: Math.round(total * (0.28 + (((h >> 3) % 9) / 100))),
+    stunning: Math.round(total * (0.22 + (((h >> 6) % 9) / 100))),
+    obsessed: Math.round(total * (0.18 + (((h >> 9) % 9) / 100))),
+  };
+}
+
 export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps) {
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [showHeartBurst, setShowHeartBurst] = useState(false);
+  const [reaction, setReaction] = useState<ReactionId | null>(null);
   const lastTapRef = useRef(0);
+
+  const baseReactionCounts = useMemo(
+    () => seedReactionCounts(post.id, post.likes),
+    [post.id, post.likes]
+  );
+  const topReactions = useMemo(
+    () =>
+      [...REACTIONS]
+        .map((r) => ({ ...r, count: baseReactionCounts[r.id] + (reaction === r.id ? 1 : 0) }))
+        .sort((a, b) => b.count - a.count),
+    [baseReactionCounts, reaction]
+  );
 
   const isViral = post.likes > 7000;
   const isTrending = post.likes > 5000;
@@ -138,6 +172,29 @@ export function PostCard({ post, index, onCreatorTap, onShopTap }: PostCardProps
             </motion.div>
           )}
         </AnimatePresence>
+      </div>
+
+      {/* Reactions strip — pick one, see the breakdown */}
+      <div className="flex items-center gap-1.5 px-1 mb-2 overflow-x-auto scrollbar-hide">
+        {topReactions.map((r) => {
+          const isPicked = reaction === r.id;
+          return (
+            <motion.button
+              key={r.id}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setReaction(isPicked ? null : r.id)}
+              className={`flex items-center gap-1 px-2 py-1 rounded-full border text-[11px] font-inter transition-colors flex-shrink-0 ${
+                isPicked
+                  ? "bg-rose/10 border-rose/30 text-rose"
+                  : "bg-cream border-ink/10 text-ink-muted hover:border-ink/25"
+              }`}
+              aria-label={`React with ${r.label}`}
+            >
+              <span className="text-sm leading-none">{r.emoji}</span>
+              <span className="font-medium">{formatCount(r.count)}</span>
+            </motion.button>
+          );
+        })}
       </div>
 
       {/* Engagement bar */}

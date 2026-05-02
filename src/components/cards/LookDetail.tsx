@@ -1,10 +1,17 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp } from "lucide-react";
+import {
+  X, Heart, ShoppingBag, Share2, Bookmark, TrendingUp,
+  Quote, Sparkles, Palette, ArrowRight, Crown, Scale, PiggyBank,
+} from "lucide-react";
 import type { Look } from "../../data/mockData";
+import { feedLooks } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
 import { useStore } from "../../stores/useStore";
+import { getEditorialContext } from "../../data/editorialContent";
+import type { DupeTier } from "../../data/editorialContent";
+import { relatedLooks } from "../../lib/styleMatch";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -12,17 +19,40 @@ function formatCount(n: number): string {
   return String(n);
 }
 
+const dupeIcon: Record<DupeTier["level"], React.ElementType> = {
+  splurge: Crown,
+  mid: Scale,
+  save: PiggyBank,
+};
+const dupeLabel: Record<DupeTier["level"], string> = {
+  splurge: "Splurge",
+  mid: "Middle Ground",
+  save: "The Save",
+};
+const dupeColor: Record<DupeTier["level"], string> = {
+  splurge: "text-gold",
+  mid: "text-ink-light",
+  save: "text-sage",
+};
+
 interface LookDetailProps {
   look: Look;
   onClose: () => void;
+  /** Callback to navigate to a related look. Required so the host page (Feed,
+   *  Profile, Stylist, Search) controls its own overlay state — LookDetail no
+   *  longer reaches into the global store for navigation. */
+  onNavigate?: (look: Look) => void;
 }
 
-export function LookDetail({ look, onClose }: LookDetailProps) {
+export function LookDetail({ look, onClose, onNavigate }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  const editorial = useMemo(() => getEditorialContext(look), [look]);
+  const related = useMemo(() => relatedLooks(look, feedLooks, 3), [look]);
 
   return (
     <AnimatePresence>
@@ -67,6 +97,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               animate={{ opacity: 1 }}
               onClick={onClose}
               className="absolute top-6 right-6 w-10 h-10 rounded-full glass flex items-center justify-center"
+              aria-label="Close look detail"
             >
               <X size={18} className="text-ink" />
             </motion.button>
@@ -148,6 +179,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                     ? "border-gold/40 bg-gold/10"
                     : "border-ink/10 hover:border-ink/30"
                 }`}
+                aria-label="Save to favorites"
               >
                 <Bookmark
                   size={18}
@@ -167,10 +199,142 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                   }
                 }}
                 className="w-12 h-12 rounded-full flex items-center justify-center border border-ink/10 hover:border-ink/30"
+                aria-label="Share look"
               >
                 <Share2 size={18} className="text-ink-muted" />
               </motion.button>
             </div>
+
+            {/* From the Editor — magazine pull-quote */}
+            <section className="mb-10 relative bg-ivory rounded-2xl p-6 pt-7 border border-ink/5">
+              <div className="absolute -top-3 left-6 bg-cream px-3 py-1 rounded-full border border-ink/5 flex items-center gap-1.5">
+                <Quote size={11} className="text-gold" />
+                <span className="text-[10px] font-inter font-semibold tracking-[0.18em] uppercase text-ink-muted">
+                  From the Editor
+                </span>
+              </div>
+              <p className="font-subhead text-[19px] text-ink leading-snug italic">
+                "{editorial.editorsNote}"
+              </p>
+            </section>
+
+            {/* How to Wear It — 3 styling rules */}
+            <section className="mb-10">
+              <div className="flex items-center gap-2 mb-4">
+                <Sparkles size={16} className="text-ink" />
+                <h3 className="font-editorial text-xl text-ink">How to Wear It</h3>
+              </div>
+              <div className="space-y-2">
+                {editorial.stylingTips.map((tip, i) => {
+                  const accent =
+                    tip.type === "pair"
+                      ? "border-l-gold bg-gold/[0.04]"
+                      : tip.type === "avoid"
+                      ? "border-l-rose bg-rose/[0.04]"
+                      : "border-l-sage bg-sage/[0.06]";
+                  return (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.05 + i * 0.05 }}
+                      className={`flex gap-3 p-3.5 rounded-xl border-l-[3px] ${accent}`}
+                    >
+                      <span className="text-[10px] font-inter font-bold tracking-[0.2em] uppercase text-ink-muted w-16 flex-shrink-0 mt-0.5">
+                        {tip.label}
+                      </span>
+                      <p className="text-sm font-inter text-ink leading-snug flex-1">
+                        {tip.tip}
+                      </p>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* Color Story — 5 swatches */}
+            <section className="mb-10">
+              <div className="flex items-center gap-2 mb-4">
+                <Palette size={16} className="text-ink" />
+                <h3 className="font-editorial text-xl text-ink">Color Story</h3>
+              </div>
+              <div className="grid grid-cols-5 gap-2">
+                {editorial.colorStory.map((swatch, i) => (
+                  <motion.div
+                    key={swatch.hex + i}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.05 + i * 0.04 }}
+                    className="text-center"
+                  >
+                    <div
+                      className="aspect-square rounded-lg border border-ink/5 mb-1.5 shadow-sm"
+                      style={{ backgroundColor: swatch.hex }}
+                      aria-label={swatch.name}
+                    />
+                    <p className="text-[10px] font-inter tracking-[0.05em] text-ink-muted leading-tight truncate">
+                      {swatch.name}
+                    </p>
+                  </motion.div>
+                ))}
+              </div>
+            </section>
+
+            {/* Steal the Look — Splurge / Mid / Save dupes */}
+            {editorial.dupes.length > 0 && (
+              <section className="mb-10">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Crown size={16} className="text-gold" />
+                    <h3 className="font-editorial text-xl text-ink">Steal the Look</h3>
+                  </div>
+                  <span className="text-[10px] font-inter tracking-[0.18em] uppercase text-ink-muted">
+                    Splurge · Save
+                  </span>
+                </div>
+                <div className="space-y-3">
+                  {editorial.dupes.map((d, i) => {
+                    const Icon = dupeIcon[d.level];
+                    return (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.05 + i * 0.06 }}
+                        className="flex items-center gap-4 p-4 rounded-xl bg-ivory border border-ink/5"
+                      >
+                        <div className="flex-shrink-0">
+                          <div className="w-10 h-10 rounded-full bg-cream border border-ink/10 flex items-center justify-center">
+                            <Icon size={16} className={dupeColor[d.level]} />
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-baseline gap-2">
+                            <span className={`text-[10px] font-inter font-bold tracking-[0.18em] uppercase ${dupeColor[d.level]}`}>
+                              {dupeLabel[d.level]}
+                            </span>
+                            <span className="text-[10px] font-inter text-ink-muted/60">
+                              · {d.category}
+                            </span>
+                          </div>
+                          <p className="text-sm font-inter font-medium text-ink truncate">
+                            {d.brand} <span className="font-normal text-ink-light">— {d.name}</span>
+                          </p>
+                          <p className="text-[11px] font-inter text-ink-muted leading-snug italic mt-0.5">
+                            {d.note}
+                          </p>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <p className="font-editorial text-lg text-ink leading-none">
+                            ${d.price.toLocaleString()}
+                          </p>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
 
             {/* Shop the Look section */}
             <div className="mb-10">
@@ -187,6 +351,51 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                 ))}
               </div>
             </div>
+
+            {/* Related Looks rail — closes the loop. Only shown when the host
+                provides an onNavigate callback so we don't render a dead rail. */}
+            {onNavigate && related.length > 0 && (
+              <section className="mb-10">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-editorial text-xl text-ink">
+                    Loved this? Try these
+                  </h3>
+                  <span className="text-[10px] font-inter tracking-[0.18em] uppercase text-ink-muted">
+                    Editor's Picks
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  {related.map((r, i) => (
+                    <motion.button
+                      key={r.id}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.05 + i * 0.06 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => onNavigate?.(r)}
+                      className="group text-left"
+                    >
+                      <div className="relative aspect-[3/4] rounded-xl overflow-hidden mb-2 bg-ivory">
+                        <img
+                          src={r.image}
+                          alt={r.title}
+                          className="img-editorial group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-x-0 bottom-0 gradient-bottom p-2 pt-6">
+                          <p className="text-[10px] font-inter text-white/70 truncate">
+                            {r.occasion}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-xs font-inter font-medium text-ink truncate flex items-center gap-1">
+                        {r.title}
+                        <ArrowRight size={10} className="text-ink-muted opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </p>
+                    </motion.button>
+                  ))}
+                </div>
+              </section>
+            )}
 
             {/* Photographer credit */}
             {look.photographer && (

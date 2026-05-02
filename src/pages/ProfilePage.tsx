@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2 } from "lucide-react";
+import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2, Flame } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
@@ -15,6 +15,7 @@ export function ProfilePage() {
   const collections = useStore((s) => s.collections);
   const createCollection = useStore((s) => s.createCollection);
   const removeFromCollection = useStore((s) => s.removeFromCollection);
+  const streakCount = useStore((s) => s.streakCount);
   const [activeSection, setActiveSection] = useState<ProfileSection>("dna");
   const [selectedLook, setSelectedLook] = useState<Look | null>(null);
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
@@ -47,17 +48,49 @@ export function ProfilePage() {
         </div>
 
         {/* Profile avatar & name */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-4 mb-5">
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold to-blush flex items-center justify-center">
             <span className="font-editorial text-xl text-white">Y</span>
           </div>
-          <div>
+          <div className="flex-1 min-w-0">
             <h2 className="font-editorial text-xl text-ink">Your Profile</h2>
             <p className="text-xs font-inter text-ink-muted">
               {likedLooks.length} looks loved · {collections.reduce((sum, c) => sum + c.looks.length, 0)} saved
             </p>
           </div>
         </div>
+
+        {/* Streak strip — daily-return retention loop */}
+        {streakCount > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-5 flex items-center gap-3 p-3 rounded-2xl bg-gradient-to-r from-rose/10 via-gold/10 to-blush/10 border border-gold/20"
+          >
+            <div className="w-10 h-10 rounded-full bg-cream flex items-center justify-center flex-shrink-0 border border-gold/20">
+              <Flame size={18} className="text-rose" fill="currentColor" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-baseline gap-2">
+                <span className="font-editorial text-2xl text-ink leading-none">
+                  {streakCount}
+                </span>
+                <span className="text-[10px] font-inter font-bold tracking-[0.18em] uppercase text-ink-muted">
+                  Day{streakCount === 1 ? "" : "s"} on the Pulse
+                </span>
+              </div>
+              <p className="text-[11px] font-inter text-ink-light leading-tight mt-0.5">
+                {streakCount === 1
+                  ? "Welcome to Lookbook — come back tomorrow to keep the streak alive."
+                  : streakCount < 7
+                  ? "Keep showing up. The feed gets sharper with every visit."
+                  : streakCount < 30
+                  ? "You're a regular. Your Style DNA is dialed in."
+                  : "Editor-in-chief energy. The algorithm knows your taste cold."}
+              </p>
+            </div>
+          </motion.div>
+        )}
 
         {/* Section tabs */}
         <div className="flex gap-1 bg-ivory rounded-xl p-1">
@@ -410,8 +443,10 @@ export function ProfilePage() {
       <AnimatePresence>
         {selectedLook && (
           <LookDetail
+            key={selectedLook.id}
             look={selectedLook}
             onClose={() => setSelectedLook(null)}
+            onNavigate={(l) => setSelectedLook(l)}
           />
         )}
       </AnimatePresence>
