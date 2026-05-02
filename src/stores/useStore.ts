@@ -312,12 +312,20 @@ export const useStore = create<AppState>()(
       recordVisit: () =>
         set((state) => {
           // Use local-date strings so streak boundaries match the user's
-          // wall-clock day, not UTC midnight.
+          // wall-clock day, not UTC midnight. Compute "yesterday" via
+          // calendar arithmetic on the local Date so DST transitions
+          // (which produce 23- or 25-hour days) don't skip a day.
           const toLocalDateString = (d: Date): string =>
             `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-          const today = toLocalDateString(new Date());
+          const now = new Date();
+          const today = toLocalDateString(now);
           if (state.lastVisitDate === today) return state;
-          const yesterday = toLocalDateString(new Date(Date.now() - 86400000));
+          const yesterdayDate = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate() - 1,
+          );
+          const yesterday = toLocalDateString(yesterdayDate);
           const newStreak =
             state.lastVisitDate === yesterday ? state.streakDays + 1 : 1;
           return {
