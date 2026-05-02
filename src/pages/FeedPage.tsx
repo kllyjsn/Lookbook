@@ -3,9 +3,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { SwipeCard, SwipeButtons } from "../components/cards/SwipeCard";
 import { LookDetail } from "../components/cards/LookDetail";
 import { SearchPage } from "./SearchPage";
+import { StyleBattle } from "../components/ui/StyleBattle";
 import { Logo } from "../components/ui/Logo";
 import { RefreshCw, Sparkles, Camera } from "lucide-react";
-import { feedLooks, moodFilters } from "../data/mockData";
+import { feedLooks, moodFilters, styleBattles } from "../data/mockData";
 import type { MoodFilter } from "../data/mockData";
 import { useStore } from "../stores/useStore";
 
@@ -23,7 +24,17 @@ export function FeedPage() {
   const undoLastSwipe = useStore((s) => s.undoLastSwipe);
   const lastSwipedLook = useStore((s) => s.lastSwipedLook);
   const likedLooks = useStore((s) => s.likedLooks);
+  const battleVotes = useStore((s) => s.battleVotes);
+  const voteBattle = useStore((s) => s.voteBattle);
   const [showSearch, setShowSearch] = useState(false);
+
+  const currentBattle = useMemo(() => {
+    if (currentFeedIndex > 0 && currentFeedIndex % 4 === 0) {
+      const battleIndex = Math.floor(currentFeedIndex / 4) - 1;
+      return styleBattles[battleIndex % styleBattles.length] ?? null;
+    }
+    return null;
+  }, [currentFeedIndex]);
 
   const filteredLooks = useMemo(
     () =>
@@ -136,6 +147,18 @@ export function FeedPage() {
           ))}
         </div>
       </div>
+
+      {/* Style Battle */}
+      <AnimatePresence>
+        {currentBattle && !hasSeenAll && (
+          <StyleBattle
+            key={currentBattle.id}
+            battle={currentBattle}
+            onVote={voteBattle}
+            voted={battleVotes[currentBattle.id] ?? null}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Card stack area */}
       <div className="flex-1 relative px-4 pb-2">

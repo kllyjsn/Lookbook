@@ -59,6 +59,10 @@ interface AppState {
   followCreator: (id: string) => void;
   unfollowCreator: (id: string) => void;
 
+  // Style battle votes
+  battleVotes: Record<string, "A" | "B">;
+  voteBattle: (battleId: string, side: "A" | "B") => void;
+
   // UI state
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -261,6 +265,12 @@ export const useStore = create<AppState>()(
           followedCreators: state.followedCreators.filter((cid) => cid !== id),
         })),
 
+      battleVotes: {},
+      voteBattle: (battleId, side) =>
+        set((state) => ({
+          battleVotes: { ...state.battleVotes, [battleId]: side },
+        })),
+
       activeTab: "feed",
       setActiveTab: (tab) => set({ activeTab: tab }),
       showLookDetail: null,
@@ -279,6 +289,7 @@ export const useStore = create<AppState>()(
         capsuleBudget: state.capsuleBudget,
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
+        battleVotes: state.battleVotes,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
       }),
     }

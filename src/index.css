@@ -214,3 +214,13 @@ img {
   0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2); }
   50% { box-shadow: 0 0 0 4px rgba(255, 255, 255, 0); }
 }
+
+/* Velocity fire glow */
+@keyframes fireGlow {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(196, 121, 122, 0.3)); }
+  50% { filter: drop-shadow(0 0 6px rgba(196, 121, 122, 0.6)); }
+}
+
+.fire-glow {
+  animation: fireGlow 1.5s ease-in-out infinite;
+}

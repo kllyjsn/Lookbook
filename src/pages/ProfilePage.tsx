@@ -4,6 +4,8 @@ import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Tr
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
+import { WeeklyRecap } from "../components/ui/WeeklyRecap";
+import { MoodBoard } from "../components/ui/MoodBoard";
 import { LookDetail } from "../components/cards/LookDetail";
 import type { Look } from "../data/mockData";
 
@@ -12,6 +14,7 @@ type ProfileSection = "dna" | "liked" | "collections";
 export function ProfilePage() {
   const styleDNA = useStore((s) => s.styleDNA);
   const likedLooks = useStore((s) => s.likedLooks);
+  const passedLooks = useStore((s) => s.passedLooks);
   const collections = useStore((s) => s.collections);
   const createCollection = useStore((s) => s.createCollection);
   const removeFromCollection = useStore((s) => s.removeFromCollection);
@@ -139,6 +142,12 @@ export function ProfilePage() {
                   ))}
                 </div>
               </div>
+
+              {/* Weekly Style Recap */}
+              <WeeklyRecap likedLooks={likedLooks} passedLooks={passedLooks} />
+
+              {/* Auto Mood Board */}
+              <MoodBoard looks={likedLooks} />
             </motion.div>
           )}
 
