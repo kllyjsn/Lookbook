@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, BadgeCheck, Sparkles, Clock } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
@@ -71,6 +71,12 @@ export function CommunityPage() {
   const [shopPost, setShopPost] = useState<CommunityPost | null>(null);
 
   const followedCreators = useStore((s) => s.followedCreators);
+  const markCommunityViewed = useStore((s) => s.markCommunityViewed);
+
+  // Clear the "new posts" indicator as soon as the user lands here.
+  useEffect(() => {
+    markCommunityViewed();
+  }, [markCommunityViewed]);
 
   const followingPosts = useMemo(
     () => communityPosts.filter((p) => followedCreators.includes(p.creator.id)),

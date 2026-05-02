@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
 import type { LookItem } from "../../data/mockData";
+import { getItemBadge } from "../../data/editorial";
 
 interface ProductCardProps {
   item: LookItem;
@@ -10,6 +11,7 @@ interface ProductCardProps {
 
 export function ProductCard({ item, index }: ProductCardProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
+  const badge = getItemBadge(item.id, item.price);
 
   return (
     <motion.div
@@ -42,6 +44,15 @@ export function ProductCard({ item, index }: ProductCardProps) {
             {item.category}
           </span>
         </div>
+        {badge && (
+          <div className="absolute top-2 right-2">
+            <span
+              className={`text-[9px] font-inter font-bold tracking-[0.15em] uppercase ${badge.bg} ${badge.text} px-2 py-0.5 rounded-full`}
+            >
+              {badge.label}
+            </span>
+          </div>
+        )}
       </div>
       <div className="space-y-0.5">
         <p className="text-[11px] font-inter tracking-[0.1em] uppercase text-ink-muted">

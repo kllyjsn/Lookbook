@@ -5,6 +5,7 @@ import type { Look } from "../../data/mockData";
 import { ProductCard } from "./ProductCard";
 import { Tag } from "../ui/Tag";
 import { useStore } from "../../stores/useStore";
+import { getStylistTake } from "../../data/editorial";
 
 function formatCount(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -113,10 +114,24 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </span>
             </div>
 
-            {/* Description */}
-            <p className="font-subhead text-xl text-ink-light leading-relaxed mb-8 italic">
-              {look.description}
-            </p>
+            {/* Stylist's Take — editorial pull quote */}
+            {(() => {
+              const take = getStylistTake(look);
+              return (
+                <figure className="mb-8 border-l-2 border-gold pl-5 py-1">
+                  <span className="text-[10px] font-inter font-bold tracking-[0.25em] uppercase text-gold block mb-2">
+                    Stylist's Take
+                  </span>
+                  <p className="font-subhead text-xl text-ink leading-relaxed italic">
+                    “{take.prefix} {take.body}”
+                  </p>
+                  <figcaption className="mt-3 text-[11px] font-inter tracking-[0.1em] uppercase text-ink-muted">
+                    — {take.signature}
+                    <span className="text-ink-muted/60"> · {take.title}</span>
+                  </figcaption>
+                </figure>
+              );
+            })()}
 
             {/* Action bar */}
             <div className="flex items-center gap-3 mb-10">

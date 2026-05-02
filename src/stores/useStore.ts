@@ -16,6 +16,8 @@ interface AppState {
   setCurrentFeedIndex: (index: number) => void;
   activeMoodFilter: MoodFilter;
   setActiveMoodFilter: (mood: MoodFilter) => void;
+  feedShuffleSeed: number;
+  shuffleFeed: () => void;
 
   // Liked / passed looks
   likedLooks: Look[];
@@ -66,6 +68,20 @@ interface AppState {
   setShowLookDetail: (look: Look | null) => void;
   hasCompletedOnboarding: boolean;
   completeOnboarding: () => void;
+
+  // Daily streak (TikTok-style retention)
+  lastVisitDate: string | null; // YYYY-MM-DD
+  streakDays: number;
+  longestStreak: number;
+  recordVisit: () => void;
+
+  // Community new-posts indicator
+  lastViewedCommunityAt: number;
+  markCommunityViewed: () => void;
+
+  // Per-post reactions (post id -> reaction id chosen by this user)
+  postReactions: Record<string, string>;
+  togglePostReaction: (postId: string, reactionId: string) => void;
 }
 
 const tagToStyle: Record<string, string> = {
@@ -144,6 +160,14 @@ export const useStore = create<AppState>()(
       setCurrentFeedIndex: (index) => set({ currentFeedIndex: index }),
       activeMoodFilter: "all" as MoodFilter,
       setActiveMoodFilter: (mood) => set({ activeMoodFilter: mood, currentFeedIndex: 0, lastSwipedLook: null, lastSwipeAction: null }),
+      feedShuffleSeed: 0,
+      shuffleFeed: () =>
+        set((state) => ({
+          feedShuffleSeed: state.feedShuffleSeed + 1,
+          currentFeedIndex: 0,
+          lastSwipedLook: null,
+          lastSwipeAction: null,
+        })),
 
       likedLooks: [],
       passedLooks: [],
@@ -262,11 +286,52 @@ export const useStore = create<AppState>()(
         })),
 
       activeTab: "feed",
-      setActiveTab: (tab) => set({ activeTab: tab }),
+      setActiveTab: (tab) => {
+        if (tab === "community") {
+          set({ activeTab: tab, lastViewedCommunityAt: Date.now() });
+        } else {
+          set({ activeTab: tab });
+        }
+      },
       showLookDetail: null,
       setShowLookDetail: (look) => set({ showLookDetail: look }),
       hasCompletedOnboarding: false,
       completeOnboarding: () => set({ hasCompletedOnboarding: true }),
+
+      lastVisitDate: null,
+      streakDays: 0,
+      longestStreak: 0,
+      recordVisit: () =>
+        set((state) => {
+          const today = new Date().toISOString().slice(0, 10);
+          if (state.lastVisitDate === today) return state;
+          const yesterday = new Date(Date.now() - 86400000)
+            .toISOString()
+            .slice(0, 10);
+          const newStreak =
+            state.lastVisitDate === yesterday ? state.streakDays + 1 : 1;
+          return {
+            lastVisitDate: today,
+            streakDays: newStreak,
+            longestStreak: Math.max(state.longestStreak, newStreak),
+          };
+        }),
+
+      lastViewedCommunityAt: 0,
+      markCommunityViewed: () => set({ lastViewedCommunityAt: Date.now() }),
+
+      postReactions: {},
+      togglePostReaction: (postId, reactionId) =>
+        set((state) => {
+          const current = state.postReactions[postId];
+          const next = { ...state.postReactions };
+          if (current === reactionId) {
+            delete next[postId];
+          } else {
+            next[postId] = reactionId;
+          }
+          return { postReactions: next };
+        }),
     }),
     {
       name: "lkbk-store",
@@ -280,6 +345,12 @@ export const useStore = create<AppState>()(
         capsuleSelectedItems: state.capsuleSelectedItems,
         followedCreators: state.followedCreators,
         hasCompletedOnboarding: state.hasCompletedOnboarding,
+        lastVisitDate: state.lastVisitDate,
+        streakDays: state.streakDays,
+        longestStreak: state.longestStreak,
+        lastViewedCommunityAt: state.lastViewedCommunityAt,
+        postReactions: state.postReactions,
+        feedShuffleSeed: state.feedShuffleSeed,
       }),
     }
   )

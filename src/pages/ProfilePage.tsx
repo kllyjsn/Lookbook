@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2 } from "lucide-react";
+import { Settings, Heart, Bookmark, Clock, ChevronRight, Grid3X3, List, Plus, Trash2, Flame } from "lucide-react";
 import { Logo } from "../components/ui/Logo";
 import { useStore } from "../stores/useStore";
 import { StyleDNA } from "../components/ui/StyleDNA";
@@ -15,6 +15,8 @@ export function ProfilePage() {
   const collections = useStore((s) => s.collections);
   const createCollection = useStore((s) => s.createCollection);
   const removeFromCollection = useStore((s) => s.removeFromCollection);
+  const streakDays = useStore((s) => s.streakDays);
+  const longestStreak = useStore((s) => s.longestStreak);
   const [activeSection, setActiveSection] = useState<ProfileSection>("dna");
   const [selectedLook, setSelectedLook] = useState<Look | null>(null);
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
@@ -47,15 +49,46 @@ export function ProfilePage() {
         </div>
 
         {/* Profile avatar & name */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-4 mb-4">
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold to-blush flex items-center justify-center">
             <span className="font-editorial text-xl text-white">Y</span>
           </div>
-          <div>
+          <div className="min-w-0 flex-1">
             <h2 className="font-editorial text-xl text-ink">Your Profile</h2>
             <p className="text-xs font-inter text-ink-muted">
               {likedLooks.length} looks loved · {collections.reduce((sum, c) => sum + c.looks.length, 0)} saved
             </p>
+          </div>
+        </div>
+
+        {/* Daily streak strip */}
+        <div className="grid grid-cols-3 gap-2 mb-6">
+          <div className="flex flex-col items-center justify-center py-3 rounded-xl bg-rose/8 border border-rose/15">
+            <div className="flex items-center gap-1">
+              <Flame size={14} className="text-rose" fill="currentColor" />
+              <span className="font-editorial text-2xl text-ink leading-none">
+                {streakDays}
+              </span>
+            </div>
+            <span className="text-[9px] font-inter tracking-[0.15em] uppercase text-ink-muted mt-1">
+              Day Streak
+            </span>
+          </div>
+          <div className="flex flex-col items-center justify-center py-3 rounded-xl bg-ivory border border-ink/5">
+            <span className="font-editorial text-2xl text-ink leading-none">
+              {longestStreak}
+            </span>
+            <span className="text-[9px] font-inter tracking-[0.15em] uppercase text-ink-muted mt-1">
+              Best Streak
+            </span>
+          </div>
+          <div className="flex flex-col items-center justify-center py-3 rounded-xl bg-ivory border border-ink/5">
+            <span className="font-editorial text-2xl text-ink leading-none">
+              {likedLooks.length}
+            </span>
+            <span className="text-[9px] font-inter tracking-[0.15em] uppercase text-ink-muted mt-1">
+              Loves
+            </span>
           </div>
         </div>
 
