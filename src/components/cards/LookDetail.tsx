@@ -38,13 +38,16 @@ const dupeColor: Record<DupeTier["level"], string> = {
 interface LookDetailProps {
   look: Look;
   onClose: () => void;
+  /** Callback to navigate to a related look. Required so the host page (Feed,
+   *  Profile, Stylist, Search) controls its own overlay state — LookDetail no
+   *  longer reaches into the global store for navigation. */
+  onNavigate?: (look: Look) => void;
 }
 
-export function LookDetail({ look, onClose }: LookDetailProps) {
+export function LookDetail({ look, onClose, onNavigate }: LookDetailProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const saveLook = useStore((s) => s.saveLook);
   const addToCollection = useStore((s) => s.addToCollection);
-  const setShowLookDetail = useStore((s) => s.setShowLookDetail);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -349,8 +352,9 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
               </div>
             </div>
 
-            {/* Related Looks rail — closes the loop */}
-            {related.length > 0 && (
+            {/* Related Looks rail — closes the loop. Only shown when the host
+                provides an onNavigate callback so we don't render a dead rail. */}
+            {onNavigate && related.length > 0 && (
               <section className="mb-10">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-editorial text-xl text-ink">
@@ -368,7 +372,7 @@ export function LookDetail({ look, onClose }: LookDetailProps) {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.05 + i * 0.06 }}
                       whileTap={{ scale: 0.97 }}
-                      onClick={() => setShowLookDetail(r)}
+                      onClick={() => onNavigate?.(r)}
                       className="group text-left"
                     >
                       <div className="relative aspect-[3/4] rounded-xl overflow-hidden mb-2 bg-ivory">
